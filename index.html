@@ -3,297 +3,525 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบคำนวณราคาแผนการสอน - ร้านครูพร้อมสอน</title>
+    <title>ราคาแผนการสอน – ครูพร้อมสอน</title>
+    <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
+        /* Use Prompt font as the primary font */
         body {
-            font-family: 'Sarabun', sans-serif;
+            font-family: 'Prompt', sans-serif;
+            background-color: #FEFBF6; /* Creamy white background */
+        }
+
+        /* CSS for printing */
+        @media print {
+            /* Hide elements not meant for printing */
+            .print-hide {
+                display: none !important;
+            }
+            /* Show the dedicated print header */
+            .print-show {
+                display: block !important;
+            }
+            /* Page settings */
+            @page {
+                size: A4;
+                margin: 0.75in;
+            }
+            body {
+                background-color: #ffffff;
+                margin: 0;
+                padding: 0;
+            }
+            .main-container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+            /* Hide control buttons in rows */
+            .subject-row .print-hide-controls {
+                display: none;
+            }
+            /* Make inputs/selects look like plain text */
+            .subject-row input,
+            .subject-row select {
+                border: none;
+                padding: 0;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                background: transparent;
+                pointer-events: none;
+            }
+             /* Adjust summary grid for printing */
+            .summary-grid {
+                grid-template-columns: 2fr 1fr;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="text-gray-800">
 
-    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-teal-600">ระบบคำนวณราคาแผนการสอน</h1>
-            <p class="text-lg text-gray-600 mt-2">ร้านครูพร้อมสอน</p>
-        </header>
+    <!-- Datalist for subject suggestions -->
+    <!-- จุดเพิ่ม datalist รายวิชา -->
+    <datalist id="subjectList">
+        <option value="ภาษาไทย"></option>
+        <option value="ภาษาอังกฤษ"></option>
+        <option value="คณิตศาสตร์"></option>
+        <option value="วิทยาศาสตร์"></option>
+        <option value="การใช้เทคโนโลยีอย่างฉลาดรู้"></option>
+        <option value="วิทยาการคำนวณ"></option>
+        <option value="สังคมและความเป็นพลเมือง"></option>
+        <option value="ประวัติศาสตร์"></option>
+        <option value="เศรษฐกิจและการเงิน"></option>
+        <option value="สุขภาพกายและจิต"></option>
+        <option value="ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ"></option>
+        <option value="พลศึกษา"></option>
+        <option value="การงานอาชีพ"></option>
+        <option value="ดนตรี"></option>
+        <option value="นาฏศิลป์"></option>
+        <option value="อื่นๆ"></option>
+    </datalist>
 
-        <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-            
-            <!-- Step 1: Selection Controls -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-6 pb-6 border-b border-gray-200">
-                <div class="md:col-span-1">
-                    <label for="grade-select" class="block text-sm font-medium text-gray-700 mb-1">เลือกระดับชั้น</label>
-                    <select id="grade-select" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-2.5">
-                        <option selected disabled>-- กรุณาเลือก --</option>
-                    </select>
-                </div>
-                <div class="md:col-span-2">
-                    <label for="subject-select" class="block text-sm font-medium text-gray-700 mb-1">เลือกวิชา/กิจกรรม</label>
-                    <select id="subject-select" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-2.5" disabled>
-                        <option selected disabled>-- เลือกระดับชั้นก่อน --</option>
-                    </select>
-                </div>
-                 <div class="md:col-span-1">
-                    <label for="hours-select" class="block text-sm font-medium text-gray-700 mb-1">เลือกชั่วโมง</label>
-                    <select id="hours-select" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-2.5" disabled>
-                        <option selected disabled>-- เลือกวิชาก่อน --</option>
-                    </select>
-                </div>
+    <!-- Template for creating new subject rows (hidden) -->
+    <template id="subjectRowTemplate">
+        <div class="subject-row grid grid-cols-12 gap-2 items-center mb-2 p-2 rounded-lg bg-white shadow-sm"
+            data-id="">
+            <!-- Subject Name Input -->
+            <div class="col-span-12 md:col-span-4">
+                <input type="text" list="subjectList" placeholder="ชื่อแผนการสอน/วิชา"
+                    class="subject-name-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" oninput="recalcTotals()">
             </div>
-            
-            <div class="text-center mb-6">
-                 <button id="add-to-cart-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
-                    + เพิ่มรายการ
+            <!-- Grade Selection -->
+            <div class="col-span-6 md:col-span-2">
+                <select class="subject-grade-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" onchange="recalcTotals()">
+                    <option value="none">เลือกชั้น</option>
+                    <option value="p1">ป.1</option>
+                    <option value="p2">ป.2</option>
+                    <option value="p3">ป.3</option>
+                </select>
+            </div>
+            <!-- Hours Selection -->
+            <div class="col-span-6 md:col-span-2">
+                <select
+                    class="subject-hours-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    onchange="recalcTotals()">
+                    <option value="40">40 ชั่วโมง</option>
+                    <option value="80">80 ชั่วโมง</option>
+                    <option value="160">160 ชั่วโมง</option>
+                    <option value="200">200 ชั่วโมง</option>
+                </select>
+            </div>
+            <!-- Package Price Display -->
+            <div class="col-span-6 md:col-span-2">
+                <span
+                    class="subject-price-display text-gray-700 font-medium text-right w-full block pr-2">200 บาท</span>
+            </div>
+            <!-- Row Controls -->
+            <div class="col-span-6 md:col-span-2 flex gap-2 print-hide-controls">
+                <button type="button"
+                    class="duplicate-btn w-full text-sm bg-blue-100 text-blue-700 px-3 py-2 rounded-md hover:bg-blue-200">
+                    คัดลอก
+                </button>
+                <button type="button"
+                    class="remove-btn w-full text-sm bg-red-100 text-red-700 px-3 py-2 rounded-md hover:bg-red-200">
+                    ลบ
                 </button>
             </div>
+        </div>
+    </template>
 
-            <!-- Step 2: Cart / Selected Items -->
-            <div class="mb-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">รายการที่เลือก</h2>
-                <div id="cart-items" class="bg-gray-50 rounded-lg p-4 min-h-[100px]">
-                    <p id="empty-cart-message" class="text-center text-gray-500">ยังไม่มีรายการที่เลือก</p>
-                    <!-- Cart items will be injected here -->
-                </div>
+
+    <!-- Main App Container -->
+    <div class="main-container container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">ครูพร้อมสอน™</h1>
+            <p class="text-xl text-gray-600">ระบบคำนวณราคาแผนการสอน</p>
+        </header>
+
+        <!-- Header for Printing (Initially Hidden) -->
+        <div class="print-show hidden mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold">ใบเสนอราคาค่าจัดทำแผนการสอน</h1>
+            <p class="text-lg">โดย: ครูพร้อมสอน™</p>
+            <div class="mt-2 text-sm">
+                <p>วันที่: <span id="printDate"></span></p>
             </div>
+        </div>
 
-            <!-- Step 3: Summary and Checkout -->
-            <div class="bg-teal-50 rounded-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-800">สรุปยอด</h2>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-600">ราคารวม</span>
-                        <span id="subtotal" class="font-bold text-lg">0.00 บาท</span>
+        <!-- Quick Add Panel -->
+        <fieldset class="my-4 p-4 border rounded-lg bg-white shadow-sm print-hide">
+            <legend class="text-lg font-semibold px-2">แผงเพิ่มวิชาแบบด่วน</legend>
+            <div id="quickAddPanel" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
+                <!-- Checkboxes will be populated by JS -->
+            </div>
+            <button type="button" onclick="bulkAddSelectedSubjects()"
+                class="mt-4 w-full bg-yellow-200 text-yellow-800 font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition-colors">
+                เพิ่มรายการที่เลือก
+            </button>
+        </fieldset>
+
+        <!-- Subjects List Table -->
+        <div class="mb-4 print-hide">
+            <h2 class="text-xl font-semibold mb-2">รายการแผนการสอน</h2>
+            <div class="hidden md:grid grid-cols-12 gap-2 text-sm font-semibold text-gray-600 px-2 mb-1">
+                <div class="col-span-4">ชื่อแผนการสอน</div>
+                <div class="col-span-2">ชั้นเรียน</div>
+                <div class="col-span-2">ชั่วโมง</div>
+                <div class="col-span-2 text-right">ราคาแพ็กเกจ</div>
+                <div class="col-span-2 text-center print-hide">จัดการ</div>
+            </div>
+            <div id="subjectListContainer">
+                <!-- Subject rows will be added here -->
+            </div>
+            <button type="button" onclick="addRow()"
+                class="mt-2 w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors print-hide">
+                + เพิ่มวิชา
+            </button>
+        </div>
+
+        <!-- Review List -->
+        <div id="reviewSection" class="mb-6 bg-white p-4 md:p-6 rounded-lg shadow-lg hidden">
+            <h2 class="text-xl font-semibold mb-4">สรุปรายการแผนการสอน</h2>
+            <div id="reviewListContainer" class="space-y-2">
+                <!-- Summary items will be populated here by JS -->
+            </div>
+        </div>
+
+        <!-- Price Summary & Discounts -->
+        <div class="mt-6 bg-white p-4 md:p-6 rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">สรุปราคา</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Discount Inputs -->
+                <div class="space-y-4 print-hide">
+                    <div>
+                        <label for="discountPercent" class="block text-sm font-medium text-gray-700">ส่วนลด (%)</label>
+                        <input type="number" id="discountPercent" min="0" max="100" placeholder="0"
+                            oninput="recalcTotals()"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     </div>
-                    <div class="flex justify-between items-center gap-4">
-                        <label for="discount-input" class="text-gray-600 whitespace-nowrap">ส่วนลด (บาท)</label>
-                        <input type="number" id="discount-input" min="0" placeholder="0" class="w-full max-w-[120px] text-right form-input border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-500 focus:ring-opacity-50">
-                    </div>
-                    <div class="border-t border-gray-300 my-2"></div>
-                    <div class="flex justify-between items-center text-2xl font-bold text-teal-700">
-                        <span>ยอดสุทธิ</span>
-                        <span id="total">0.00 บาท</span>
+                    <div>
+                        <label for="discountBaht" class="block text-sm font-medium text-gray-700">ส่วนลด (บาท)</label>
+                        <input type="number" id="discountBaht" min="0" placeholder="0" oninput="recalcTotals()"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     </div>
                 </div>
-                <div class="text-center mt-6">
-                    <button id="reset-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
-                        ล้างข้อมูล
-                    </button>
+                <!-- Price Display -->
+                <div class="summary-grid grid grid-cols-2 gap-x-4 gap-y-2 text-right bg-gray-50 p-4 rounded-lg md:col-start-2">
+                    <span class="text-gray-600 text-left">ราคารวมก่อนส่วนลด:</span>
+                    <span id="subtotalDisplay" class="font-semibold text-gray-800">0 บาท</span>
+
+                    <span class="text-gray-600 text-left">ส่วนลด (จาก %):</span>
+                    <span id="discountPercentValueDisplay" class="font-semibold text-red-600">- 0 บาท</span>
+
+                    <span class="text-gray-600 text-left">ส่วนลด (เงินบาท):</span>
+                    <span id="discountBahtValueDisplay" class="font-semibold text-red-600">- 0 บาท</span>
+
+                    <span
+                        class="text-left text-xl font-bold text-gray-900 border-t pt-2 mt-2 col-span-2"></span>
+                    
+                    <span
+                        class="text-left text-xl font-bold text-gray-900">ยอดสุทธิ:</span>
+                    <span id="netTotalDisplay"
+                        class="text-right text-3xl font-bold text-blue-600">0 บาท</span>
                 </div>
             </div>
         </div>
-        
-        <footer class="text-center mt-8 text-sm text-gray-500">
-            <p>ออกแบบและพัฒนาสำหรับร้านครูพร้อมสอน</p>
+
+        <!-- Main Action Buttons -->
+        <div class="mt-6 flex flex-col md:flex-row gap-4 print-hide">
+            <button type="button" onclick="printQuote()"
+                class="w-full bg-green-500 text-white font-semibold px-6 py-3 rounded-md hover:bg-green-600 transition-colors shadow-md">
+                🖨️ พิมพ์ / บันทึกเป็น PDF
+            </button>
+            <button type="button" onclick="resetForm()"
+                class="w-full bg-gray-400 text-white font-semibold px-6 py-3 rounded-md hover:bg-gray-500 transition-colors shadow-md">
+                🔄 รีเซ็ตฟอร์ม
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-gray-500 mt-8 print-hide">
+            © 2025 ครูพร้อมสอน™ | ครูพร้อมสื่อ™
+            <br>ห้ามคัดลอกหรือดัดแปลงโดยไม่ได้รับอนุญาต
         </footer>
     </div>
 
+
     <script>
-        // Data structure for pricing based on the provided file
-        const p1_p3_data = {
-            "วิชาภาษาไทย": { "200": 350 },
-            "วิชาภาษาอังกฤษ": { "160": 300, "200": 350 },
-            "วิชาคณิตศาสตร์": { "200": 350 },
-            "กิจกรรมรักการอ่าน": { "40": 200, "80": 250 },
-            "กิจกรรมหนูน้อยนักเขียน": { "40": 200, "80": 250 },
-            "กิจกรรมภาษาอังกฤษเพื่อการสื่อสาร": { "80": 250 },
-            "กิจกรรมคณิตประยุกต์": { "80": 250 },
-            "วิชาวิทยาศาสตร์และสิ่งแวดล้อม": { "40": 200, "80": 250 },
-            "กิจกรรมการใช้เทคโนโลยีอย่างฉลาดรู้": { "40": 200, "80": 250 },
-            "วิชาสังคมและความเป็นพลเมือง": { "40": 200, "80": 250 },
-            "วิชาเศรษฐกิจและการเงิน": { "40": 200, "80": 250 },
-            "วิชาสุขภาพกายและจิต": { "40": 200 },
-            "วิชาศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ": { "40": 200, "80": 250 }
-        };
+        // --- JavaScript Section ---
 
-        const priceData = {
-            "ป.1": p1_p3_data,
-            "ป.2": p1_p3_data,
-            "ป.3": p1_p3_data
-        };
+        // Price table object
+        const priceTable = { 40: 200, 80: 250, 160: 300, 200: 350 };
+        // List of subjects from datalist
+        const subjectNames = [
+            "ภาษาไทย", "ภาษาอังกฤษ", "คณิตศาสตร์", "วิทยาศาสตร์",
+            "การใช้เทคโนโลยีอย่างฉลาดรู้", "วิทยาการคำนวณ", "สังคมและความเป็นพลเมือง",
+            "ประวัติศาสตร์", "เศรษฐกิจและการเงิน", "สุขภาพกายและจิต",
+            "ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ", "พลศึกษา", "การงานอาชีพ",
+            "ดนตรี", "นาฏศิลป์"
+        ];
 
-        // DOM Elements
-        const gradeSelect = document.getElementById('grade-select');
-        const subjectSelect = document.getElementById('subject-select');
-        const hoursSelect = document.getElementById('hours-select');
-        const addToCartBtn = document.getElementById('add-to-cart-btn');
-        const cartItemsContainer = document.getElementById('cart-items');
-        const emptyCartMessage = document.getElementById('empty-cart-message');
-        const subtotalEl = document.getElementById('subtotal');
-        const discountInput = document.getElementById('discount-input');
-        const totalEl = document.getElementById('total');
-        const resetBtn = document.getElementById('reset-btn');
+        let rowCounter = 0; // Unique ID counter for rows
 
-        let cart = [];
+        // --- DOM Elements ---
+        const subjectListContainer = document.getElementById('subjectListContainer');
+        const rowTemplate = document.getElementById('subjectRowTemplate');
+        const quickAddPanel = document.getElementById('quickAddPanel');
+        
+        // Price Summary DOM Elements
+        const discountPercentInput = document.getElementById('discountPercent');
+        const discountBahtInput = document.getElementById('discountBaht');
+        const subtotalDisplay = document.getElementById('subtotalDisplay');
+        const discountPercentValueDisplay = document.getElementById('discountPercentValueDisplay');
+        const discountBahtValueDisplay = document.getElementById('discountBahtValueDisplay');
+        const netTotalDisplay = document.getElementById('netTotalDisplay');
 
-        // --- Initialization ---
-        function initialize() {
-            populateGrades();
-            gradeSelect.addEventListener('change', handleGradeChange);
-            subjectSelect.addEventListener('change', handleSubjectChange);
-            hoursSelect.addEventListener('change', handleHoursChange);
-            addToCartBtn.addEventListener('click', handleAddToCart);
-            discountInput.addEventListener('input', updateSummary);
-            resetBtn.addEventListener('click', handleReset);
+        // --- Helper Functions ---
+        
+        /**
+         * Formats a number into a currency string (e.g., 1,234).
+         * @param {number} value The number to format.
+         * @returns {string} The formatted currency string.
+         */
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('th-TH').format(Math.round(value));
         }
 
-        function populateGrades() {
-            const grades = Object.keys(priceData);
-            grades.forEach(grade => {
-                const option = document.createElement('option');
-                option.value = grade;
-                option.textContent = grade;
-                gradeSelect.appendChild(option);
+        /**
+         * Gets the price from the price table based on hours.
+         * @param {number|string} hours The number of hours.
+         * @returns {number} The corresponding price.
+         */
+        function getPrice(hours) {
+            return priceTable[hours] || 0;
+        }
+
+        // --- Core Application Functions ---
+        
+        /**
+         * Adds a new subject row to the list.
+         * @param {string} [subjectName=''] Optional initial subject name.
+         * @param {number|string} [hours=40] Optional initial hours.
+         * @param {string} [grade='none'] Optional initial grade.
+         * @param {boolean} [skipRecalc=false] If true, skips the final recalculation.
+         */
+        function addRow(subjectName = '', hours = 40, grade = 'none', skipRecalc = false) {
+            rowCounter++;
+            const rowId = `row-${rowCounter}`;
+
+            const templateContent = rowTemplate.content.cloneNode(true);
+            const newRow = templateContent.querySelector('.subject-row');
+            newRow.id = rowId;
+
+            const nameInput = newRow.querySelector('.subject-name-input');
+            const gradeSelect = newRow.querySelector('.subject-grade-select');
+            const hoursSelect = newRow.querySelector('.subject-hours-select');
+            const duplicateBtn = newRow.querySelector('.duplicate-btn');
+            const removeBtn = newRow.querySelector('.remove-btn');
+
+            nameInput.value = subjectName;
+            gradeSelect.value = grade;
+            hoursSelect.value = hours;
+            
+            duplicateBtn.onclick = () => duplicateRow(rowId);
+            removeBtn.onclick = () => removeRow(rowId);
+
+            subjectListContainer.appendChild(newRow);
+            
+            if (!skipRecalc) {
+                recalcTotals(); // Recalculate after adding
+            }
+        }
+
+        /**
+         * Duplicates an existing row.
+         * @param {string} id The ID of the row to duplicate.
+         */
+        function duplicateRow(id) {
+            const rowToDuplicate = document.getElementById(id);
+            if (!rowToDuplicate) return;
+
+            const name = rowToDuplicate.querySelector('.subject-name-input').value;
+            const grade = rowToDuplicate.querySelector('.subject-grade-select').value;
+            const hours = rowToDuplicate.querySelector('.subject-hours-select').value;
+
+            addRow(name, hours, grade);
+        }
+
+        /**
+         * Removes a specific row.
+         * @param {string} id The ID of the row to remove.
+         */
+        function removeRow(id) {
+            const rowToRemove = document.getElementById(id);
+            if (rowToRemove) {
+                rowToRemove.remove();
+                recalcTotals(); // Recalculate after removal
+            }
+        }
+
+        /**
+         * Adds multiple subjects selected from the quick add panel.
+         * (จุด bulkAddSelectedSubjects())
+         */
+        function bulkAddSelectedSubjects() {
+            const checkboxes = quickAddPanel.querySelectorAll('input[type="checkbox"]:checked');
+            let added = false;
+            checkboxes.forEach(cb => {
+                addRow(cb.value, 40, 'none', true); // skip recalc
+                cb.checked = false; // Uncheck after adding
+                added = true;
+            });
+
+            if (added) {
+                recalcTotals(); // recalc once
+            }
+        }
+
+        /**
+         * Recalculates all prices, discounts, and the net total.
+         * This is the main calculation engine.
+         * (จุดคำนวณราคาและส่วนลด)
+         */
+        function recalcTotals() {
+            let subtotal = 0;
+            const allRows = subjectListContainer.querySelectorAll('.subject-row');
+            const reviewSection = document.getElementById('reviewSection');
+            const reviewListContainer = document.getElementById('reviewListContainer');
+
+            // Clear the review list for repopulation
+            reviewListContainer.innerHTML = '';
+
+            // 1. Loop through each row to update its price, sum up the subtotal, and build the review list
+            allRows.forEach(row => {
+                const hoursSelect = row.querySelector('.subject-hours-select');
+                const priceDisplay = row.querySelector('.subject-price-display');
+                const nameInput = row.querySelector('.subject-name-input');
+                const gradeSelect = row.querySelector('.subject-grade-select');
+                
+                const hours = parseInt(hoursSelect.value);
+                const price = getPrice(hours);
+                
+                priceDisplay.textContent = `${formatCurrency(price)} บาท`;
+                subtotal += price;
+
+                // Populate review list item
+                const subjectName = nameInput.value || 'วิชาที่ไม่ได้ระบุ';
+                const gradeText = gradeSelect.options[gradeSelect.selectedIndex].text;
+                const hoursText = hoursSelect.options[hoursSelect.selectedIndex].text;
+                
+                let reviewText = subjectName;
+                if (gradeSelect.value !== 'none') {
+                    reviewText += ` (${gradeText})`;
+                }
+                reviewText += ` (${hoursText})`;
+
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'grid grid-cols-3 gap-4 py-2 border-b last:border-b-0 text-sm';
+                reviewItem.innerHTML = `
+                    <span class="col-span-2 text-gray-700">${reviewText}</span>
+                    <span class="text-right font-medium text-gray-800">${formatCurrency(price)} บาท</span>
+                `;
+                reviewListContainer.appendChild(reviewItem);
+            });
+
+            // Show or hide the review section based on whether there are rows
+            if (allRows.length > 0) {
+                reviewSection.classList.remove('hidden');
+            } else {
+                reviewSection.classList.add('hidden');
+            }
+
+            // 2. Calculate discounts
+            const discountPercent = parseFloat(discountPercentInput.value) || 0;
+            const discountBaht = parseFloat(discountBahtInput.value) || 0;
+
+            // Apply percentage discount first
+            const discountPercentValue = (subtotal * discountPercent) / 100;
+            const totalAfterPercent = subtotal - discountPercentValue;
+
+            // Apply flat Baht discount second, ensuring it doesn't exceed the remaining total
+            const actualDiscountBaht = Math.min(totalAfterPercent, discountBaht);
+            let netTotal = totalAfterPercent - actualDiscountBaht;
+
+            // 3. Prevent negative total
+            netTotal = Math.max(0, netTotal);
+
+            // 4. Update the display
+            subtotalDisplay.textContent = `${formatCurrency(subtotal)} บาท`;
+            discountPercentValueDisplay.textContent = `- ${formatCurrency(discountPercentValue)} บาท`;
+            discountBahtValueDisplay.textContent = `- ${formatCurrency(actualDiscountBaht)} บาท`;
+            netTotalDisplay.textContent = `${formatCurrency(netTotal)} บาท`;
+        }
+
+        /**
+         * Asks for confirmation and resets the form.
+         */
+        function resetForm() {
+            if (confirm('คุณต้องการล้างข้อมูลทั้งหมดและรีเซ็ตฟอร์มใช่หรือไม่?')) {
+                // The simplest and most effective way to reset is to reload the page.
+                location.reload();
+            }
+        }
+
+        /**
+         * Prepares data for printing and triggers the print dialog.
+         */
+        function printQuote() {
+            const today = new Date();
+            document.getElementById('printDate').textContent = today.toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            window.print();
+        }
+
+        /**
+         * Creates and populates the checkboxes in the Quick Add Panel.
+         */
+        function populateQuickAddPanel() {
+            subjectNames.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center';
+                const id = `quickadd-${name.replace(/\s+/g, '-')}`;
+                
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.id = id;
+                input.value = name;
+                input.className = 'h-4 w-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400';
+                
+                const label = document.createElement('label');
+                label.htmlFor = id;
+                label.textContent = name;
+                label.className = 'ml-2 block text-sm text-gray-700 select-none';
+                
+                div.appendChild(input);
+                div.appendChild(label);
+                quickAddPanel.appendChild(div);
             });
         }
 
-        // --- Event Handlers ---
-        function handleGradeChange() {
-            const selectedGrade = gradeSelect.value;
-            resetSelect(subjectSelect, '-- เลือกวิชา/กิจกรรม --');
-            resetSelect(hoursSelect, '-- เลือกวิชาก่อน --');
-            
-            if (selectedGrade && priceData[selectedGrade]) {
-                const subjects = Object.keys(priceData[selectedGrade]);
-                subjects.forEach(subject => {
-                    const option = document.createElement('option');
-                    option.value = subject;
-                    option.textContent = subject;
-                    subjectSelect.appendChild(option);
-                });
-                subjectSelect.disabled = false;
-            } else {
-                subjectSelect.disabled = true;
-            }
-            hoursSelect.disabled = true;
-            addToCartBtn.disabled = true;
-        }
+        // --- Initial Setup ---
+        // Runs when the page is fully loaded.
+        document.addEventListener('DOMContentLoaded', () => {
+            populateQuickAddPanel(); // Create checkboxes
+            addRow('ภาษาไทย', 40, 'p1'); // Add one starting row with default grade
+        });
 
-        function handleSubjectChange() {
-            const selectedGrade = gradeSelect.value;
-            const selectedSubject = subjectSelect.value;
-            resetSelect(hoursSelect, '-- เลือกชั่วโมง --');
-            
-            if (selectedGrade && selectedSubject && priceData[selectedGrade][selectedSubject]) {
-                const hoursOptions = Object.keys(priceData[selectedGrade][selectedSubject]);
-                hoursOptions.forEach(hours => {
-                    const price = priceData[selectedGrade][selectedSubject][hours];
-                    const option = document.createElement('option');
-                    option.value = hours;
-                    option.textContent = `${hours} ชม. (${price} บาท)`;
-                    option.dataset.price = price;
-                    hoursSelect.appendChild(option);
-                });
-                hoursSelect.disabled = false;
-            } else {
-                hoursSelect.disabled = true;
-            }
-            addToCartBtn.disabled = true;
-        }
-        
-        function handleHoursChange() {
-            if (hoursSelect.value) {
-                addToCartBtn.disabled = false;
-            } else {
-                addToCartBtn.disabled = true;
-            }
-        }
-
-        function handleAddToCart() {
-            const grade = gradeSelect.value;
-            const subject = subjectSelect.value;
-            const hours = hoursSelect.value;
-            
-            if (!grade || !subject || !hours) return;
-            
-            const price = priceData[grade][subject][hours];
-            
-            const cartItem = {
-                id: Date.now(), // Unique ID for removal
-                grade,
-                subject,
-                hours: parseInt(hours),
-                price: parseInt(price)
-            };
-            
-            cart.push(cartItem);
-            renderCart();
-            updateSummary();
-            
-            // Reset selections for next entry
-            subjectSelect.selectedIndex = 0;
-            handleSubjectChange();
-        }
-        
-        function handleReset() {
-            cart = [];
-            discountInput.value = '';
-            gradeSelect.selectedIndex = 0;
-            handleGradeChange();
-            renderCart();
-            updateSummary();
-        }
-
-        // --- UI Rendering and Calculation ---
-        function renderCart() {
-            if (cart.length === 0) {
-                emptyCartMessage.style.display = 'block';
-                cartItemsContainer.innerHTML = '';
-                cartItemsContainer.appendChild(emptyCartMessage);
-            } else {
-                emptyCartMessage.style.display = 'none';
-                cartItemsContainer.innerHTML = '';
-                cart.forEach(item => {
-                    const itemEl = document.createElement('div');
-                    itemEl.className = 'flex justify-between items-center p-2 bg-white border-b border-gray-200';
-                    itemEl.innerHTML = `
-                        <div>
-                            <p class="font-semibold">${item.subject} (${item.grade})</p>
-                            <p class="text-sm text-gray-500">${item.hours} ชม.</p>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span class="font-medium">${item.price.toFixed(2)} บาท</span>
-                            <button class="text-red-500 hover:text-red-700 font-bold" onclick="removeCartItem(${item.id})">&times;</button>
-                        </div>
-                    `;
-                    cartItemsContainer.appendChild(itemEl);
-                });
-            }
-        }
-
-        function removeCartItem(id) {
-            cart = cart.filter(item => item.id !== id);
-            renderCart();
-            updateSummary();
-        }
-
-        function updateSummary() {
-            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
-            const discount = parseFloat(discountInput.value) || 0;
-            const total = subtotal - discount;
-
-            subtotalEl.textContent = `${subtotal.toFixed(2)} บาท`;
-            totalEl.textContent = `${Math.max(0, total).toFixed(2)} บาท`;
-        }
-
-        function resetSelect(selectElement, defaultText) {
-            selectElement.innerHTML = '';
-            const defaultOption = document.createElement('option');
-            defaultOption.textContent = defaultText;
-            defaultOption.disabled = true;
-            defaultOption.selected = true;
-            selectElement.appendChild(defaultOption);
-        }
-
-        // --- Global Functions for inline onclick ---
-        window.removeCartItem = removeCartItem;
-
-        // --- Start the application ---
-        document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
+
