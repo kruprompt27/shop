@@ -76,7 +76,7 @@
         <option value="ภาษาไทย"></option>
         <option value="ภาษาอังกฤษ"></option>
         <option value="คณิตศาสตร์"></option>
-        <option value="วิทยาศาสตร์"></option>
+        <option value="วิทยาศาสตร์และสิ่งแวดล้อม"></option>
         <option value="การใช้เทคโนโลยีอย่างฉลาดรู้"></option>
         <option value="วิทยาการคำนวณ"></option>
         <option value="สังคมและความเป็นพลเมือง"></option>
@@ -86,8 +86,6 @@
         <option value="ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ"></option>
         <option value="พลศึกษา"></option>
         <option value="การงานอาชีพ"></option>
-        <option value="ดนตรี"></option>
-        <option value="นาฏศิลป์"></option>
         <option value="อื่นๆ"></option>
     </datalist>
 
@@ -98,11 +96,11 @@
             <!-- Subject Name Input -->
             <div class="col-span-12 md:col-span-4">
                 <input type="text" list="subjectList" placeholder="ชื่อแผนการสอน/วิชา"
-                    class="subject-name-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" oninput="recalcTotals()">
+                    class="subject-name-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" oninput="handleSelectionChange(this)">
             </div>
             <!-- Grade Selection -->
             <div class="col-span-6 md:col-span-2">
-                <select class="subject-grade-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" onchange="recalcTotals()">
+                <select class="subject-grade-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" onchange="handleSelectionChange(this)">
                     <option value="none">เลือกชั้น</option>
                     <option value="p1">ป.1</option>
                     <option value="p2">ป.2</option>
@@ -114,16 +112,13 @@
                 <select
                     class="subject-hours-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
                     onchange="recalcTotals()">
-                    <option value="40">40 ชั่วโมง</option>
-                    <option value="80">80 ชั่วโมง</option>
-                    <option value="160">160 ชั่วโมง</option>
-                    <option value="200">200 ชั่วโมง</option>
+                    <!-- Options are dynamically populated by JS -->
                 </select>
             </div>
             <!-- Package Price Display -->
             <div class="col-span-6 md:col-span-2">
                 <span
-                    class="subject-price-display text-gray-700 font-medium text-right w-full block pr-2">200 บาท</span>
+                    class="subject-price-display text-gray-700 font-medium text-right w-full block pr-2">0 บาท</span>
             </div>
             <!-- Row Controls -->
             <div class="col-span-6 md:col-span-2 flex gap-2 print-hide-controls">
@@ -151,7 +146,7 @@
 
         <!-- Header for Printing (Initially Hidden) -->
         <div class="print-show hidden mb-6 border-b pb-4">
-            <h1 class="text-2xl font-bold">ใบเสนอราคาค่าจัดทำแผนการสอน</h1>
+            <h1 class="text-2xl font-bold">ใบเสนอราคาแผนการสอน</h1>
             <p class="text-lg">โดย: ครูพร้อมสอน™</p>
             <div class="mt-2 text-sm">
                 <p>วันที่: <span id="printDate"></span></p>
@@ -264,12 +259,28 @@
         const priceTable = { 40: 200, 80: 250, 160: 300, 200: 350 };
         // List of subjects from datalist
         const subjectNames = [
-            "ภาษาไทย", "ภาษาอังกฤษ", "คณิตศาสตร์", "วิทยาศาสตร์",
+            "ภาษาไทย", "ภาษาอังกฤษ", "คณิตศาสตร์", "วิทยาศาสตร์และสิ่งแวดล้อม",
             "การใช้เทคโนโลยีอย่างฉลาดรู้", "วิทยาการคำนวณ", "สังคมและความเป็นพลเมือง",
             "ประวัติศาสตร์", "เศรษฐกิจและการเงิน", "สุขภาพกายและจิต",
-            "ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ", "พลศึกษา", "การงานอาชีพ",
-            "ดนตรี", "นาฏศิลป์"
+            "ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ", "พลศึกษา", "การงานอาชีพ"
         ];
+        
+        // Configuration for dynamic hours based on subject and grade
+        const subjectHoursConfig = {
+            'ภาษาไทย': { 'p1': [200], 'p2': [200], 'p3': [160, 200] },
+            'ภาษาอังกฤษ': { 'p1': [160, 200], 'p2': [160], 'p3': [160] },
+            'คณิตศาสตร์': { 'p1': [200], 'p2': [200], 'p3': [200] },
+            'วิทยาศาสตร์และสิ่งแวดล้อม': { 'p1': [40], 'p2': [80], 'p3': [80] },
+            'การใช้เทคโนโลยีอย่างฉลาดรู้': { 'p1': [40], 'p2': [40], 'p3': [40] },
+            'วิทยาการคำนวณ': { 'p1': [40], 'p2': [40], 'p3': [40] },
+            'สังคมและความเป็นพลเมือง': { 'p1': [40, 80], 'p2': [40, 80], 'p3': [80] },
+            'ประวัติศาสตร์': { 'p1': [40], 'p2': [40], 'p3': [40] },
+            'เศรษฐกิจและการเงิน': { 'p1': [40, 80], 'p2': [80], 'p3': [40] },
+            'สุขภาพกายและจิต': { 'p1': [40], 'p2': [40], 'p3': [80] },
+            'ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ': { 'p1': [40], 'p2': [40], 'p3': [80] },
+            'พลศึกษา': { 'p1': [40], 'p2': [40], 'p3': [40] },
+            'การงานอาชีพ': { 'p1': [40], 'p2': [40], 'p3': [40] }
+        };
 
         let rowCounter = 0; // Unique ID counter for rows
 
@@ -288,33 +299,59 @@
 
         // --- Helper Functions ---
         
-        /**
-         * Formats a number into a currency string (e.g., 1,234).
-         * @param {number} value The number to format.
-         * @returns {string} The formatted currency string.
-         */
         function formatCurrency(value) {
             return new Intl.NumberFormat('th-TH').format(Math.round(value));
         }
 
-        /**
-         * Gets the price from the price table based on hours.
-         * @param {number|string} hours The number of hours.
-         * @returns {number} The corresponding price.
-         */
         function getPrice(hours) {
             return priceTable[hours] || 0;
         }
 
         // --- Core Application Functions ---
-        
+
         /**
-         * Adds a new subject row to the list.
-         * @param {string} [subjectName=''] Optional initial subject name.
-         * @param {number|string} [hours=40] Optional initial hours.
-         * @param {string} [grade='none'] Optional initial grade.
-         * @param {boolean} [skipRecalc=false] If true, skips the final recalculation.
+         * Updates the hours dropdown based on the selected subject and grade.
+         * @param {HTMLElement} row The row element to update.
          */
+        function updateHoursOptions(row) {
+            const subjectName = row.querySelector('.subject-name-input').value;
+            const grade = row.querySelector('.subject-grade-select').value;
+            const hoursSelect = row.querySelector('.subject-hours-select');
+            
+            const defaultHours = [40, 80, 160, 200];
+            let availableHours = defaultHours;
+
+            // Check if a specific configuration exists
+            if (subjectHoursConfig[subjectName] && subjectHoursConfig[subjectName][grade]) {
+                availableHours = subjectHoursConfig[subjectName][grade];
+            }
+
+            const currentSelectedHour = hoursSelect.value;
+            hoursSelect.innerHTML = ''; // Clear existing options
+
+            availableHours.forEach(hour => {
+                const option = document.createElement('option');
+                option.value = hour;
+                option.textContent = `${hour} ชั่วโมง`;
+                hoursSelect.appendChild(option);
+            });
+
+            // Try to re-select the previous hour if it's still available
+            if (availableHours.includes(parseInt(currentSelectedHour))) {
+                hoursSelect.value = currentSelectedHour;
+            }
+        }
+
+        /**
+         * Handles changes in subject name or grade to update hours and totals.
+         * @param {HTMLElement} element The input or select element that triggered the change.
+         */
+        function handleSelectionChange(element) {
+            const row = element.closest('.subject-row');
+            updateHoursOptions(row);
+            recalcTotals();
+        }
+        
         function addRow(subjectName = '', hours = 40, grade = 'none', skipRecalc = false) {
             rowCounter++;
             const rowId = `row-${rowCounter}`;
@@ -331,22 +368,21 @@
 
             nameInput.value = subjectName;
             gradeSelect.value = grade;
-            hoursSelect.value = hours;
             
             duplicateBtn.onclick = () => duplicateRow(rowId);
             removeBtn.onclick = () => removeRow(rowId);
 
             subjectListContainer.appendChild(newRow);
             
+            // Update hours options before setting the value
+            updateHoursOptions(newRow);
+            hoursSelect.value = hours; // Set the hours after options are populated
+            
             if (!skipRecalc) {
-                recalcTotals(); // Recalculate after adding
+                recalcTotals();
             }
         }
-
-        /**
-         * Duplicates an existing row.
-         * @param {string} id The ID of the row to duplicate.
-         */
+        
         function duplicateRow(id) {
             const rowToDuplicate = document.getElementById(id);
             if (!rowToDuplicate) return;
@@ -357,74 +393,62 @@
 
             addRow(name, hours, grade);
         }
-
-        /**
-         * Removes a specific row.
-         * @param {string} id The ID of the row to remove.
-         */
+        
         function removeRow(id) {
             const rowToRemove = document.getElementById(id);
             if (rowToRemove) {
                 rowToRemove.remove();
-                recalcTotals(); // Recalculate after removal
+                recalcTotals();
             }
         }
-
-        /**
-         * Adds multiple subjects selected from the quick add panel.
-         * (จุด bulkAddSelectedSubjects())
-         */
+        
         function bulkAddSelectedSubjects() {
             const checkboxes = quickAddPanel.querySelectorAll('input[type="checkbox"]:checked');
             let added = false;
             checkboxes.forEach(cb => {
                 addRow(cb.value, 40, 'none', true); // skip recalc
-                cb.checked = false; // Uncheck after adding
+                cb.checked = false;
                 added = true;
             });
 
             if (added) {
-                recalcTotals(); // recalc once
+                recalcTotals();
             }
         }
-
-        /**
-         * Recalculates all prices, discounts, and the net total.
-         * This is the main calculation engine.
-         * (จุดคำนวณราคาและส่วนลด)
-         */
+        
         function recalcTotals() {
             let subtotal = 0;
             const allRows = subjectListContainer.querySelectorAll('.subject-row');
             const reviewSection = document.getElementById('reviewSection');
             const reviewListContainer = document.getElementById('reviewListContainer');
 
-            // Clear the review list for repopulation
             reviewListContainer.innerHTML = '';
 
-            // 1. Loop through each row to update its price, sum up the subtotal, and build the review list
             allRows.forEach(row => {
                 const hoursSelect = row.querySelector('.subject-hours-select');
                 const priceDisplay = row.querySelector('.subject-price-display');
                 const nameInput = row.querySelector('.subject-name-input');
                 const gradeSelect = row.querySelector('.subject-grade-select');
                 
-                const hours = parseInt(hoursSelect.value);
+                // Ensure there's a selected value, otherwise default to 0
+                const hours = parseInt(hoursSelect.value || 0);
                 const price = getPrice(hours);
                 
                 priceDisplay.textContent = `${formatCurrency(price)} บาท`;
                 subtotal += price;
 
-                // Populate review list item
                 const subjectName = nameInput.value || 'วิชาที่ไม่ได้ระบุ';
                 const gradeText = gradeSelect.options[gradeSelect.selectedIndex].text;
-                const hoursText = hoursSelect.options[hoursSelect.selectedIndex].text;
+                const hoursText = hoursSelect.options[hoursSelect.selectedIndex]?.text || '';
                 
                 let reviewText = subjectName;
                 if (gradeSelect.value !== 'none') {
                     reviewText += ` (${gradeText})`;
                 }
-                reviewText += ` (${hoursText})`;
+                if (hoursText) {
+                    reviewText += ` (${hoursText})`;
+                }
+                
 
                 const reviewItem = document.createElement('div');
                 reviewItem.className = 'grid grid-cols-3 gap-4 py-2 border-b last:border-b-0 text-sm';
@@ -435,48 +459,35 @@
                 reviewListContainer.appendChild(reviewItem);
             });
 
-            // Show or hide the review section based on whether there are rows
             if (allRows.length > 0) {
                 reviewSection.classList.remove('hidden');
             } else {
                 reviewSection.classList.add('hidden');
             }
 
-            // 2. Calculate discounts
             const discountPercent = parseFloat(discountPercentInput.value) || 0;
             const discountBaht = parseFloat(discountBahtInput.value) || 0;
 
-            // Apply percentage discount first
             const discountPercentValue = (subtotal * discountPercent) / 100;
             const totalAfterPercent = subtotal - discountPercentValue;
 
-            // Apply flat Baht discount second, ensuring it doesn't exceed the remaining total
             const actualDiscountBaht = Math.min(totalAfterPercent, discountBaht);
             let netTotal = totalAfterPercent - actualDiscountBaht;
 
-            // 3. Prevent negative total
             netTotal = Math.max(0, netTotal);
 
-            // 4. Update the display
             subtotalDisplay.textContent = `${formatCurrency(subtotal)} บาท`;
             discountPercentValueDisplay.textContent = `- ${formatCurrency(discountPercentValue)} บาท`;
             discountBahtValueDisplay.textContent = `- ${formatCurrency(actualDiscountBaht)} บาท`;
             netTotalDisplay.textContent = `${formatCurrency(netTotal)} บาท`;
         }
-
-        /**
-         * Asks for confirmation and resets the form.
-         */
+        
         function resetForm() {
             if (confirm('คุณต้องการล้างข้อมูลทั้งหมดและรีเซ็ตฟอร์มใช่หรือไม่?')) {
-                // The simplest and most effective way to reset is to reload the page.
                 location.reload();
             }
         }
-
-        /**
-         * Prepares data for printing and triggers the print dialog.
-         */
+        
         function printQuote() {
             const today = new Date();
             document.getElementById('printDate').textContent = today.toLocaleDateString('th-TH', {
@@ -484,13 +495,9 @@
                 month: 'long',
                 day: 'numeric'
             });
-
             window.print();
         }
-
-        /**
-         * Creates and populates the checkboxes in the Quick Add Panel.
-         */
+        
         function populateQuickAddPanel() {
             subjectNames.forEach(name => {
                 const div = document.createElement('div');
@@ -515,10 +522,9 @@
         }
 
         // --- Initial Setup ---
-        // Runs when the page is fully loaded.
         document.addEventListener('DOMContentLoaded', () => {
-            populateQuickAddPanel(); // Create checkboxes
-            addRow('ภาษาไทย', 40, 'p1'); // Add one starting row with default grade
+            populateQuickAddPanel();
+            addRow('ภาษาไทย', 200, 'p1'); // Add one starting row
         });
 
     </script>
