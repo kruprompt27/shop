@@ -17,123 +17,24 @@
             font-family: 'Prompt', sans-serif;
             background-color: #FEFBF6; /* Creamy white background */
         }
+        .grade-btn.active {
+            background-color: #FBBF24; /* amber-400 */
+            color: #78350F; /* amber-900 */
+            font-weight: bold;
+        }
 
         /* CSS for printing */
         @media print {
-            /* Hide elements not meant for printing */
-            .print-hide {
-                display: none !important;
-            }
-            /* Show the dedicated print header */
-            .print-show {
-                display: block !important;
-            }
-            /* Page settings */
-            @page {
-                size: A4;
-                margin: 0.75in;
-            }
-            body {
-                background-color: #ffffff;
-                margin: 0;
-                padding: 0;
-            }
-            .main-container {
-                box-shadow: none;
-                border: none;
-                padding: 0;
-                margin: 0;
-                width: 100%;
-                max-width: 100%;
-            }
-            /* Hide control buttons in rows */
-            .subject-row .print-hide-controls {
-                display: none;
-            }
-            /* Make inputs/selects look like plain text */
-            .subject-row input,
-            .subject-row select {
-                border: none;
-                padding: 0;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
-                background: transparent;
-                pointer-events: none;
-            }
-             /* Adjust summary grid for printing */
-            .summary-grid {
-                grid-template-columns: 2fr 1fr;
-            }
+            .print-hide { display: none !important; }
+            .print-show { display: block !important; }
+            @page { size: A4; margin: 0.75in; }
+            body { background-color: #ffffff; margin: 0; padding: 0; }
+            .main-container { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
+            .summary-grid { grid-template-columns: 2fr 1fr; }
         }
     </style>
 </head>
 <body class="text-gray-800">
-
-    <!-- Datalist for subject suggestions -->
-    <!-- จุดเพิ่ม datalist รายวิชา -->
-    <datalist id="subjectList">
-        <option value="ภาษาไทย"></option>
-        <option value="ภาษาอังกฤษ"></option>
-        <option value="คณิตศาสตร์"></option>
-        <option value="วิทยาศาสตร์และสิ่งแวดล้อม"></option>
-        <option value="การใช้เทคโนโลยีอย่างฉลาดรู้"></option>
-        <option value="วิทยาการคำนวณ"></option>
-        <option value="สังคมและความเป็นพลเมือง"></option>
-        <option value="ประวัติศาสตร์"></option>
-        <option value="เศรษฐกิจและการเงิน"></option>
-        <option value="สุขภาพกายและจิต"></option>
-        <option value="ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ"></option>
-        <option value="พลศึกษา"></option>
-        <option value="การงานอาชีพ"></option>
-        <option value="อื่นๆ"></option>
-    </datalist>
-
-    <!-- Template for creating new subject rows (hidden) -->
-    <template id="subjectRowTemplate">
-        <div class="subject-row grid grid-cols-12 gap-2 items-center mb-2 p-2 rounded-lg bg-white shadow-sm"
-            data-id="">
-            <!-- Subject Name Input -->
-            <div class="col-span-12 md:col-span-4">
-                <input type="text" list="subjectList" placeholder="ชื่อแผนการสอน/วิชา"
-                    class="subject-name-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" oninput="handleSelectionChange(this)">
-            </div>
-            <!-- Grade Selection -->
-            <div class="col-span-6 md:col-span-2">
-                <select class="subject-grade-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400" onchange="handleSelectionChange(this)">
-                    <option value="none">เลือกชั้น</option>
-                    <option value="p1">ป.1</option>
-                    <option value="p2">ป.2</option>
-                    <option value="p3">ป.3</option>
-                </select>
-            </div>
-            <!-- Hours Selection -->
-            <div class="col-span-6 md:col-span-2">
-                <select
-                    class="subject-hours-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                    onchange="recalcTotals()">
-                    <!-- Options are dynamically populated by JS -->
-                </select>
-            </div>
-            <!-- Package Price Display -->
-            <div class="col-span-6 md:col-span-2">
-                <span
-                    class="subject-price-display text-gray-700 font-medium text-right w-full block pr-2">0 บาท</span>
-            </div>
-            <!-- Row Controls -->
-            <div class="col-span-6 md:col-span-2 flex gap-2 print-hide-controls">
-                <button type="button"
-                    class="duplicate-btn w-full text-sm bg-blue-100 text-blue-700 px-3 py-2 rounded-md hover:bg-blue-200">
-                    คัดลอก
-                </button>
-                <button type="button"
-                    class="remove-btn w-full text-sm bg-red-100 text-red-700 px-3 py-2 rounded-md hover:bg-red-200">
-                    ลบ
-                </button>
-            </div>
-        </div>
-    </template>
-
 
     <!-- Main App Container -->
     <div class="main-container container mx-auto p-4 md:p-8 max-w-4xl">
@@ -153,42 +54,33 @@
             </div>
         </div>
 
-        <!-- Quick Add Panel -->
+        <!-- Quick Grade Level Panel -->
         <fieldset class="my-4 p-4 border rounded-lg bg-white shadow-sm print-hide">
-            <legend class="text-lg font-semibold px-2">แผงเพิ่มวิชาแบบด่วน</legend>
-            <div id="quickAddPanel" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
-                <!-- Checkboxes will be populated by JS -->
+            <legend class="text-lg font-semibold px-2">1. เลือกชั้นเรียน</legend>
+            <div id="gradeSelectionPanel" class="grid grid-cols-3 gap-2 mt-2">
+                <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p1')">ป.1</button>
+                <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p2')">ป.2</button>
+                <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p3')">ป.3</button>
             </div>
-            <button type="button" onclick="bulkAddSelectedSubjects()"
+        </fieldset>
+
+        <!-- Quick Subject Panel -->
+        <fieldset class="my-4 p-4 border rounded-lg bg-white shadow-sm print-hide">
+            <legend class="text-lg font-semibold px-2">2. เลือกวิชาที่ต้องการ</legend>
+            <div id="quickAddPanel" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
+                <!-- Checkboxes will be dynamically populated by JS -->
+            </div>
+            <button type="button" onclick="addSelectedSubjects()"
                 class="mt-4 w-full bg-yellow-200 text-yellow-800 font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition-colors">
                 เพิ่มรายการที่เลือก
             </button>
         </fieldset>
 
-        <!-- Subjects List Table -->
-        <div class="mb-4 print-hide">
-            <h2 class="text-xl font-semibold mb-2">รายการแผนการสอน</h2>
-            <div class="hidden md:grid grid-cols-12 gap-2 text-sm font-semibold text-gray-600 px-2 mb-1">
-                <div class="col-span-4">ชื่อแผนการสอน</div>
-                <div class="col-span-2">ชั้นเรียน</div>
-                <div class="col-span-2">ชั่วโมง</div>
-                <div class="col-span-2 text-right">ราคาแพ็กเกจ</div>
-                <div class="col-span-2 text-center print-hide">จัดการ</div>
-            </div>
-            <div id="subjectListContainer">
-                <!-- Subject rows will be added here -->
-            </div>
-            <button type="button" onclick="addRow()"
-                class="mt-2 w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors print-hide">
-                + เพิ่มวิชา
-            </button>
-        </div>
-
-        <!-- Review List -->
-        <div id="reviewSection" class="mb-6 bg-white p-4 md:p-6 rounded-lg shadow-lg hidden">
+        <!-- Review & Selected Items List -->
+        <div id="reviewSection" class="mb-6 bg-white p-4 md:p-6 rounded-lg shadow-lg">
             <h2 class="text-xl font-semibold mb-4">สรุปรายการแผนการสอน</h2>
             <div id="reviewListContainer" class="space-y-2">
-                <!-- Summary items will be populated here by JS -->
+                <p class="text-gray-500 text-center py-4">ยังไม่มีรายการที่เลือก</p>
             </div>
         </div>
 
@@ -200,8 +92,7 @@
                 <div class="space-y-4 print-hide">
                     <div>
                         <label for="discountPercent" class="block text-sm font-medium text-gray-700">ส่วนลด (%)</label>
-                        <input type="number" id="discountPercent" min="0" max="100" placeholder="0"
-                            oninput="recalcTotals()"
+                        <input type="number" id="discountPercent" min="0" max="100" placeholder="0" oninput="recalcTotals()"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     </div>
                     <div>
@@ -221,13 +112,10 @@
                     <span class="text-gray-600 text-left">ส่วนลด (เงินบาท):</span>
                     <span id="discountBahtValueDisplay" class="font-semibold text-red-600">- 0 บาท</span>
 
-                    <span
-                        class="text-left text-xl font-bold text-gray-900 border-t pt-2 mt-2 col-span-2"></span>
+                    <span class="text-left text-xl font-bold text-gray-900 border-t pt-2 mt-2 col-span-2"></span>
                     
-                    <span
-                        class="text-left text-xl font-bold text-gray-900">ยอดสุทธิ:</span>
-                    <span id="netTotalDisplay"
-                        class="text-right text-3xl font-bold text-blue-600">0 บาท</span>
+                    <span class="text-left text-xl font-bold text-gray-900">ยอดสุทธิ:</span>
+                    <span id="netTotalDisplay" class="text-right text-3xl font-bold text-blue-600">0 บาท</span>
                 </div>
             </div>
         </div>
@@ -251,21 +139,11 @@
         </footer>
     </div>
 
-
     <script>
         // --- JavaScript Section ---
 
-        // Price table object
+        // Main data configuration
         const priceTable = { 40: 200, 80: 250, 160: 300, 200: 350 };
-        // List of subjects from datalist
-        const subjectNames = [
-            "ภาษาไทย", "ภาษาอังกฤษ", "คณิตศาสตร์", "วิทยาศาสตร์และสิ่งแวดล้อม",
-            "การใช้เทคโนโลยีอย่างฉลาดรู้", "วิทยาการคำนวณ", "สังคมและความเป็นพลเมือง",
-            "ประวัติศาสตร์", "เศรษฐกิจและการเงิน", "สุขภาพกายและจิต",
-            "ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ", "พลศึกษา", "การงานอาชีพ"
-        ];
-        
-        // Configuration for dynamic hours based on subject and grade
         const subjectHoursConfig = {
             'ภาษาไทย': { 'p1': [200], 'p2': [200], 'p3': [160, 200] },
             'ภาษาอังกฤษ': { 'p1': [160, 200], 'p2': [160], 'p3': [160] },
@@ -282,14 +160,15 @@
             'การงานอาชีพ': { 'p1': [40], 'p2': [40], 'p3': [40] }
         };
 
-        let rowCounter = 0; // Unique ID counter for rows
+        // --- Application State ---
+        let selectedItems = []; // This array holds the state of all chosen subjects
+        let currentGrade = 'p1'; // Default selected grade
+        let itemCounter = 0; // To give each item a unique ID for removal
 
         // --- DOM Elements ---
-        const subjectListContainer = document.getElementById('subjectListContainer');
-        const rowTemplate = document.getElementById('subjectRowTemplate');
+        const gradeSelectionPanel = document.getElementById('gradeSelectionPanel');
         const quickAddPanel = document.getElementById('quickAddPanel');
-        
-        // Price Summary DOM Elements
+        const reviewListContainer = document.getElementById('reviewListContainer');
         const discountPercentInput = document.getElementById('discountPercent');
         const discountBahtInput = document.getElementById('discountBaht');
         const subtotalDisplay = document.getElementById('subtotalDisplay');
@@ -298,183 +177,143 @@
         const netTotalDisplay = document.getElementById('netTotalDisplay');
 
         // --- Helper Functions ---
-        
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('th-TH').format(Math.round(value));
-        }
-
-        function getPrice(hours) {
-            return priceTable[hours] || 0;
-        }
+        function formatCurrency(value) { return new Intl.NumberFormat('th-TH').format(Math.round(value)); }
+        function getPrice(hours) { return priceTable[hours] || 0; }
 
         // --- Core Application Functions ---
 
         /**
-         * Updates the hours dropdown based on the selected subject and grade.
-         * @param {HTMLElement} row The row element to update.
+         * Selects a grade, updates the UI, and repopulates the subject panel.
+         * @param {string} grade - The grade identifier ('p1', 'p2', 'p3').
          */
-        function updateHoursOptions(row) {
-            const subjectName = row.querySelector('.subject-name-input').value;
-            const grade = row.querySelector('.subject-grade-select').value;
-            const hoursSelect = row.querySelector('.subject-hours-select');
-            
-            const defaultHours = [40, 80, 160, 200];
-            let availableHours = defaultHours;
-
-            // Check if a specific configuration exists
-            if (subjectHoursConfig[subjectName] && subjectHoursConfig[subjectName][grade]) {
-                availableHours = subjectHoursConfig[subjectName][grade];
-            }
-
-            const currentSelectedHour = hoursSelect.value;
-            hoursSelect.innerHTML = ''; // Clear existing options
-
-            availableHours.forEach(hour => {
-                const option = document.createElement('option');
-                option.value = hour;
-                option.textContent = `${hour} ชั่วโมง`;
-                hoursSelect.appendChild(option);
+        function selectGrade(grade) {
+            currentGrade = grade;
+            // Update button styles
+            gradeSelectionPanel.querySelectorAll('.grade-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
+            event.target.classList.add('active');
+            populateSubjectPanel(grade);
+        }
 
-            // Try to re-select the previous hour if it's still available
-            if (availableHours.includes(parseInt(currentSelectedHour))) {
-                hoursSelect.value = currentSelectedHour;
+        /**
+         * Populates the subject checkbox panel based on the selected grade.
+         * @param {string} grade - The selected grade.
+         */
+        function populateSubjectPanel(grade) {
+            quickAddPanel.innerHTML = ''; // Clear previous subjects
+            for (const subject in subjectHoursConfig) {
+                if (subjectHoursConfig[subject][grade]) {
+                    const availableHours = subjectHoursConfig[subject][grade];
+                    
+                    availableHours.forEach(hour => {
+                        const div = document.createElement('div');
+                        div.className = 'flex items-center p-2 border rounded-md';
+                        const id = `quickadd-${subject.replace(/\s+/g, '-')}-${hour}`;
+
+                        const input = document.createElement('input');
+                        input.type = 'checkbox';
+                        input.id = id;
+                        input.value = subject;
+                        input.dataset.hours = hour; // Store the specific hour
+                        input.className = 'h-4 w-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400';
+
+                        const label = document.createElement('label');
+                        label.htmlFor = id;
+                        label.className = 'ml-2 block text-sm text-gray-700 select-none cursor-pointer';
+                        label.innerHTML = `${subject} <span class="text-xs text-gray-500">(${hour} ชม.)</span>`;
+                        
+                        div.appendChild(input);
+                        div.appendChild(label);
+                        quickAddPanel.appendChild(div);
+                    });
+                }
             }
         }
 
         /**
-         * Handles changes in subject name or grade to update hours and totals.
-         * @param {HTMLElement} element The input or select element that triggered the change.
+         * Adds selected subjects from the panel to the main list.
          */
-        function handleSelectionChange(element) {
-            const row = element.closest('.subject-row');
-            updateHoursOptions(row);
+        function addSelectedSubjects() {
+            const checkboxes = quickAddPanel.querySelectorAll('input[type="checkbox"]:checked');
+            let itemsAdded = false;
+            
+            checkboxes.forEach(cb => {
+                const subject = cb.value;
+                const hours = parseInt(cb.dataset.hours);
+                
+                // Prevent duplicates (subject, grade, and hours must all match)
+                const isDuplicate = selectedItems.some(item => 
+                    item.subject === subject && 
+                    item.grade === currentGrade &&
+                    item.hours === hours
+                );
+                
+                if (!isDuplicate) {
+                    itemCounter++;
+                    selectedItems.push({
+                        id: `item-${itemCounter}`,
+                        subject: subject,
+                        grade: currentGrade,
+                        hours: hours,
+                        price: getPrice(hours)
+                    });
+                    itemsAdded = true;
+                }
+                cb.checked = false; // Uncheck after adding
+            });
+
+            if(itemsAdded) {
+                recalcTotals();
+            }
+        }
+
+        /**
+         * Removes an item from the selected list.
+         * @param {string} itemId - The unique ID of the item to remove.
+         */
+        function removeItem(itemId) {
+            selectedItems = selectedItems.filter(item => item.id !== itemId);
             recalcTotals();
         }
-        
-        function addRow(subjectName = '', hours = 40, grade = 'none', skipRecalc = false) {
-            rowCounter++;
-            const rowId = `row-${rowCounter}`;
 
-            const templateContent = rowTemplate.content.cloneNode(true);
-            const newRow = templateContent.querySelector('.subject-row');
-            newRow.id = rowId;
-
-            const nameInput = newRow.querySelector('.subject-name-input');
-            const gradeSelect = newRow.querySelector('.subject-grade-select');
-            const hoursSelect = newRow.querySelector('.subject-hours-select');
-            const duplicateBtn = newRow.querySelector('.duplicate-btn');
-            const removeBtn = newRow.querySelector('.remove-btn');
-
-            nameInput.value = subjectName;
-            gradeSelect.value = grade;
-            
-            duplicateBtn.onclick = () => duplicateRow(rowId);
-            removeBtn.onclick = () => removeRow(rowId);
-
-            subjectListContainer.appendChild(newRow);
-            
-            // Update hours options before setting the value
-            updateHoursOptions(newRow);
-            hoursSelect.value = hours; // Set the hours after options are populated
-            
-            if (!skipRecalc) {
-                recalcTotals();
-            }
-        }
-        
-        function duplicateRow(id) {
-            const rowToDuplicate = document.getElementById(id);
-            if (!rowToDuplicate) return;
-
-            const name = rowToDuplicate.querySelector('.subject-name-input').value;
-            const grade = rowToDuplicate.querySelector('.subject-grade-select').value;
-            const hours = rowToDuplicate.querySelector('.subject-hours-select').value;
-
-            addRow(name, hours, grade);
-        }
-        
-        function removeRow(id) {
-            const rowToRemove = document.getElementById(id);
-            if (rowToRemove) {
-                rowToRemove.remove();
-                recalcTotals();
-            }
-        }
-        
-        function bulkAddSelectedSubjects() {
-            const checkboxes = quickAddPanel.querySelectorAll('input[type="checkbox"]:checked');
-            let added = false;
-            checkboxes.forEach(cb => {
-                addRow(cb.value, 40, 'none', true); // skip recalc
-                cb.checked = false;
-                added = true;
-            });
-
-            if (added) {
-                recalcTotals();
-            }
-        }
-        
+        /**
+         * Recalculates all totals and re-renders the summary list.
+         * This is the main rendering engine.
+         */
         function recalcTotals() {
-            let subtotal = 0;
-            const allRows = subjectListContainer.querySelectorAll('.subject-row');
-            const reviewSection = document.getElementById('reviewSection');
-            const reviewListContainer = document.getElementById('reviewListContainer');
-
             reviewListContainer.innerHTML = '';
+            let subtotal = 0;
 
-            allRows.forEach(row => {
-                const hoursSelect = row.querySelector('.subject-hours-select');
-                const priceDisplay = row.querySelector('.subject-price-display');
-                const nameInput = row.querySelector('.subject-name-input');
-                const gradeSelect = row.querySelector('.subject-grade-select');
-                
-                // Ensure there's a selected value, otherwise default to 0
-                const hours = parseInt(hoursSelect.value || 0);
-                const price = getPrice(hours);
-                
-                priceDisplay.textContent = `${formatCurrency(price)} บาท`;
-                subtotal += price;
-
-                const subjectName = nameInput.value || 'วิชาที่ไม่ได้ระบุ';
-                const gradeText = gradeSelect.options[gradeSelect.selectedIndex].text;
-                const hoursText = hoursSelect.options[hoursSelect.selectedIndex]?.text || '';
-                
-                let reviewText = subjectName;
-                if (gradeSelect.value !== 'none') {
-                    reviewText += ` (${gradeText})`;
-                }
-                if (hoursText) {
-                    reviewText += ` (${hoursText})`;
-                }
-                
-
-                const reviewItem = document.createElement('div');
-                reviewItem.className = 'grid grid-cols-3 gap-4 py-2 border-b last:border-b-0 text-sm';
-                reviewItem.innerHTML = `
-                    <span class="col-span-2 text-gray-700">${reviewText}</span>
-                    <span class="text-right font-medium text-gray-800">${formatCurrency(price)} บาท</span>
-                `;
-                reviewListContainer.appendChild(reviewItem);
-            });
-
-            if (allRows.length > 0) {
-                reviewSection.classList.remove('hidden');
+            if (selectedItems.length === 0) {
+                reviewListContainer.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีรายการที่เลือก</p>';
             } else {
-                reviewSection.classList.add('hidden');
+                selectedItems.forEach(item => {
+                    subtotal += item.price;
+                    const gradeTextMap = { 'p1': 'ป.1', 'p2': 'ป.2', 'p3': 'ป.3' };
+                    const reviewItem = document.createElement('div');
+                    reviewItem.className = 'grid grid-cols-12 gap-2 items-center py-2 border-b last:border-b-0 text-sm';
+                    reviewItem.innerHTML = `
+                        <span class="col-span-8 md:col-span-9 text-gray-700">
+                            ${item.subject} (${gradeTextMap[item.grade]}, ${item.hours} ชม.)
+                        </span>
+                        <span class="col-span-3 md:col-span-2 text-right font-medium text-gray-800">${formatCurrency(item.price)} บาท</span>
+                        <div class="col-span-1 text-center print-hide">
+                            <button class="text-red-500 hover:text-red-700" onclick="removeItem('${item.id}')" title="ลบรายการนี้">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+                    `;
+                    reviewListContainer.appendChild(reviewItem);
+                });
             }
 
             const discountPercent = parseFloat(discountPercentInput.value) || 0;
             const discountBaht = parseFloat(discountBahtInput.value) || 0;
-
             const discountPercentValue = (subtotal * discountPercent) / 100;
             const totalAfterPercent = subtotal - discountPercentValue;
-
             const actualDiscountBaht = Math.min(totalAfterPercent, discountBaht);
-            let netTotal = totalAfterPercent - actualDiscountBaht;
-
-            netTotal = Math.max(0, netTotal);
+            let netTotal = Math.max(0, totalAfterPercent - actualDiscountBaht);
 
             subtotalDisplay.textContent = `${formatCurrency(subtotal)} บาท`;
             discountPercentValueDisplay.textContent = `- ${formatCurrency(discountPercentValue)} บาท`;
@@ -491,42 +330,17 @@
         function printQuote() {
             const today = new Date();
             document.getElementById('printDate').textContent = today.toLocaleDateString('th-TH', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+                year: 'numeric', month: 'long', day: 'numeric'
             });
             window.print();
-        }
-        
-        function populateQuickAddPanel() {
-            subjectNames.forEach(name => {
-                const div = document.createElement('div');
-                div.className = 'flex items-center';
-                const id = `quickadd-${name.replace(/\s+/g, '-')}`;
-                
-                const input = document.createElement('input');
-                input.type = 'checkbox';
-                input.id = id;
-                input.value = name;
-                input.className = 'h-4 w-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400';
-                
-                const label = document.createElement('label');
-                label.htmlFor = id;
-                label.textContent = name;
-                label.className = 'ml-2 block text-sm text-gray-700 select-none';
-                
-                div.appendChild(input);
-                div.appendChild(label);
-                quickAddPanel.appendChild(div);
-            });
         }
 
         // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => {
-            populateQuickAddPanel();
-            addRow('ภาษาไทย', 200, 'p1'); // Add one starting row
+            // Simulate a click on the first grade button to initialize the app
+            gradeSelectionPanel.querySelector('.grade-btn').click(); 
+            recalcTotals(); // Initial calculation
         });
-
     </script>
 </body>
 </html>
