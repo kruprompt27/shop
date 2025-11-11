@@ -70,8 +70,9 @@
             <div id="quickAddPanel" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
                 <!-- Checkboxes will be dynamically populated by JS -->
             </div>
+            <!-- Hidden button, functionality moved to direct checkbox interaction -->
             <button type="button" onclick="addSelectedSubjects()"
-                class="mt-4 w-full bg-yellow-200 text-yellow-800 font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition-colors">
+                class="hidden mt-4 w-full bg-yellow-200 text-yellow-800 font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition-colors">
                 เพิ่มรายการที่เลือก
             </button>
         </fieldset>
@@ -153,7 +154,7 @@
             'วิทยาการคำนวณ': { 'p1': [40], 'p2': [40], 'p3': [40] },
             'สังคมและความเป็นพลเมือง': { 'p1': [40, 80], 'p2': [40, 80], 'p3': [80] },
             'ประวัติศาสตร์': { 'p1': [40], 'p2': [40], 'p3': [40] },
-            'เศรษฐกิจและการเงิน': { 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80] },
+            'เศรษฐกิจและการเงิน': { 'p1': [40, 80], 'p2': [80], 'p3': [40, 80] },
             'สุขภาพกายและจิต': { 'p1': [40], 'p2': [80], 'p3': [80] },
             'ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ': { 'p1': [40], 'p2': [40], 'p3': [40, 80] },
             'พลศึกษา': { 'p1': [40], 'p2': [40], 'p3': [40] },
@@ -209,7 +210,16 @@
                     
                     availableHours.forEach(hour => {
                         const div = document.createElement('div');
-                        div.className = 'flex items-center p-2 border rounded-md';
+                        div.className = 'flex items-center p-2 border rounded-md hover:bg-gray-50 transition cursor-pointer';
+                        // Allow clicking the whole div to toggle checkbox
+                        div.onclick = (e) => {
+                            if (e.target.type !== 'checkbox') {
+                                const checkbox = div.querySelector('input[type="checkbox"]');
+                                checkbox.checked = !checkbox.checked;
+                                checkbox.dispatchEvent(new Event('change')); // Trigger change event manually
+                            }
+                        };
+
                         const id = `quickadd-${subject.replace(/\s+/g, '-')}-${hour}`;
 
                         const input = document.createElement('input');
@@ -217,11 +227,32 @@
                         input.id = id;
                         input.value = subject;
                         input.dataset.hours = hour; // Store the specific hour
-                        input.className = 'h-4 w-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400';
+                        input.className = 'h-5 w-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400 cursor-pointer';
+                        
+                        // Check if already selected for this grade
+                        const isSelected = selectedItems.some(item => 
+                            item.subject === subject && 
+                            item.grade === currentGrade &&
+                            item.hours === hour
+                        );
+                        input.checked = isSelected;
+                        if (isSelected) div.classList.add('bg-yellow-50', 'border-yellow-200');
+
+
+                        // Add immediate change listener
+                        input.addEventListener('change', (e) => {
+                             toggleSubject(e.target.checked, subject, currentGrade, hour);
+                             // Update visual state of the parent div
+                             if (e.target.checked) {
+                                 div.classList.add('bg-yellow-50', 'border-yellow-200');
+                             } else {
+                                 div.classList.remove('bg-yellow-50', 'border-yellow-200');
+                             }
+                        });
 
                         const label = document.createElement('label');
                         label.htmlFor = id;
-                        label.className = 'ml-2 block text-sm text-gray-700 select-none cursor-pointer';
+                        label.className = 'ml-2 block text-sm text-gray-700 select-none cursor-pointer flex-grow';
                         label.innerHTML = `${subject} <span class="text-xs text-gray-500">(${hour} ชม.)</span>`;
                         
                         div.appendChild(input);
@@ -233,49 +264,49 @@
         }
 
         /**
-         * Adds selected subjects from the panel to the main list.
+         * Toggles a subject in the selected items list.
          */
-        function addSelectedSubjects() {
-            const checkboxes = quickAddPanel.querySelectorAll('input[type="checkbox"]:checked');
-            let itemsAdded = false;
-            
-            checkboxes.forEach(cb => {
-                const subject = cb.value;
-                const hours = parseInt(cb.dataset.hours);
-                
-                // Prevent duplicates (subject, grade, and hours must all match)
-                const isDuplicate = selectedItems.some(item => 
-                    item.subject === subject && 
-                    item.grade === currentGrade &&
-                    item.hours === hours
+        function toggleSubject(isChecked, subject, grade, hours) {
+            hours = parseInt(hours);
+            if (isChecked) {
+                // Add item
+                 itemCounter++;
+                 selectedItems.push({
+                    id: `item-${itemCounter}`,
+                    subject: subject,
+                    grade: grade,
+                    hours: hours,
+                    price: getPrice(hours)
+                });
+            } else {
+                // Remove item
+                selectedItems = selectedItems.filter(item => 
+                    !(item.subject === subject && item.grade === grade && item.hours === hours)
                 );
-                
-                if (!isDuplicate) {
-                    itemCounter++;
-                    selectedItems.push({
-                        id: `item-${itemCounter}`,
-                        subject: subject,
-                        grade: currentGrade,
-                        hours: hours,
-                        price: getPrice(hours)
-                    });
-                    itemsAdded = true;
-                }
-                cb.checked = false; // Uncheck after adding
-            });
-
-            if(itemsAdded) {
-                recalcTotals();
             }
+            recalcTotals();
         }
+
+        // Kept for compatibility if needed, but unused now
+        function addSelectedSubjects() { /* ... */ }
 
         /**
          * Removes an item from the selected list.
          * @param {string} itemId - The unique ID of the item to remove.
          */
         function removeItem(itemId) {
-            selectedItems = selectedItems.filter(item => item.id !== itemId);
-            recalcTotals();
+            const itemToRemove = selectedItems.find(item => item.id === itemId);
+            if (itemToRemove && itemToRemove.grade === currentGrade) {
+                // If removing an item that is currently visible in the panel, uncheck it
+                // Find the checkbox by its data attributes indirectly would be complex,
+                // easier to just repopulate the panel after removal if it matches current grade.
+                 selectedItems = selectedItems.filter(item => item.id !== itemId);
+                 recalcTotals();
+                 populateSubjectPanel(currentGrade); // Refresh checkboxes
+            } else {
+                selectedItems = selectedItems.filter(item => item.id !== itemId);
+                recalcTotals();
+            }
         }
 
         /**
@@ -297,7 +328,13 @@
             if (itemCount === 0) {
                 reviewListContainer.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีรายการที่เลือก</p>';
             } else {
-                selectedItems.forEach(item => {
+                // Sort items by grade then by subject for better readability
+                const sortedItems = [...selectedItems].sort((a, b) => {
+                    if (a.grade !== b.grade) return a.grade.localeCompare(b.grade);
+                    return a.subject.localeCompare(b.subject);
+                });
+
+                sortedItems.forEach(item => {
                     subtotal += item.price;
                     const gradeTextMap = { 'p1': 'ป.1', 'p2': 'ป.2', 'p3': 'ป.3' };
                     const reviewItem = document.createElement('div');
