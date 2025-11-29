@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <!-- Quick Grade Level Panel -->
+        <!-- 1. Quick Grade Level Panel -->
         <fieldset class="my-4 p-4 border rounded-lg bg-white shadow-sm print-hide">
             <legend class="text-lg font-semibold px-2">1. เลือกชั้นเรียน</legend>
             <div id="gradeSelectionPanel" class="grid grid-cols-3 gap-2 mt-2">
@@ -64,17 +64,25 @@
             </div>
         </fieldset>
 
-        <!-- Quick Subject Panel -->
+        <!-- 2. Quick Subject Panel -->
         <fieldset class="my-4 p-4 border rounded-lg bg-white shadow-sm print-hide">
             <legend class="text-lg font-semibold px-2">2. เลือกวิชาที่ต้องการ</legend>
             <div id="quickAddPanel" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
                 <!-- Checkboxes will be dynamically populated by JS -->
             </div>
-            <!-- Hidden button, functionality moved to direct checkbox interaction -->
-            <button type="button" onclick="addSelectedSubjects()"
-                class="hidden mt-4 w-full bg-yellow-200 text-yellow-800 font-semibold px-4 py-2 rounded-md hover:bg-yellow-300 transition-colors">
-                เพิ่มรายการที่เลือก
-            </button>
+        </fieldset>
+
+        <!-- 3. VIP Service Panel -->
+        <fieldset class="my-4 p-4 border rounded-lg bg-white shadow-sm print-hide">
+            <legend class="text-lg font-semibold px-2">3. บริการเสริม (VIP)</legend>
+            <div class="mt-2">
+                <div id="vipContainer" class="flex items-center p-3 border rounded-md hover:bg-gray-50 transition cursor-pointer" onclick="toggleVipCheckbox()">
+                    <input type="checkbox" id="vipCheckbox" class="h-5 w-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400 cursor-pointer" onchange="handleVipChange(this)">
+                    <label for="vipCheckbox" class="ml-3 block text-gray-700 select-none cursor-pointer font-medium">
+                        สมัครบริการ VIP <span class="text-blue-600 font-bold ml-1">(299 บาท)</span>
+                    </label>
+                </div>
+            </div>
         </fieldset>
 
         <!-- Review & Selected Items List -->
@@ -145,6 +153,8 @@
 
         // Main data configuration
         const priceTable = { 40: 200, 80: 250, 160: 300, 200: 350 };
+        const vipPrice = 299;
+
         const subjectHoursConfig = {
             'ภาษาไทย': { 'p1': [200], 'p2': [200], 'p3': [160, 200] },
             'ภาษาอังกฤษ': { 'p1': [160, 200], 'p2': [160, 200], 'p3': [160, 200] },
@@ -158,7 +168,8 @@
             'สุขภาพกายและจิต': { 'p1': [40], 'p2': [80], 'p3': [80] },
             'ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ': { 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80] },
             'พลศึกษา': { 'p1': [40], 'p2': [40], 'p3': [40] },
-            'การงานอาชีพ': { 'p1': [40], 'p2': [40], 'p3': [40] }
+            'การงานอาชีพ': { 'p1': [40], 'p2': [40], 'p3': [40] },
+            'ดนตรี-นาฏศิลป์': { 'p1': [40], 'p2': [40], 'p3': [40] }
         };
 
         // --- Application State ---
@@ -177,6 +188,8 @@
         const discountPercentValueDisplay = document.getElementById('discountPercentValueDisplay');
         const discountBahtValueDisplay = document.getElementById('discountBahtValueDisplay');
         const netTotalDisplay = document.getElementById('netTotalDisplay');
+        const vipCheckbox = document.getElementById('vipCheckbox');
+        const vipContainer = document.getElementById('vipContainer');
 
         // --- Helper Functions ---
         function formatCurrency(value) { return new Intl.NumberFormat('th-TH').format(Math.round(value)); }
@@ -263,6 +276,36 @@
             }
         }
 
+        // --- VIP Functions ---
+        function toggleVipCheckbox() {
+            // This function handles the div click to toggle the checkbox
+            if (event.target.type !== 'checkbox') {
+                vipCheckbox.checked = !vipCheckbox.checked;
+                // Trigger change manually
+                handleVipChange(vipCheckbox);
+            }
+        }
+
+        function handleVipChange(checkbox) {
+            const isChecked = checkbox.checked;
+            if (isChecked) {
+                vipContainer.classList.add('bg-yellow-50', 'border-yellow-200');
+                // Add VIP item
+                selectedItems.push({
+                    id: 'vip-item',
+                    subject: 'บริการ VIP',
+                    grade: 'VIP', // Special identifier
+                    hours: 0,
+                    price: vipPrice
+                });
+            } else {
+                vipContainer.classList.remove('bg-yellow-50', 'border-yellow-200');
+                // Remove VIP item
+                selectedItems = selectedItems.filter(item => item.id !== 'vip-item');
+            }
+            recalcTotals();
+        }
+
         /**
          * Toggles a subject in the selected items list.
          */
@@ -287,19 +330,21 @@
             recalcTotals();
         }
 
-        // Kept for compatibility if needed, but unused now
-        function addSelectedSubjects() { /* ... */ }
-
         /**
          * Removes an item from the selected list.
          * @param {string} itemId - The unique ID of the item to remove.
          */
         function removeItem(itemId) {
+            if (itemId === 'vip-item') {
+                vipCheckbox.checked = false;
+                vipContainer.classList.remove('bg-yellow-50', 'border-yellow-200');
+                selectedItems = selectedItems.filter(item => item.id !== itemId);
+                recalcTotals();
+                return;
+            }
+
             const itemToRemove = selectedItems.find(item => item.id === itemId);
             if (itemToRemove && itemToRemove.grade === currentGrade) {
-                // If removing an item that is currently visible in the panel, uncheck it
-                // Find the checkbox by its data attributes indirectly would be complex,
-                // easier to just repopulate the panel after removal if it matches current grade.
                  selectedItems = selectedItems.filter(item => item.id !== itemId);
                  recalcTotals();
                  populateSubjectPanel(currentGrade); // Refresh checkboxes
@@ -328,8 +373,10 @@
             if (itemCount === 0) {
                 reviewListContainer.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีรายการที่เลือก</p>';
             } else {
-                // Sort items by grade then by subject for better readability
+                // Sort items: VIP last, otherwise by grade then subject
                 const sortedItems = [...selectedItems].sort((a, b) => {
+                    if (a.id === 'vip-item') return 1;
+                    if (b.id === 'vip-item') return -1;
                     if (a.grade !== b.grade) return a.grade.localeCompare(b.grade);
                     return a.subject.localeCompare(b.subject);
                 });
@@ -337,11 +384,19 @@
                 sortedItems.forEach(item => {
                     subtotal += item.price;
                     const gradeTextMap = { 'p1': 'ป.1', 'p2': 'ป.2', 'p3': 'ป.3' };
+                    let displayText = '';
+                    
+                    if (item.id === 'vip-item') {
+                        displayText = `<span class="font-bold text-blue-600">⚡ ${item.subject}</span>`;
+                    } else {
+                        displayText = `${item.subject} (${gradeTextMap[item.grade]}, ${item.hours} ชม.)`;
+                    }
+
                     const reviewItem = document.createElement('div');
                     reviewItem.className = 'grid grid-cols-12 gap-2 items-center py-2 border-b last:border-b-0 text-sm';
                     reviewItem.innerHTML = `
                         <span class="col-span-8 md:col-span-9 text-gray-700">
-                            ${item.subject} (${gradeTextMap[item.grade]}, ${item.hours} ชม.)
+                            ${displayText}
                         </span>
                         <span class="col-span-3 md:col-span-2 text-right font-medium text-gray-800">${formatCurrency(item.price)} บาท</span>
                         <div class="col-span-1 text-center print-hide">
