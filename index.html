@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สั่งซื้อแผนการสอน – ครูพร้อมสอน</title>
+    <title>ราคาแผนการสอน – ครูพร้อมสอน</title>
     <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Prompt -->
@@ -100,7 +100,10 @@
                 <!-- Discount Inputs -->
                 <div class="space-y-4 print-hide">
                     <div>
-                        <label for="discountPercent" class="block text-sm font-medium text-gray-700">ส่วนลด (%)</label>
+                        <div class="flex justify-between">
+                            <label for="discountPercent" class="block text-sm font-medium text-gray-700">ส่วนลด (%)</label>
+                            <span id="autoDiscountBadge" class="hidden text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">โปรฯ ครบ 3 วิชา</span>
+                        </div>
                         <input type="number" id="discountPercent" min="0" max="100" placeholder="0" oninput="recalcTotals()"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     </div>
@@ -149,6 +152,8 @@
         // Main data configuration
         const priceTable = { 40: 200, 80: 250, 160: 300, 200: 350 };
         const vipPrice = 299;
+        const AUTO_DISCOUNT_THRESHOLD = 3; // จำนวนวิชาขั้นต่ำที่จะได้ส่วนลด
+        const AUTO_DISCOUNT_PERCENT = 5;  // เปอร์เซ็นต์ส่วนลดอัตโนมัติ
 
         const subjectHoursConfig = {
             'ภาษาไทย': { 'p1': [200], 'p2': [200], 'p3': [160, 200] },
@@ -185,6 +190,7 @@
         const netTotalDisplay = document.getElementById('netTotalDisplay');
         const vipCheckbox = document.getElementById('vipCheckbox');
         const vipContainer = document.getElementById('vipContainer');
+        const autoDiscountBadge = document.getElementById('autoDiscountBadge');
 
         // --- Helper Functions ---
         function formatCurrency(value) { return new Intl.NumberFormat('th-TH').format(Math.round(value)); }
@@ -357,6 +363,26 @@
             reviewListContainer.innerHTML = '';
             let subtotal = 0;
             const itemCount = selectedItems.length;
+
+            // --- Auto Discount Logic ---
+            // Count actual lesson plans (exclude VIP)
+            const lessonPlanCount = selectedItems.filter(i => i.id !== 'vip-item').length;
+            
+            if (lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD) {
+                // Apply auto discount
+                discountPercentInput.value = AUTO_DISCOUNT_PERCENT;
+                autoDiscountBadge.classList.remove('hidden');
+            } else {
+                // Remove auto discount (only if value matches the auto percent)
+                // This prevents overwriting user manual input if it's different, 
+                // but for simplicity in this flow, we reset to 0 if count drops below threshold.
+                // Or checking if the current value is exactly the auto percent.
+                if (parseInt(discountPercentInput.value) === AUTO_DISCOUNT_PERCENT) {
+                    discountPercentInput.value = 0;
+                }
+                autoDiscountBadge.classList.add('hidden');
+            }
+            // ---------------------------
 
             // Update header with item count
             if (itemCount > 0) {
