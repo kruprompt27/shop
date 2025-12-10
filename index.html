@@ -104,12 +104,12 @@
                             <label for="discountPercent" class="block text-sm font-medium text-gray-700">ส่วนลด (%)</label>
                             <span id="autoDiscountBadge" class="hidden text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">โปรฯ ครบ 3 วิชา</span>
                         </div>
-                        <input type="number" id="discountPercent" min="0" max="100" placeholder="0" oninput="recalcTotals()"
+                        <input type="number" id="discountPercent" min="0" max="100" placeholder="0" oninput="recalcTotals(true)"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     </div>
                     <div>
                         <label for="discountBaht" class="block text-sm font-medium text-gray-700">ส่วนลด (บาท)</label>
-                        <input type="number" id="discountBaht" min="0" placeholder="0" oninput="recalcTotals()"
+                        <input type="number" id="discountBaht" min="0" placeholder="0" oninput="recalcTotals(true)"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
                     </div>
                 </div>
@@ -152,7 +152,7 @@
         // Main data configuration
         const priceTable = { 40: 200, 80: 250, 160: 300, 200: 350 };
         const vipPrice = 299;
-        const AUTO_DISCOUNT_THRESHOLD = 3; // จำนวนวิชาขั้นต่ำที่จะได้ส่วนลด
+        const AUTO_DISCOUNT_THRESHOLD = 3; // จำนวนวิชาขั้นต่ำที่จะได้ส่วนลดอัตโนมัติ
         const AUTO_DISCOUNT_PERCENT = 5;  // เปอร์เซ็นต์ส่วนลดอัตโนมัติ
 
         const subjectHoursConfig = {
@@ -198,13 +198,8 @@
 
         // --- Core Application Functions ---
 
-        /**
-         * Selects a grade, updates the UI, and repopulates the subject panel.
-         * @param {string} grade - The grade identifier ('p1', 'p2', 'p3').
-         */
         function selectGrade(grade) {
             currentGrade = grade;
-            // Update button styles
             gradeSelectionPanel.querySelectorAll('.grade-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -212,12 +207,8 @@
             populateSubjectPanel(grade);
         }
 
-        /**
-         * Populates the subject checkbox panel based on the selected grade.
-         * @param {string} grade - The selected grade.
-         */
         function populateSubjectPanel(grade) {
-            quickAddPanel.innerHTML = ''; // Clear previous subjects
+            quickAddPanel.innerHTML = ''; 
             for (const subject in subjectHoursConfig) {
                 if (subjectHoursConfig[subject][grade]) {
                     const availableHours = subjectHoursConfig[subject][grade];
@@ -225,12 +216,11 @@
                     availableHours.forEach(hour => {
                         const div = document.createElement('div');
                         div.className = 'flex items-center p-2 border rounded-md hover:bg-gray-50 transition cursor-pointer';
-                        // Allow clicking the whole div to toggle checkbox
                         div.onclick = (e) => {
                             if (e.target.type !== 'checkbox') {
                                 const checkbox = div.querySelector('input[type="checkbox"]');
                                 checkbox.checked = !checkbox.checked;
-                                checkbox.dispatchEvent(new Event('change')); // Trigger change event manually
+                                checkbox.dispatchEvent(new Event('change'));
                             }
                         };
 
@@ -240,10 +230,9 @@
                         input.type = 'checkbox';
                         input.id = id;
                         input.value = subject;
-                        input.dataset.hours = hour; // Store the specific hour
+                        input.dataset.hours = hour;
                         input.className = 'h-5 w-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400 cursor-pointer';
                         
-                        // Check if already selected for this grade
                         const isSelected = selectedItems.some(item => 
                             item.subject === subject && 
                             item.grade === currentGrade &&
@@ -252,11 +241,8 @@
                         input.checked = isSelected;
                         if (isSelected) div.classList.add('bg-yellow-50', 'border-yellow-200');
 
-
-                        // Add immediate change listener
                         input.addEventListener('change', (e) => {
                              toggleSubject(e.target.checked, subject, currentGrade, hour);
-                             // Update visual state of the parent div
                              if (e.target.checked) {
                                  div.classList.add('bg-yellow-50', 'border-yellow-200');
                              } else {
@@ -279,10 +265,8 @@
 
         // --- VIP Functions ---
         function toggleVipCheckbox() {
-            // This function handles the div click to toggle the checkbox
             if (event.target.type !== 'checkbox') {
                 vipCheckbox.checked = !vipCheckbox.checked;
-                // Trigger change manually
                 handleVipChange(vipCheckbox);
             }
         }
@@ -291,29 +275,23 @@
             const isChecked = checkbox.checked;
             if (isChecked) {
                 vipContainer.classList.add('bg-yellow-50', 'border-yellow-200');
-                // Add VIP item
                 selectedItems.push({
                     id: 'vip-item',
                     subject: 'สมัครกลุ่ม VIP',
-                    grade: 'VIP', // Special identifier
+                    grade: 'VIP',
                     hours: 0,
                     price: vipPrice
                 });
             } else {
                 vipContainer.classList.remove('bg-yellow-50', 'border-yellow-200');
-                // Remove VIP item
                 selectedItems = selectedItems.filter(item => item.id !== 'vip-item');
             }
             recalcTotals();
         }
 
-        /**
-         * Toggles a subject in the selected items list.
-         */
         function toggleSubject(isChecked, subject, grade, hours) {
             hours = parseInt(hours);
             if (isChecked) {
-                // Add item
                  itemCounter++;
                  selectedItems.push({
                     id: `item-${itemCounter}`,
@@ -323,7 +301,6 @@
                     price: getPrice(hours)
                 });
             } else {
-                // Remove item
                 selectedItems = selectedItems.filter(item => 
                     !(item.subject === subject && item.grade === grade && item.hours === hours)
                 );
@@ -331,10 +308,6 @@
             recalcTotals();
         }
 
-        /**
-         * Removes an item from the selected list.
-         * @param {string} itemId - The unique ID of the item to remove.
-         */
         function removeItem(itemId) {
             if (itemId === 'vip-item') {
                 vipCheckbox.checked = false;
@@ -348,7 +321,7 @@
             if (itemToRemove && itemToRemove.grade === currentGrade) {
                  selectedItems = selectedItems.filter(item => item.id !== itemId);
                  recalcTotals();
-                 populateSubjectPanel(currentGrade); // Refresh checkboxes
+                 populateSubjectPanel(currentGrade);
             } else {
                 selectedItems = selectedItems.filter(item => item.id !== itemId);
                 recalcTotals();
@@ -356,35 +329,39 @@
         }
 
         /**
-         * Recalculates all totals and re-renders the summary list.
-         * This is the main rendering engine.
+         * Recalculates totals. 
+         * @param {boolean} isManualInput - True if triggered by user typing in discount boxes.
          */
-        function recalcTotals() {
+        function recalcTotals(isManualInput = false) {
             reviewListContainer.innerHTML = '';
             let subtotal = 0;
             const itemCount = selectedItems.length;
 
             // --- Auto Discount Logic ---
-            // Count actual lesson plans (exclude VIP)
-            const lessonPlanCount = selectedItems.filter(i => i.id !== 'vip-item').length;
-            
-            if (lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD) {
-                // Apply auto discount
-                discountPercentInput.value = AUTO_DISCOUNT_PERCENT;
-                autoDiscountBadge.classList.remove('hidden');
-            } else {
-                // Remove auto discount (only if value matches the auto percent)
-                // This prevents overwriting user manual input if it's different, 
-                // but for simplicity in this flow, we reset to 0 if count drops below threshold.
-                // Or checking if the current value is exactly the auto percent.
-                if (parseInt(discountPercentInput.value) === AUTO_DISCOUNT_PERCENT) {
-                    discountPercentInput.value = 0;
+            // Only update discount percentage automatically if:
+            // 1. User is NOT manually typing (isManualInput == false)
+            // 2. Threshold is met
+            if (!isManualInput) {
+                const lessonPlanCount = selectedItems.filter(i => i.id !== 'vip-item').length;
+                
+                if (lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD) {
+                    discountPercentInput.value = AUTO_DISCOUNT_PERCENT;
+                    autoDiscountBadge.classList.remove('hidden');
+                } else {
+                    // Less than threshold: hide badge, BUT DO NOT RESET VALUE (allow manual input)
+                    autoDiscountBadge.classList.add('hidden');
                 }
-                autoDiscountBadge.classList.add('hidden');
+            } else {
+                // Manual input: just check threshold for badge visibility logic only
+                 const lessonPlanCount = selectedItems.filter(i => i.id !== 'vip-item').length;
+                 if (lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD) {
+                     autoDiscountBadge.classList.remove('hidden');
+                 } else {
+                     autoDiscountBadge.classList.add('hidden');
+                 }
             }
             // ---------------------------
 
-            // Update header with item count
             if (itemCount > 0) {
                 reviewHeader.textContent = `ตะกร้าสินค้า (รวม ${itemCount} รายการ)`;
             } else {
@@ -394,7 +371,6 @@
             if (itemCount === 0) {
                 reviewListContainer.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีรายการที่เลือก</p>';
             } else {
-                // Sort items: VIP last, otherwise by grade then subject
                 const sortedItems = [...selectedItems].sort((a, b) => {
                     if (a.id === 'vip-item') return 1;
                     if (b.id === 'vip-item') return -1;
@@ -457,11 +433,9 @@
             window.print();
         }
 
-        // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Simulate a click on the first grade button to initialize the app
             gradeSelectionPanel.querySelector('.grade-btn').click(); 
-            recalcTotals(); // Initial calculation
+            recalcTotals();
         });
     </script>
 </body>
