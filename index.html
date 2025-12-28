@@ -58,9 +58,14 @@
         <fieldset class="my-4 p-4 border rounded-lg bg-white shadow-sm print-hide">
             <legend class="text-lg font-semibold px-2">1. เลือกชั้นเรียน</legend>
             <div id="gradeSelectionPanel" class="grid grid-cols-3 gap-2 mt-2">
+                <!-- Primary Lower -->
                 <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p1')">ป.1</button>
                 <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p2')">ป.2</button>
                 <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p3')">ป.3</button>
+                <!-- Primary Upper -->
+                <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p4')">ป.4</button>
+                <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p5')">ป.5</button>
+                <button type="button" class="grade-btn p-3 rounded-lg border bg-gray-100 hover:bg-gray-200 transition" onclick="selectGrade('p6')">ป.6</button>
             </div>
         </fieldset>
 
@@ -155,21 +160,55 @@
         const AUTO_DISCOUNT_THRESHOLD = 3; // จำนวนวิชาขั้นต่ำที่จะได้ส่วนลดอัตโนมัติ
         const AUTO_DISCOUNT_PERCENT = 5;  // เปอร์เซ็นต์ส่วนลดอัตโนมัติ
 
+        // Helper to copy P3 config to P4-P6 easily (for existing subjects)
+        const p3Base = [40, 80]; // fallback
+        
         const subjectHoursConfig = {
-            'ภาษาไทย': { 'p1': [200], 'p2': [200], 'p3': [160, 200] },
-            'ภาษาอังกฤษ': { 'p1': [160, 200], 'p2': [160, 200], 'p3': [160, 200] },
-            'คณิตศาสตร์': { 'p1': [200], 'p2': [200], 'p3': [200] },
-            'วิทยาศาสตร์และสิ่งแวดล้อม': { 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80] },
-            'การใช้เทคโนโลยีอย่างฉลาดรู้': { 'p1': [40], 'p2': [40], 'p3': [40] },
-            'วิทยาการคำนวณ': { 'p1': [40], 'p2': [40], 'p3': [40] },
-            'สังคมและความเป็นพลเมือง': { 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80] },
-            'ประวัติศาสตร์': { 'p1': [40], 'p2': [40], 'p3': [40] },
-            'เศรษฐกิจและการเงิน': { 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80] },
-            'สุขภาพกายและจิต': { 'p1': [40], 'p2': [40, 80], 'p3': [40, 80] },
-            'ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ': { 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80] },
-            'พลศึกษา': { 'p1': [40], 'p2': [40], 'p3': [40] },
-            'การงานอาชีพ': { 'p1': [40], 'p2': [40], 'p3': [40] },
-            'ดนตรี-นาฏศิลป์': { 'p1': [40], 'p2': [40], 'p3': [40] }
+            'ภาษาไทย': { 
+                'p1': [200], 'p2': [200], 'p3': [160, 200]
+            },
+            'ภาษาอังกฤษ': { 
+                'p1': [160, 200], 'p2': [160, 200], 'p3': [160, 200]
+            },
+            'คณิตศาสตร์': { 
+                'p1': [200], 'p2': [200], 'p3': [200]
+            },
+            'วิทยาศาสตร์และสิ่งแวดล้อม': { 
+                'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80]
+            },
+            'สังคมศึกษา ศาสนา และวัฒนธรรม': { 
+                'p4': [80], 'p5': [80] 
+            },
+            'สังคมและความเป็นพลเมือง': { 
+                'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80]
+            },
+            'ประวัติศาสตร์': { 
+                'p1': [40], 'p2': [40], 'p3': [40]
+            },
+            'เศรษฐกิจและการเงิน': { 
+                'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80]
+            },
+            'สุขภาพกายและจิต': { 
+                'p1': [40], 'p2': [40, 80], 'p3': [40, 80]
+            },
+            'ศิลปะและวัฒนธรรมเพื่อสุนทรียภาพ': { 
+                'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80]
+            },
+            'การใช้เทคโนโลยีอย่างฉลาดรู้': { 
+                'p1': [40], 'p2': [40], 'p3': [40]
+            },
+            'วิทยาการคำนวณ': { 
+                'p1': [40], 'p2': [40], 'p3': [40]
+            },
+            'พลศึกษา': { 
+                'p1': [40], 'p2': [40], 'p3': [40]
+            },
+            'การงานอาชีพ': { 
+                'p1': [40], 'p2': [40], 'p3': [40]
+            },
+            'ดนตรี-นาฏศิลป์': { 
+                'p1': [40], 'p2': [40], 'p3': [40]
+            }
         };
 
         // --- Application State ---
@@ -380,7 +419,10 @@
 
                 sortedItems.forEach(item => {
                     subtotal += item.price;
-                    const gradeTextMap = { 'p1': 'ป.1', 'p2': 'ป.2', 'p3': 'ป.3' };
+                    const gradeTextMap = { 
+                        'p1': 'ป.1', 'p2': 'ป.2', 'p3': 'ป.3',
+                        'p4': 'ป.4', 'p5': 'ป.5', 'p6': 'ป.6'
+                    };
                     let displayText = '';
                     
                     if (item.id === 'vip-item') {
