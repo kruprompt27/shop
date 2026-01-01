@@ -167,6 +167,9 @@
             'ภาษาไทย': { 
                 'p1': [200], 'p2': [200], 'p3': [160, 200]
             },
+            'ภาษาไทย (หลักภาษาและการใช้ภาษาไทย)': {
+                'p4': [80]
+            },
             'ภาษาอังกฤษ': { 
                 'p1': [160, 200], 'p2': [160, 200], 'p3': [160, 200]
             },
@@ -177,7 +180,7 @@
                 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80]
             },
             'สังคมศึกษา ศาสนา และวัฒนธรรม': { 
-                'p4': [80], 'p5': [80] 
+                'p4': [80], 'p5': [80], 'p6': [80] 
             },
             'สังคมและความเป็นพลเมือง': { 
                 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80]
@@ -248,6 +251,7 @@
 
         function populateSubjectPanel(grade) {
             quickAddPanel.innerHTML = ''; 
+            const gradeNum = grade.replace('p', ''); // Extract number (e.g. '1' from 'p1')
             for (const subject in subjectHoursConfig) {
                 if (subjectHoursConfig[subject][grade]) {
                     const availableHours = subjectHoursConfig[subject][grade];
@@ -292,7 +296,8 @@
                         const label = document.createElement('label');
                         label.htmlFor = id;
                         label.className = 'ml-2 block text-sm text-gray-700 select-none cursor-pointer flex-grow';
-                        label.innerHTML = `${subject} <span class="text-xs text-gray-500">(${hour} ชม.)</span>`;
+                        // Add grade number to the label
+                        label.innerHTML = `${subject} ${gradeNum} <span class="text-xs text-gray-500">(${hour} ชม.)</span>`;
                         
                         div.appendChild(input);
                         div.appendChild(label);
@@ -428,7 +433,9 @@
                     if (item.id === 'vip-item') {
                         displayText = `<span class="font-bold text-blue-600">⚡ ${item.subject}</span>`;
                     } else {
-                        displayText = `${item.subject} (${gradeTextMap[item.grade]}, ${item.hours} ชม.)`;
+                        // Add grade number to the display name
+                        const gradeNum = item.grade.replace('p', '');
+                        displayText = `${item.subject} ${gradeNum} (${gradeTextMap[item.grade]}, ${item.hours} ชม.)`;
                     }
 
                     const reviewItem = document.createElement('div');
