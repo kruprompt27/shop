@@ -87,11 +87,17 @@
                         สมัครกลุ่ม VIP <span class="text-blue-600 font-bold ml-1">(299 บาท)</span>
                     </label>
                 </div>
-                <div id="postLessonContainer" class="flex items-center p-3 border rounded-md hover:bg-gray-50 transition cursor-pointer" onclick="togglePostLessonCheckbox()">
-                    <input type="checkbox" id="postLessonCheckbox" class="h-5 w-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400 cursor-pointer" onchange="handlePostLessonChange(this)">
-                    <label for="postLessonCheckbox" class="ml-3 block text-gray-700 select-none cursor-pointer font-medium">
-                        บันทึกหลังแผน <span class="text-blue-600 font-bold ml-1">(10 บาท)</span>
-                    </label>
+                <div id="postLessonContainer" class="flex items-center justify-between p-3 border rounded-md hover:bg-gray-50 transition">
+                    <div class="flex items-center cursor-pointer flex-grow" onclick="togglePostLessonCheckbox(event)">
+                        <input type="checkbox" id="postLessonCheckbox" class="h-5 w-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400 cursor-pointer" onchange="handlePostLessonChange()">
+                        <label for="postLessonCheckbox" class="ml-3 block text-gray-700 select-none cursor-pointer font-medium">
+                            บันทึกหลังแผน <span class="text-blue-600 font-bold ml-1">(10 บาท/ชุด)</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center ml-4 print-hide">
+                        <label for="postLessonQty" class="mr-2 text-sm text-gray-600">จำนวน</label>
+                        <input type="number" id="postLessonQty" min="1" value="1" class="w-16 px-2 py-1 border border-gray-300 rounded-md text-center focus:ring-yellow-400 focus:outline-none" oninput="updatePostLessonQuantity()" onclick="event.stopPropagation()">
+                    </div>
                 </div>
             </div>
         </fieldset>
@@ -352,29 +358,49 @@
         }
 
         // --- Post Lesson Functions ---
-        function togglePostLessonCheckbox() {
-            if (event.target.type !== 'checkbox') {
+        function togglePostLessonCheckbox(event) {
+            if (event && event.target.type !== 'checkbox' && event.target.type !== 'number' && event.target.tagName !== 'LABEL') {
                 postLessonCheckbox.checked = !postLessonCheckbox.checked;
-                handlePostLessonChange(postLessonCheckbox);
+                handlePostLessonChange();
             }
         }
 
-        function handlePostLessonChange(checkbox) {
-            const isChecked = checkbox.checked;
+        function handlePostLessonChange() {
+            const isChecked = postLessonCheckbox.checked;
+            let qtyInput = document.getElementById('postLessonQty');
+            let qty = parseInt(qtyInput.value) || 1;
+            
+            selectedItems = selectedItems.filter(item => item.id !== 'post-lesson-item');
+
             if (isChecked) {
+                if (qty < 1) { qty = 1; qtyInput.value = 1; }
                 postLessonContainer.classList.add('bg-yellow-50', 'border-yellow-200');
                 selectedItems.push({
                     id: 'post-lesson-item',
-                    subject: 'บันทึกหลังแผน',
+                    subject: `บันทึกหลังแผน (จำนวน ${qty} ชุด)`,
                     grade: 'VIP',
                     hours: 0,
-                    price: postLessonPrice
+                    price: postLessonPrice * qty
                 });
             } else {
                 postLessonContainer.classList.remove('bg-yellow-50', 'border-yellow-200');
-                selectedItems = selectedItems.filter(item => item.id !== 'post-lesson-item');
             }
             recalcTotals();
+        }
+
+        function updatePostLessonQuantity() {
+            let qty = parseInt(document.getElementById('postLessonQty').value);
+            if (isNaN(qty)) return;
+
+            if (qty > 0) {
+                if (!postLessonCheckbox.checked) {
+                    postLessonCheckbox.checked = true;
+                }
+                handlePostLessonChange();
+            } else {
+                postLessonCheckbox.checked = false;
+                handlePostLessonChange();
+            }
         }
 
         function toggleSubject(isChecked, subject, grade, hours) {
@@ -408,6 +434,7 @@
             if (itemId === 'post-lesson-item') {
                 postLessonCheckbox.checked = false;
                 postLessonContainer.classList.remove('bg-yellow-50', 'border-yellow-200');
+                document.getElementById('postLessonQty').value = 1;
                 selectedItems = selectedItems.filter(item => item.id !== itemId);
                 recalcTotals();
                 return;
