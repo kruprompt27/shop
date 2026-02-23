@@ -79,12 +79,18 @@
 
         <!-- 3. VIP Service Panel -->
         <fieldset class="my-4 p-4 border rounded-lg bg-white shadow-sm print-hide">
-            <legend class="text-lg font-semibold px-2">3. บริการเสริม (VIP)</legend>
-            <div class="mt-2">
+            <legend class="text-lg font-semibold px-2">3. บริการเสริม</legend>
+            <div class="mt-2 space-y-2">
                 <div id="vipContainer" class="flex items-center p-3 border rounded-md hover:bg-gray-50 transition cursor-pointer" onclick="toggleVipCheckbox()">
                     <input type="checkbox" id="vipCheckbox" class="h-5 w-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400 cursor-pointer" onchange="handleVipChange(this)">
                     <label for="vipCheckbox" class="ml-3 block text-gray-700 select-none cursor-pointer font-medium">
-                        สมัครกลุ่ม VIP <span class="text-blue-600 font-bold ml-1">(299)</span>
+                        สมัครกลุ่ม VIP <span class="text-blue-600 font-bold ml-1">(299 บาท)</span>
+                    </label>
+                </div>
+                <div id="postLessonContainer" class="flex items-center p-3 border rounded-md hover:bg-gray-50 transition cursor-pointer" onclick="togglePostLessonCheckbox()">
+                    <input type="checkbox" id="postLessonCheckbox" class="h-5 w-5 text-yellow-500 border-gray-300 rounded focus:ring-yellow-400 cursor-pointer" onchange="handlePostLessonChange(this)">
+                    <label for="postLessonCheckbox" class="ml-3 block text-gray-700 select-none cursor-pointer font-medium">
+                        บันทึกหลังแผน <span class="text-blue-600 font-bold ml-1">(10 บาท)</span>
                     </label>
                 </div>
             </div>
@@ -157,6 +163,7 @@
         // Main data configuration
         const priceTable = { 40: 200, 80: 250, 160: 300, 200: 350 };
         const vipPrice = 299;
+        const postLessonPrice = 10;
         const AUTO_DISCOUNT_THRESHOLD = 3; // จำนวนวิชาขั้นต่ำที่จะได้ส่วนลดอัตโนมัติ
         const AUTO_DISCOUNT_PERCENT = 5;  // เปอร์เซ็นต์ส่วนลดอัตโนมัติ
 
@@ -177,7 +184,7 @@
                 'p1': [160, 200], 'p2': [160, 200], 'p3': [160, 200]
             },
             'ภาษาอังกฤษ Smile': {
-                'p4': [80]
+                'p4': [80], 'p5': [80]
             },
             'คณิตศาสตร์': { 
                 'p1': [200], 'p2': [200], 'p3': [200]
@@ -186,7 +193,7 @@
                 'p1': [40, 80], 'p2': [40, 80], 'p3': [40, 80]
             },
             'คอมพิวเตอร์': {
-                'p4': [40]
+                'p4': [40], 'p5': [40], 'p6': [40]
             },
             'สังคมศึกษา ศาสนา และวัฒนธรรม': { 
                 'p4': [80], 'p5': [80], 'p6': [80] 
@@ -241,6 +248,8 @@
         const netTotalDisplay = document.getElementById('netTotalDisplay');
         const vipCheckbox = document.getElementById('vipCheckbox');
         const vipContainer = document.getElementById('vipContainer');
+        const postLessonCheckbox = document.getElementById('postLessonCheckbox');
+        const postLessonContainer = document.getElementById('postLessonContainer');
         const autoDiscountBadge = document.getElementById('autoDiscountBadge');
 
         // --- Helper Functions ---
@@ -342,6 +351,32 @@
             recalcTotals();
         }
 
+        // --- Post Lesson Functions ---
+        function togglePostLessonCheckbox() {
+            if (event.target.type !== 'checkbox') {
+                postLessonCheckbox.checked = !postLessonCheckbox.checked;
+                handlePostLessonChange(postLessonCheckbox);
+            }
+        }
+
+        function handlePostLessonChange(checkbox) {
+            const isChecked = checkbox.checked;
+            if (isChecked) {
+                postLessonContainer.classList.add('bg-yellow-50', 'border-yellow-200');
+                selectedItems.push({
+                    id: 'post-lesson-item',
+                    subject: 'บันทึกหลังแผน',
+                    grade: 'VIP',
+                    hours: 0,
+                    price: postLessonPrice
+                });
+            } else {
+                postLessonContainer.classList.remove('bg-yellow-50', 'border-yellow-200');
+                selectedItems = selectedItems.filter(item => item.id !== 'post-lesson-item');
+            }
+            recalcTotals();
+        }
+
         function toggleSubject(isChecked, subject, grade, hours) {
             hours = parseInt(hours);
             if (isChecked) {
@@ -370,6 +405,14 @@
                 return;
             }
 
+            if (itemId === 'post-lesson-item') {
+                postLessonCheckbox.checked = false;
+                postLessonContainer.classList.remove('bg-yellow-50', 'border-yellow-200');
+                selectedItems = selectedItems.filter(item => item.id !== itemId);
+                recalcTotals();
+                return;
+            }
+
             const itemToRemove = selectedItems.find(item => item.id === itemId);
             if (itemToRemove && itemToRemove.grade === currentGrade) {
                  selectedItems = selectedItems.filter(item => item.id !== itemId);
@@ -388,6 +431,8 @@
         function recalcTotals(isManualInput = false) {
             reviewListContainer.innerHTML = '';
             let subtotal = 0;
+            let subjectSubtotal = 0; // ยอดรวมเฉพาะวิชาเรียน (ที่ใช้คำนวณส่วนลด %)
+            let extraSubtotal = 0;   // ยอดรวมบริการเสริม
             const itemCount = selectedItems.length;
 
             // --- Auto Discount Logic ---
@@ -395,7 +440,7 @@
             // 1. User is NOT manually typing (isManualInput == false)
             // 2. Threshold is met
             if (!isManualInput) {
-                const lessonPlanCount = selectedItems.filter(i => i.id !== 'vip-item').length;
+                const lessonPlanCount = selectedItems.filter(i => i.id !== 'vip-item' && i.id !== 'post-lesson-item').length;
                 
                 if (lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD) {
                     discountPercentInput.value = AUTO_DISCOUNT_PERCENT;
@@ -406,7 +451,7 @@
                 }
             } else {
                 // Manual input: just check threshold for badge visibility logic only
-                 const lessonPlanCount = selectedItems.filter(i => i.id !== 'vip-item').length;
+                 const lessonPlanCount = selectedItems.filter(i => i.id !== 'vip-item' && i.id !== 'post-lesson-item').length;
                  if (lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD) {
                      autoDiscountBadge.classList.remove('hidden');
                  } else {
@@ -425,21 +470,30 @@
                 reviewListContainer.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีรายการที่เลือก</p>';
             } else {
                 const sortedItems = [...selectedItems].sort((a, b) => {
-                    if (a.id === 'vip-item') return 1;
-                    if (b.id === 'vip-item') return -1;
+                    const isAExtra = a.id === 'vip-item' || a.id === 'post-lesson-item';
+                    const isBExtra = b.id === 'vip-item' || b.id === 'post-lesson-item';
+                    if (isAExtra && !isBExtra) return 1;
+                    if (!isAExtra && isBExtra) return -1;
                     if (a.grade !== b.grade) return a.grade.localeCompare(b.grade);
                     return a.subject.localeCompare(b.subject);
                 });
 
                 sortedItems.forEach(item => {
                     subtotal += item.price;
+                    
+                    if (item.id === 'vip-item' || item.id === 'post-lesson-item') {
+                        extraSubtotal += item.price;
+                    } else {
+                        subjectSubtotal += item.price;
+                    }
+
                     const gradeTextMap = { 
                         'p1': 'ป.1', 'p2': 'ป.2', 'p3': 'ป.3',
                         'p4': 'ป.4', 'p5': 'ป.5', 'p6': 'ป.6'
                     };
                     let displayText = '';
                     
-                    if (item.id === 'vip-item') {
+                    if (item.id === 'vip-item' || item.id === 'post-lesson-item') {
                         displayText = `<span class="font-bold text-blue-600">⚡ ${item.subject}</span>`;
                     } else {
                         // Add grade number to the display name
@@ -466,8 +520,12 @@
 
             const discountPercent = parseFloat(discountPercentInput.value) || 0;
             const discountBaht = parseFloat(discountBahtInput.value) || 0;
-            const discountPercentValue = (subtotal * discountPercent) / 100;
+            
+            // ส่วนลด % คำนวณจากยอดวิชาเรียนเท่านั้น (ไม่รวมบริการเสริม)
+            const discountPercentValue = (subjectSubtotal * discountPercent) / 100;
             const totalAfterPercent = subtotal - discountPercentValue;
+            
+            // ส่วนลดเงินบาท หักจากยอดรวมทั้งหมดหลังจากหัก % แล้ว
             const actualDiscountBaht = Math.min(totalAfterPercent, discountBaht);
             let netTotal = Math.max(0, totalAfterPercent - actualDiscountBaht);
 
