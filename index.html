@@ -984,7 +984,7 @@
                         <div class="vip-icon vip-icon-blue">📝</div>
                         <div class="vip-card-content">
                             <div class="vip-card-title">บันทึกหลังแผน</div>
-                            <div class="vip-card-desc">บันทึกผลการสอนแต่ละครั้ง</div>
+                            <div class="vip-card-desc">บันทึกหลังการสอนรายวิชา</div>
                             <div class="vip-card-footer">
                                 <span class="price-tag">10 บาท/ชุด</span>
                                 <div class="qty-row">
@@ -1040,21 +1040,13 @@
 
             <div class="summary-grid">
                 <div class="discount-row">
-                    <div>
-                        <div class="discount-label-row">
-                            <label for="discountPercent" class="discount-label">🏷️ ส่วนลด (%)</label>
-                            <span id="autoDiscountBadge" class="auto-badge hidden">⚡ โปรฯ ครบ 3 วิชา</span>
+                    <div class="info-note" style="display:flex; align-items:flex-start; gap:8px;">
+                        <span style="font-size:18px; flex-shrink:0;">🎁</span>
+                        <div>
+                            <div style="font-weight:600; color:#374151; margin-bottom:4px;">โปรโมชันพิเศษ</div>
+                            <div>เมื่อสั่งซื้อแผนการสอน <strong>3 วิชาขึ้นไป</strong> รับส่วนลด <strong>5%</strong> โดยอัตโนมัติ</div>
+                            <div style="margin-top:6px; font-size:11px; color:#9ca3af;">* ส่วนลดคำนวณจากยอดวิชาเรียนเท่านั้น (ไม่รวมบริการเสริม)</div>
                         </div>
-                        <input type="number" id="discountPercent" min="0" max="100" placeholder="0" class="discount-input">
-                    </div>
-                    <div>
-                        <label for="discountBaht" class="discount-label" style="display:block; margin-bottom:8px;">
-                            💵 ส่วนลด (บาท)
-                        </label>
-                        <input type="number" id="discountBaht" min="0" placeholder="0" class="discount-input">
-                    </div>
-                    <div class="info-note">
-                        ℹ️ ส่วนลด % คำนวณจากยอดวิชาเรียนเท่านั้น (ไม่รวมบริการเสริม)
                     </div>
                 </div>
 
@@ -1064,13 +1056,12 @@
                             <span>ราคารวมก่อนส่วนลด</span>
                             <span id="subtotalDisplay" style="font-weight:600;">0 บาท</span>
                         </div>
-                        <div class="summary-row">
-                            <span>ส่วนลด (จาก %)</span>
+                        <div class="summary-row" id="summaryDiscountRow" style="display:none;">
+                            <span>
+                                <span id="autoDiscountBadge" class="auto-badge" style="margin-right:6px;">⚡ โปรฯ ครบ 3 วิชา</span>
+                                ส่วนลด <span id="discountPercentLabel">5</span>%
+                            </span>
                             <span id="discountPercentValueDisplay" class="summary-discount">- 0 บาท</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>ส่วนลด (เงินบาท)</span>
-                            <span id="discountBahtValueDisplay" class="summary-discount">- 0 บาท</span>
                         </div>
                         <div class="summary-divider">
                             <div class="summary-net">
@@ -1110,7 +1101,7 @@
                     </label>
                     <input type="email" id="customerEmail" class="form-input" 
                         placeholder="example@gmail.com" autocomplete="email">
-                    <span class="form-hint">สำหรับส่งไฟล์แผนการสอนและใบเสร็จ</span>
+                    <span class="form-hint">สำหรับส่งไฟล์แผนการสอน โดยแชร์ Google Drive</span>
                     <span id="customerEmailError" class="form-error">กรุณากรอก Gmail ที่ถูกต้อง</span>
                 </div>
             </div>
@@ -1178,10 +1169,6 @@
                     <div id="reviewDiscountPercentRow" class="review-total-row discount" style="display:none;">
                         <span>ส่วนลด (<span id="reviewDiscountPercentLabel">0</span>%)</span>
                         <span id="reviewDiscountPercentValue">- 0 บาท</span>
-                    </div>
-                    <div id="reviewDiscountBahtRow" class="review-total-row discount" style="display:none;">
-                        <span>ส่วนลด (เงินบาท)</span>
-                        <span id="reviewDiscountBaht">- 0 บาท</span>
                     </div>
                     <div class="review-total-row net">
                         <span>ยอดสุทธิ</span>
@@ -1351,11 +1338,9 @@
         const quickAddPanel = document.getElementById('quickAddPanel');
         const reviewListContainer = document.getElementById('reviewListContainer');
         const cartItemBadge = document.getElementById('cartItemBadge');
-        const discountPercentInput = document.getElementById('discountPercent');
-        const discountBahtInput = document.getElementById('discountBaht');
         const subtotalDisplay = document.getElementById('subtotalDisplay');
+        const summaryDiscountRow = document.getElementById('summaryDiscountRow');
         const discountPercentValueDisplay = document.getElementById('discountPercentValueDisplay');
-        const discountBahtValueDisplay = document.getElementById('discountBahtValueDisplay');
         const netTotalDisplay = document.getElementById('netTotalDisplay');
         const vip13Checkbox = document.getElementById('vip13Checkbox');
         const vip13Container = document.getElementById('vip13Container');
@@ -1383,8 +1368,6 @@
         const reviewDiscountPercentRow = document.getElementById('reviewDiscountPercentRow');
         const reviewDiscountPercentLabel = document.getElementById('reviewDiscountPercentLabel');
         const reviewDiscountPercentValue = document.getElementById('reviewDiscountPercentValue');
-        const reviewDiscountBahtRow = document.getElementById('reviewDiscountBahtRow');
-        const reviewDiscountBaht = document.getElementById('reviewDiscountBaht');
         const reviewNetTotal = document.getElementById('reviewNetTotal');
         const confirmOrderBtn = document.getElementById('confirmOrderBtn');
         const confirmOrderBtnLabel = document.getElementById('confirmOrderBtnLabel');
@@ -1575,26 +1558,10 @@
             recalcTotals();
         }
 
-        function recalcTotals(isManualInput = false) {
+        function recalcTotals() {
             reviewListContainer.innerHTML = '';
             let subtotal = 0, subjectSubtotal = 0;
             const itemCount = selectedItems.length;
-
-            const lessonPlanCount = selectedItems.filter(i => !isExtraItem(i.id)).length;
-            if (!isManualInput) {
-                if (lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD) {
-                    discountPercentInput.value = AUTO_DISCOUNT_PERCENT;
-                    autoDiscountBadge.classList.remove('hidden');
-                } else {
-                    autoDiscountBadge.classList.add('hidden');
-                }
-            } else {
-                if (lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD) {
-                    autoDiscountBadge.classList.remove('hidden');
-                } else {
-                    autoDiscountBadge.classList.add('hidden');
-                }
-            }
 
             if (itemCount > 0) {
                 cartItemBadge.textContent = `${itemCount} รายการ`;
@@ -1658,16 +1625,22 @@
                 });
             }
 
-            const discountPercent = parseFloat(discountPercentInput.value) || 0;
-            const discountBaht = parseFloat(discountBahtInput.value) || 0;
+            // คำนวณส่วนลดอัตโนมัติ
+            const lessonPlanCount = selectedItems.filter(i => !isExtraItem(i.id)).length;
+            const eligibleForDiscount = lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD;
+            const discountPercent = eligibleForDiscount ? AUTO_DISCOUNT_PERCENT : 0;
             const discountPercentValue = (subjectSubtotal * discountPercent) / 100;
-            const totalAfterPercent = subtotal - discountPercentValue;
-            const actualDiscountBaht = Math.min(totalAfterPercent, discountBaht);
-            const netTotal = Math.max(0, totalAfterPercent - actualDiscountBaht);
+            const netTotal = Math.max(0, subtotal - discountPercentValue);
+
+            // แสดง / ซ่อน แถวส่วนลด
+            if (eligibleForDiscount && discountPercentValue > 0) {
+                summaryDiscountRow.style.display = 'flex';
+                discountPercentValueDisplay.textContent = `- ${formatCurrency(discountPercentValue)} บาท`;
+            } else {
+                summaryDiscountRow.style.display = 'none';
+            }
 
             subtotalDisplay.textContent = `${formatCurrency(subtotal)} บาท`;
-            discountPercentValueDisplay.textContent = `- ${formatCurrency(discountPercentValue)} บาท`;
-            discountBahtValueDisplay.textContent = `- ${formatCurrency(actualDiscountBaht)} บาท`;
             netTotalDisplay.textContent = `${formatCurrency(netTotal)} บาท`;
         }
 
@@ -1677,15 +1650,15 @@
                 subtotal += item.price;
                 if (!isExtraItem(item.id)) subjectSubtotal += item.price;
             });
-            const discountPercent = parseFloat(discountPercentInput.value) || 0;
-            const discountBaht = parseFloat(discountBahtInput.value) || 0;
+            const lessonPlanCount = selectedItems.filter(i => !isExtraItem(i.id)).length;
+            const eligibleForDiscount = lessonPlanCount >= AUTO_DISCOUNT_THRESHOLD;
+            const discountPercent = eligibleForDiscount ? AUTO_DISCOUNT_PERCENT : 0;
             const discountPercentValue = (subjectSubtotal * discountPercent) / 100;
-            const totalAfterPercent = subtotal - discountPercentValue;
-            const actualDiscountBaht = Math.min(totalAfterPercent, discountBaht);
-            const netTotal = Math.max(0, totalAfterPercent - actualDiscountBaht);
+            const netTotal = Math.max(0, subtotal - discountPercentValue);
             return {
                 subtotal, subjectSubtotal,
-                discountPercent, discountBaht: actualDiscountBaht,
+                discountPercent,
+                discountBaht: 0,
                 discountPercentValue,
                 netTotal
             };
@@ -1821,13 +1794,6 @@
                 reviewDiscountPercentRow.style.display = 'none';
             }
 
-            if (totals.discountBaht > 0) {
-                reviewDiscountBahtRow.style.display = 'flex';
-                reviewDiscountBaht.textContent = `- ${formatCurrency(totals.discountBaht)} บาท`;
-            } else {
-                reviewDiscountBahtRow.style.display = 'none';
-            }
-
             // เปิด modal
             reviewModal.classList.add('show');
             document.body.style.overflow = 'hidden';
@@ -1854,7 +1820,7 @@
                 items: itemsText,
                 itemCount: selectedItems.length,
                 subtotal: totals.subtotal,
-                discountPercent: parseFloat(discountPercentInput.value) || 0,
+                discountPercent: totals.discountPercent,
                 discountPercentValue: totals.discountPercentValue,
                 discountBaht: totals.discountBaht,
                 netTotal: totals.netTotal,
@@ -1954,9 +1920,6 @@
                 reportSystemCheckbox.checked = !reportSystemCheckbox.checked;
                 handleReportSystemChange();
             });
-
-            discountPercentInput.addEventListener('input', () => recalcTotals(true));
-            discountBahtInput.addEventListener('input', () => recalcTotals(true));
 
             // Customer inputs - clear errors on input
             customerFbInput.addEventListener('input', () => {
