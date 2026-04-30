@@ -554,6 +554,198 @@
             color: var(--gray-500); padding-bottom: 24px;
         }
 
+        /* ========== History Button ใน Header ========== */
+        .history-btn {
+            position: fixed;
+            top: 14px; right: 14px;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid #c4b5fd;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-family: inherit;
+            font-size: 13px; font-weight: 600;
+            color: #5b21b6;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(129, 140, 248, 0.18);
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .history-btn:hover { background: white; transform: translateY(-1px); }
+        .history-btn:active { transform: translateY(0); }
+        .history-btn .badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 20px; height: 20px;
+            padding: 0 6px;
+            background: linear-gradient(135deg, #f472b6, #f0abfc);
+            color: white; border-radius: 10px;
+            font-size: 11px; font-weight: 700;
+        }
+        @media (max-width: 480px) {
+            .history-btn { padding: 7px 12px; font-size: 12px; }
+            .history-btn .label-full { display: none; }
+        }
+
+        /* ========== Post-order Slip Upload Card (สุดท้าย) ========== */
+        .post-order-slip-card {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid #fbbf24;
+            border-radius: 16px;
+            padding: 18px 16px;
+            margin: 16px 0;
+            display: none;
+        }
+        .post-order-slip-card.show { display: block; }
+        .post-order-slip-title {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 15px; font-weight: 700; color: #92400e;
+            margin-bottom: 6px;
+        }
+        .post-order-slip-desc {
+            font-size: 13px; color: #78350f;
+            line-height: 1.55; margin-bottom: 12px;
+        }
+        .post-order-slip-orderid {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 6px 10px; border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px; color: #92400e;
+            display: inline-block; margin-bottom: 10px;
+        }
+
+        /* ========== History Modal ========== */
+        .history-modal-content {
+            max-width: 540px;
+            max-height: 90vh;
+            display: flex; flex-direction: column;
+        }
+        .history-modal-body {
+            flex: 1; overflow-y: auto;
+            padding: 16px;
+        }
+        .history-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-500);
+        }
+        .history-empty-emoji { font-size: 48px; margin-bottom: 8px; }
+        .history-empty-text { font-size: 14px; }
+
+        .history-order-card {
+            background: white;
+            border: 2px solid #e9d5ff;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        .history-order-card.expanded {
+            border-color: #a78bfa;
+            box-shadow: 0 4px 16px rgba(167, 139, 250, 0.2);
+        }
+        .history-order-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 10px; cursor: pointer;
+        }
+        .history-order-id {
+            font-family: 'Courier New', monospace;
+            font-size: 12px; color: var(--gray-600);
+        }
+        .history-order-date {
+            font-size: 11px; color: var(--gray-500);
+            margin-top: 2px;
+        }
+        .history-order-status {
+            font-size: 11px; font-weight: 600;
+            padding: 4px 10px; border-radius: 999px;
+            white-space: nowrap;
+        }
+        .history-order-status.pending { background: #fef9c3; color: #a16207; }
+        .history-order-status.paid { background: #dbeafe; color: #1e40af; }
+        .history-order-status.approved { background: #ede9fe; color: #6b21a8; }
+        .history-order-status.completed { background: #dcfce7; color: #15803d; }
+        .history-order-status.cancelled { background: #fee2e2; color: #b91c1c; }
+        .history-order-status.unknown { background: #f3f4f6; color: #6b7280; }
+        .history-order-body {
+            margin-top: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px;
+        }
+        .history-order-amount {
+            font-size: 18px; font-weight: 700;
+            background: linear-gradient(135deg, #818cf8, #f0abfc);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .history-order-items {
+            font-size: 12px; color: var(--gray-600);
+        }
+        .history-order-actions {
+            margin-top: 12px;
+            display: flex; gap: 8px;
+            flex-wrap: wrap;
+        }
+        .history-action-btn {
+            flex: 1;
+            padding: 9px 10px;
+            border: none; border-radius: 8px;
+            font-family: inherit; font-size: 12px; font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            min-width: 100px;
+        }
+        .history-action-upload {
+            background: linear-gradient(135deg, #818cf8, #a78bfa);
+            color: white;
+            box-shadow: 0 3px 8px rgba(129, 140, 248, 0.3);
+        }
+        .history-action-cancel {
+            background: white; color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+        .history-action-view {
+            background: white; color: #4b5563;
+            border: 1px solid #d1d5db;
+        }
+        .history-action-btn:active { transform: scale(0.97); }
+        .history-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .history-slip-thumb {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .history-slip-thumb img {
+            max-width: 100%; max-height: 200px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .history-status-info {
+            margin-top: 10px;
+            font-size: 12px; color: var(--gray-600);
+            line-height: 1.5;
+            padding: 8px 10px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .history-refresh-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 4px 14px;
+            font-size: 12px; color: var(--gray-500);
+        }
+        .history-refresh-btn {
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: inherit; font-size: 12px;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .history-refresh-btn:active { background: #f3f4f6; }
+
         /* ========== Loading spinner ========== */
         .spinner {
             display: inline-block;
@@ -989,6 +1181,13 @@
     <div class="bg-blob bg-blob-2"></div>
     <div class="bg-blob bg-blob-3"></div>
 
+    <!-- 🆕 ปุ่มประวัติการสั่งซื้อ -->
+    <button type="button" id="historyBtn" class="history-btn" onclick="openHistoryModal()" style="display:none;">
+        <span>📋</span>
+        <span class="label-full">ประวัติการสั่งซื้อ</span>
+        <span id="historyBadge" class="badge">0</span>
+    </button>
+
     <div class="container">
 
         <!-- Header -->
@@ -1208,6 +1407,23 @@
             </button>
         </div>
 
+        <!-- 🆕 Card อัปสลิปสำหรับออเดอร์ที่เพิ่งสั่ง (แสดงหลังกด "ส่งคำสั่งซื้อ") -->
+        <div id="postOrderSlipCard" class="post-order-slip-card">
+            <div class="post-order-slip-title">
+                <span>⏳</span>
+                <span>ยังไม่ได้อัปโหลดสลิป</span>
+            </div>
+            <div class="post-order-slip-desc">
+                คำสั่งซื้อล่าสุดของคุณรอชำระเงินอยู่ — คลิกปุ่มด้านล่างเพื่ออัปโหลดสลิป
+                หรือเข้าไปดูที่ <strong>ปุ่ม "ประวัติการสั่งซื้อ"</strong> มุมขวาบน
+            </div>
+            <div id="postOrderSlipOrderId" class="post-order-slip-orderid"></div>
+            <button type="button" class="btn btn-slip-upload" onclick="openHistoryModal()">
+                <span class="btn-icon">📷</span>
+                <span>อัปโหลดสลิปเลย</span>
+            </button>
+        </div>
+
         <!-- Footer -->
         <footer class="footer">
             <p>© ครูพร้อมสอน™ — ระบบสั่งซื้อแผนการสอน</p>
@@ -1329,7 +1545,7 @@
 
                     <!-- กรณียังไม่ได้อัปสลิป -->
                     <div id="slipUploadBefore" class="slip-upload-before">
-                        <input type="file" id="slipFileInput" accept="image/jpeg,image/png,image/jpg" capture="environment" class="hidden">
+                        <input type="file" id="slipFileInput" accept="image/jpeg,image/png,image/jpg" class="hidden">
                         <button type="button" id="slipUploadBtn" class="btn btn-slip-upload">
                             <span class="btn-icon">📷</span>
                             <span>อัปโหลดสลิปการโอน</span>
@@ -1386,6 +1602,34 @@
         </div>
     </div>
 
+    <!-- 🆕 History Modal - ประวัติการสั่งซื้อ -->
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-content history-modal-content">
+            <div class="modal-header modal-header-review">
+                <div class="modal-success-icon">📋</div>
+                <div class="modal-title">ประวัติการสั่งซื้อของคุณ</div>
+                <div class="modal-subtitle">รายการคำสั่งซื้อจากอุปกรณ์นี้</div>
+            </div>
+            <div class="modal-body history-modal-body">
+                <div class="history-refresh-bar">
+                    <span id="historyLastSync">⏱️ กำลังโหลด...</span>
+                    <button type="button" class="history-refresh-btn" onclick="refreshHistory()">
+                        <span>🔄</span><span>รีเฟรช</span>
+                    </button>
+                </div>
+                <div id="historyList"></div>
+            </div>
+            <div class="modal-actions" style="padding: 14px 16px; border-top: 1px solid #e5e7eb;">
+                <button type="button" class="btn btn-secondary" onclick="closeHistoryModal()" style="width: 100%;">
+                    <span>ปิด</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file input สำหรับอัปสลิปจากประวัติ -->
+    <input type="file" id="historySlipFileInput" accept="image/jpeg,image/png,image/jpg" class="hidden">
+
     <!-- Toast -->
     <div id="toast" class="toast"></div>
 
@@ -1396,7 +1640,7 @@
         const CONFIG = {
             // URL ของ Google Apps Script Web App (ดูคู่มือในไฟล์ google-apps-script.txt)
             // ถ้ายังไม่ตั้งค่า ระบบจะแสดง QR Code ตามปกติแต่จะไม่บันทึกลง Sheet
-            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzZaURSvpNXUtaL9i3CHNSgxNZCPeiyrOWFABvEB73Nj1L_-1mPJLWFVE-tgb5OdlEZ/exec',  // <-- ใส่ URL ของ Apps Script ที่ deploy แล้วตรงนี้
+            GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby37AUM0Kf7xX8Cvk6ZMXb6MFkl9FfffVvklNwwDxDD6x27GUE_meSgi2J0ynjpuC52/exec',  // <-- ใส่ URL ของ Apps Script ที่ deploy แล้วตรงนี้
             
             // ลิงก์ Facebook เพจครูพร้อมสอน (ใช้สำหรับปุ่มส่งสลิป)
             MESSENGER_URL: 'https://m.me/101368135444470',
@@ -1940,6 +2184,19 @@
             // เก็บ orderId ปัจจุบันสำหรับใช้อัปโหลดสลิป
             currentOrderId = orderId;
 
+            // 🆕 บันทึกออเดอร์เข้า localStorage history
+            saveOrderToHistory({
+                orderId: orderId,
+                customerFb: customerFb,
+                customerEmail: customerEmail,
+                netTotal: totals.netTotal,
+                itemCount: getSortedItems().length,
+                items: getSortedItems().map(it => buildItemDisplayName(it)),
+                timestamp: new Date().toISOString(),
+                status: 'รอชำระเงิน',
+                slipUploaded: false
+            });
+
             // รีเซ็ตส่วนอัปโหลดสลิป
             resetSlipUpload();
 
@@ -2171,6 +2428,427 @@
             firstBtn.classList.add('active');
             populateSubjectPanel('p1_68');
             recalcTotals();
+
+            // 🆕 โหลด history เริ่มต้น
+            renderHistoryButton();
+        });
+
+        // ============================================================
+        // 🆕 History System - ประวัติการสั่งซื้อ (เก็บใน localStorage)
+        // ============================================================
+
+        const HISTORY_STORAGE_KEY = 'kruprompt_order_history_v1';
+
+        function getHistory() {
+            try {
+                const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                console.error('History load failed:', e);
+                return [];
+            }
+        }
+
+        function setHistory(orders) {
+            try {
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(orders));
+            } catch (e) {
+                console.error('History save failed:', e);
+            }
+        }
+
+        function saveOrderToHistory(orderData) {
+            const history = getHistory();
+            // ป้องกัน duplicate
+            const idx = history.findIndex(o => o.orderId === orderData.orderId);
+            if (idx >= 0) {
+                history[idx] = Object.assign({}, history[idx], orderData);
+            } else {
+                history.unshift(orderData); // ใหม่อยู่หน้าสุด
+            }
+            // เก็บแค่ 50 ออเดอร์ล่าสุด
+            if (history.length > 50) history.length = 50;
+            setHistory(history);
+
+            // อัปเดตปุ่ม + แสดง post-order card
+            renderHistoryButton();
+            showPostOrderSlipCard(orderData.orderId);
+        }
+
+        function showPostOrderSlipCard(orderId) {
+            const card = document.getElementById('postOrderSlipCard');
+            const idEl = document.getElementById('postOrderSlipOrderId');
+            if (!card || !idEl) return;
+            idEl.textContent = '#' + orderId;
+            card.classList.add('show');
+        }
+
+        function hidePostOrderSlipCard() {
+            const card = document.getElementById('postOrderSlipCard');
+            if (card) card.classList.remove('show');
+        }
+
+        function renderHistoryButton() {
+            const btn = document.getElementById('historyBtn');
+            const badge = document.getElementById('historyBadge');
+            const history = getHistory();
+
+            if (history.length === 0) {
+                btn.style.display = 'none';
+                return;
+            }
+
+            btn.style.display = 'flex';
+
+            // นับเฉพาะที่ยังไม่ส่งแผน (สถานะที่ไม่ใช่ completed/cancelled)
+            const activeCount = history.filter(o => {
+                const s = (o.status || '').trim();
+                return s !== 'ส่งแผนเสร็จสิ้น' && s !== 'ยกเลิก';
+            }).length;
+
+            badge.textContent = activeCount > 0 ? activeCount : '';
+            badge.style.display = activeCount > 0 ? 'inline-flex' : 'none';
+        }
+
+        async function syncHistoryStatuses() {
+            const history = getHistory();
+            if (history.length === 0) return;
+            if (!CONFIG.GOOGLE_SCRIPT_URL || !CONFIG.GOOGLE_SCRIPT_URL.startsWith('http')) return;
+
+            const orderIds = history.map(o => o.orderId);
+
+            try {
+                // ⚠️ ใช้ no-cors → อ่าน response ไม่ได้ ใช้วิธี bypass ผ่าน text/plain
+                // ลอง fetch แบบมี response (อาจติด CORS แต่ถ้าใช้ text/plain ก็ผ่าน)
+                const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'getOrderStatus',
+                        orderIds: orderIds
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success && data.orders) {
+                    // อัปเดตสถานะใน history
+                    let changed = false;
+                    history.forEach(o => {
+                        const remote = data.orders[o.orderId];
+                        if (remote) {
+                            if (o.status !== remote.status) {
+                                o.status = remote.status;
+                                changed = true;
+                            }
+                            if (remote.slipUrl && !o.slipUrl) {
+                                o.slipUrl = remote.slipUrl;
+                                o.slipUploaded = true;
+                                changed = true;
+                            }
+                        }
+                    });
+                    if (changed) {
+                        setHistory(history);
+                        renderHistoryButton();
+                    }
+                    return true;
+                }
+            } catch (err) {
+                console.warn('Sync history failed (อาจเป็นเพราะ CORS):', err);
+            }
+            return false;
+        }
+
+        function openHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            modal.classList.add('show');
+            renderHistoryList();
+            // sync ทันทีเมื่อเปิด
+            refreshHistory();
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('show');
+        }
+
+        async function refreshHistory() {
+            const lastSyncEl = document.getElementById('historyLastSync');
+            if (lastSyncEl) lastSyncEl.textContent = '⏱️ กำลังซิงค์สถานะ...';
+
+            const ok = await syncHistoryStatuses();
+
+            if (lastSyncEl) {
+                const now = new Date();
+                const time = now.getHours().toString().padStart(2, '0') + ':' +
+                             now.getMinutes().toString().padStart(2, '0');
+                lastSyncEl.textContent = ok
+                    ? '✅ ซิงค์ล่าสุด: ' + time
+                    : '⚠️ ซิงค์ไม่สำเร็จ (อาจมีปัญหาการเชื่อมต่อ)';
+            }
+
+            renderHistoryList();
+        }
+
+        function renderHistoryList() {
+            const listEl = document.getElementById('historyList');
+            const history = getHistory();
+
+            if (history.length === 0) {
+                listEl.innerHTML = `
+                    <div class="history-empty">
+                        <div class="history-empty-emoji">📭</div>
+                        <div class="history-empty-text">ยังไม่มีคำสั่งซื้อในเครื่องนี้</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const statusClassMap = {
+                'รอชำระเงิน': 'pending',
+                'ชำระเงินแล้ว': 'paid',
+                'อนุมัติส่งแผน': 'approved',
+                'ส่งแผนเสร็จสิ้น': 'completed',
+                'ยกเลิก': 'cancelled'
+            };
+
+            listEl.innerHTML = history.map(o => {
+                const status = o.status || 'ไม่ทราบสถานะ';
+                const statusClass = statusClassMap[status] || 'unknown';
+                const date = formatHistoryDate(o.timestamp);
+                const amount = formatCurrency(o.netTotal || 0);
+
+                // ปุ่ม action ตามสถานะ
+                let actionsHtml = '';
+                let statusInfoHtml = '';
+
+                if (status === 'รอชำระเงิน') {
+                    actionsHtml = `
+                        <div class="history-order-actions">
+                            <button class="history-action-btn history-action-upload" 
+                                onclick="triggerSlipUploadForOrder('${escapeHtml(o.orderId)}')">
+                                <span>📷</span><span>อัปโหลดสลิป</span>
+                            </button>
+                            <button class="history-action-btn history-action-cancel" 
+                                onclick="cancelOrderFromHistory('${escapeHtml(o.orderId)}')">
+                                <span>❌</span><span>ยกเลิก</span>
+                            </button>
+                        </div>
+                    `;
+                } else if (status === 'ชำระเงินแล้ว') {
+                    statusInfoHtml = `<div class="history-status-info">
+                        ⏳ รอแอดมินตรวจสอบสลิปและส่งแผน — โดยปกติภายใน <strong>10 นาที</strong>
+                    </div>`;
+                    if (o.slipUrl) {
+                        actionsHtml = `
+                            <div class="history-order-actions">
+                                <a href="${escapeHtml(o.slipUrl)}" target="_blank" class="history-action-btn history-action-view" style="text-decoration:none;">
+                                    <span>🔍</span><span>ดูสลิปที่อัปโหลด</span>
+                                </a>
+                            </div>
+                        `;
+                    }
+                } else if (status === 'อนุมัติส่งแผน') {
+                    statusInfoHtml = `<div class="history-status-info">
+                        ✨ แอดมินกำลังจะส่งแผนให้ — กรุณาตรวจ <strong>Gmail</strong> ที่ลงทะเบียนไว้
+                    </div>`;
+                } else if (status === 'ส่งแผนเสร็จสิ้น') {
+                    statusInfoHtml = `<div class="history-status-info" style="background:#dcfce7; color:#15803d;">
+                        🎉 ส่งแผนเรียบร้อยแล้ว! กรุณาตรวจ <strong>Gmail</strong> ของคุณ — แอดมินได้แชร์ไฟล์แผนการสอนให้แล้ว
+                    </div>`;
+                } else if (status === 'ยกเลิก') {
+                    statusInfoHtml = `<div class="history-status-info" style="background:#fee2e2; color:#b91c1c;">
+                        ❌ คำสั่งซื้อถูกยกเลิก
+                    </div>`;
+                }
+
+                return `
+                    <div class="history-order-card">
+                        <div class="history-order-header">
+                            <div>
+                                <div class="history-order-id">#${escapeHtml(o.orderId)}</div>
+                                <div class="history-order-date">${date}</div>
+                            </div>
+                            <div class="history-order-status ${statusClass}">${escapeHtml(status)}</div>
+                        </div>
+                        <div class="history-order-body">
+                            <div class="history-order-items">${o.itemCount || 0} รายการ</div>
+                            <div class="history-order-amount">฿${amount}</div>
+                        </div>
+                        ${statusInfoHtml}
+                        ${actionsHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatHistoryDate(iso) {
+            try {
+                const d = new Date(iso);
+                if (isNaN(d.getTime())) return '-';
+                const pad = n => String(n).padStart(2, '0');
+                return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() +
+                       ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            } catch (e) {
+                return '-';
+            }
+        }
+
+        // อัปโหลดสลิปจากประวัติ
+        let pendingHistoryOrderId = null;
+
+        function triggerSlipUploadForOrder(orderId) {
+            pendingHistoryOrderId = orderId;
+            const fileInput = document.getElementById('historySlipFileInput');
+            fileInput.value = '';
+            fileInput.click();
+        }
+
+        async function handleHistorySlipFile(e) {
+            const file = e.target.files[0];
+            if (!file || !pendingHistoryOrderId) return;
+
+            // ตรวจประเภท + ขนาด
+            if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+                showToast('⚠️ รองรับเฉพาะไฟล์ JPG หรือ PNG', 'error');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('⚠️ ไฟล์ใหญ่เกิน 5 MB', 'error');
+                return;
+            }
+
+            if (!CONFIG.GOOGLE_SCRIPT_URL || !CONFIG.GOOGLE_SCRIPT_URL.startsWith('http')) {
+                showToast('⚠️ ระบบยังไม่พร้อม', 'error');
+                return;
+            }
+
+            showToast('⏳ กำลังอัปโหลดสลิป...', '');
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const base64 = event.target.result;
+
+                    try {
+                        await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({
+                                action: 'uploadSlip',
+                                orderId: pendingHistoryOrderId,
+                                slipBase64: base64,
+                                mimeType: file.type,
+                                fileName: file.name
+                            })
+                        });
+
+                        // อัปเดต local history
+                        const history = getHistory();
+                        const idx = history.findIndex(o => o.orderId === pendingHistoryOrderId);
+                        if (idx >= 0) {
+                            history[idx].status = 'ชำระเงินแล้ว';
+                            history[idx].slipUploaded = true;
+                            setHistory(history);
+                        }
+
+                        showToast('✅ อัปโหลดสำเร็จ! แอดมินจะตรวจและส่งแผนภายใน 10 นาที', 'success');
+                        renderHistoryList();
+                        renderHistoryButton();
+                        hidePostOrderSlipCard();
+
+                        // sync จาก server เพื่อดึง slip URL
+                        setTimeout(() => syncHistoryStatuses().then(() => renderHistoryList()), 2000);
+                    } catch (err) {
+                        showToast('⚠️ อัปโหลดล้มเหลว — ลองใหม่อีกครั้ง', 'error');
+                    }
+                    pendingHistoryOrderId = null;
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                showToast('⚠️ อ่านไฟล์ไม่สำเร็จ', 'error');
+                pendingHistoryOrderId = null;
+            }
+        }
+
+        async function cancelOrderFromHistory(orderId) {
+            if (!confirm('ยกเลิกคำสั่งซื้อ #' + orderId + ' ใช่ไหม?\n\nการยกเลิกจะไม่สามารถย้อนกลับได้')) return;
+
+            if (!CONFIG.GOOGLE_SCRIPT_URL || !CONFIG.GOOGLE_SCRIPT_URL.startsWith('http')) {
+                // กรณีไม่มี server - ลบจาก local history
+                const history = getHistory();
+                const filtered = history.filter(o => o.orderId !== orderId);
+                setHistory(filtered);
+                showToast('✅ ลบออกจากประวัติเรียบร้อย', 'success');
+                renderHistoryList();
+                renderHistoryButton();
+                return;
+            }
+
+            showToast('⏳ กำลังยกเลิก...', '');
+
+            try {
+                const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'cancelOrder',
+                        orderId: orderId
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // อัปเดต local
+                    const history = getHistory();
+                    const idx = history.findIndex(o => o.orderId === orderId);
+                    if (idx >= 0) {
+                        history[idx].status = 'ยกเลิก';
+                        setHistory(history);
+                    }
+                    showToast('✅ ยกเลิกเรียบร้อยแล้ว', 'success');
+                    renderHistoryList();
+                    renderHistoryButton();
+                    hidePostOrderSlipCard();
+                } else {
+                    showToast('⚠️ ' + (data.error || 'ยกเลิกไม่สำเร็จ'), 'error');
+                }
+            } catch (err) {
+                // เนื่องจากใช้ no-cors อาจ throw - ทำ optimistic update
+                const history = getHistory();
+                const idx = history.findIndex(o => o.orderId === orderId);
+                if (idx >= 0) {
+                    history[idx].status = 'ยกเลิก';
+                    setHistory(history);
+                }
+                showToast('✅ ยกเลิกเรียบร้อย — กำลังซิงค์...', 'success');
+                renderHistoryList();
+                renderHistoryButton();
+                setTimeout(() => syncHistoryStatuses(), 1500);
+            }
+        }
+
+        // bind history slip file input
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('historySlipFileInput');
+            if (fileInput) fileInput.addEventListener('change', handleHistorySlipFile);
+
+            // sync history เมื่อเปิดหน้าครั้งแรก (แบบเงียบๆ)
+            setTimeout(() => syncHistoryStatuses(), 1500);
+
+            // sync ทุก 30 วินาที
+            setInterval(() => syncHistoryStatuses(), 30000);
+
+            // ถ้ามีออเดอร์ที่ยังรอชำระ → แสดง post-order card อัตโนมัติ
+            const history = getHistory();
+            const pending = history.find(o => o.status === 'รอชำระเงิน');
+            if (pending) {
+                showPostOrderSlipCard(pending.orderId);
+            }
         });
     </script>
 </body>
