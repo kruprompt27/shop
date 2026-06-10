@@ -296,20 +296,6 @@
   </div>
 </div>
 
-<!-- ░░ Modal: ยืนยันล้างข้อมูล ░░ -->
-<div id="clearModal" class="hidden fixed inset-0 bg-black/40 z-[90] flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl shadow-2xl p-5 w-full max-w-sm border-t-8 border-red-500">
-    <h3 class="font-extrabold text-red-600">🗑️ ล้างประวัติคำสั่งซื้อ</h3>
-    <p class="text-xs text-gray-600 mt-2 leading-5">จะลบ <b>คำสั่งซื้อทั้งหมดในชีต Orders</b> (รายการแผนการสอน ลูกค้าจะหายตาม และการตั้งค่าไม่ถูกแตะต้อง) การกระทำนี้ย้อนกลับไม่ได้</p>
-    <p class="text-xs font-bold text-gray-700 mt-3">พิมพ์คำว่า "ยืนยัน" เพื่อดำเนินการ</p>
-    <input id="clearConfirmText" class="mt-2 w-full border-2 border-red-200 rounded-xl px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-red-300">
-    <div class="flex gap-2 mt-4">
-      <button onclick="document.getElementById('clearModal').classList.add('hidden')" class="flex-1 text-sm font-bold text-gray-500 bg-gray-100 rounded-xl py-2">ยกเลิก</button>
-      <button onclick="doClearAll()" class="flex-1 text-sm font-bold text-white bg-red-500 rounded-xl py-2">ล้างข้อมูล</button>
-    </div>
-  </div>
-</div>
-
 <!-- ░░ Modal: ประวัติลูกค้า ░░ -->
 <div id="custModal" class="hidden fixed inset-0 bg-black/40 z-[90] flex items-center justify-center p-4 overflow-y-auto">
   <div class="bg-white rounded-2xl shadow-2xl p-5 w-full max-w-md my-8">
@@ -514,9 +500,6 @@ function buildAdminMenu(){
   let html = ADMIN_MENU.filter(function(m){ return canAccess(m.tab); }).map(function(m){
     return '<button onclick="switchTab(\''+m.tab+'\')" class="text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-xl px-3 py-2.5 text-left">'+m.icon+' '+m.label+'</button>';
   }).join('');
-  if (adminRole === 'owner'){
-    html += '<button onclick="openClearModal()" class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-xl px-3 py-2.5 text-left">🗑️ ล้างประวัติคำสั่งซื้อ</button>';
-  }
   html += '<button onclick="logoutAdmin()" class="text-xs font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 text-left">🚪 ออกจากระบบ</button>';
   document.getElementById('adminMenuItems').innerHTML = html;
 }
@@ -710,25 +693,53 @@ const STATUS_BADGE = {
   'ส่งแผนเสร็จสิ้น':'bg-green-100 text-green-700',
   'ยกเลิก':'bg-red-100 text-red-700'
 };
+// รายการที่ลูกค้าซ่อนไว้ "เฉพาะเครื่องนี้" (ไม่กระทบข้อมูลจริงในระบบ)
+function getHiddenOrders(){
+  try { return JSON.parse(localStorage.getItem('kps_hidden_orders') || '[]'); } catch(e){ return []; }
+}
+function hideOrderLocal(id){
+  if (!confirm('ลบรายการ '+id+' ออกจากประวัติบนเครื่องนี้?\n(ข้อมูลคำสั่งซื้อจริงยังอยู่ในระบบ แอดมินยังเห็นและส่งแผนได้ตามปกติ)')) return;
+  const h = getHiddenOrders();
+  if (h.indexOf(id) < 0) h.push(id);
+  try { localStorage.setItem('kps_hidden_orders', JSON.stringify(h)); } catch(e){}
+  renderStatusResults();
+  toast('ลบออกจากประวัติบนเครื่องนี้แล้ว');
+}
+function unhideAllOrders(){
+  try { localStorage.removeItem('kps_hidden_orders'); } catch(e){}
+  renderStatusResults();
+}
+let LAST_STATUS_ORDERS = [];
 async function checkStatus(){
   const q = document.getElementById('statusQuery').value.trim();
   if (!q){ toast('กรอกเลขออเดอร์หรืออีเมลก่อนค่ะ', false); return; }
   const res = await gs('getOrderStatus', q);
+  if (!res.success){ document.getElementById('statusResult').innerHTML=''; toast(res.error, false); return; }
+  LAST_STATUS_ORDERS = res.orders;
+  renderStatusResults();
+}
+function renderStatusResults(){
   const box = document.getElementById('statusResult');
-  if (!res.success){ box.innerHTML=''; toast(res.error, false); return; }
-  if (!res.orders.length){
+  const hidden = getHiddenOrders();
+  const list = LAST_STATUS_ORDERS.filter(function(o){ return hidden.indexOf(o.orderId) < 0; });
+  const hiddenCount = LAST_STATUS_ORDERS.length - list.length;
+  if (!LAST_STATUS_ORDERS.length){
     box.innerHTML = '<div class="text-center text-xs text-gray-400 py-6">ไม่พบคำสั่งซื้อ — ตรวจสอบเลขออเดอร์หรืออีเมลอีกครั้งนะคะ</div>';
     return;
   }
-  box.innerHTML = res.orders.map(function(o){
+  box.innerHTML = list.map(function(o){
     return '<div class="border border-violet-100 rounded-xl p-3 bg-violet-50/40">' +
       '<div class="flex items-center justify-between flex-wrap gap-1">' +
         '<b class="text-violet-800">#'+esc(o.orderId)+'</b>' +
         '<span class="text-[11px] font-bold rounded-full px-2.5 py-1 '+(STATUS_BADGE[o.status]||'bg-gray-100 text-gray-600')+'">'+esc(o.status)+'</span></div>' +
       '<div class="text-[11px] text-gray-500 mt-0.5">'+esc(o.timestamp)+' • '+o.itemCount+' วิชา • ยอดสุทธิ <b>'+baht(o.netTotal)+'</b>'+(o.hasSlip?' • 📎 แนบสลิปแล้ว':'')+'</div>' +
       '<div class="text-xs text-gray-700 mt-1.5">'+o.items.map(function(it){ return '📘 '+esc(it.subject)+' '+esc(it.grade); }).join('<br>')+'</div>' +
+      '<div class="text-right mt-2"><button onclick="hideOrderLocal(\''+esc(o.orderId)+'\')" class="text-[11px] font-semibold text-gray-400 hover:text-red-500">🗑️ ลบออกจากประวัติบนเครื่องนี้</button></div>' +
       '</div>';
-  }).join('');
+  }).join('') || '<div class="text-center text-xs text-gray-400 py-6">รายการทั้งหมดถูกซ่อนไว้ในเครื่องนี้</div>';
+  if (hiddenCount > 0){
+    box.innerHTML += '<div class="text-center text-[11px] text-gray-400 pt-1">ซ่อนไว้ในเครื่องนี้ '+hiddenCount+' รายการ · <button onclick="unhideAllOrders()" class="text-violet-500 font-bold underline">แสดงทั้งหมด</button></div>';
+  }
 }
 document.getElementById('statusQuery').addEventListener('keydown', function(e){ if(e.key==='Enter') checkStatus(); });
 
@@ -1116,22 +1127,6 @@ async function uploadSetting(kind){
 /* ============================================================
    💾 Backup / Import / ล้างข้อมูล (Action Bar)
 ============================================================ */
-function openClearModal(){
-  document.getElementById('clearConfirmText').value = '';
-  document.getElementById('clearModal').classList.remove('hidden');
-}
-async function doClearAll(){
-  if (document.getElementById('clearConfirmText').value.trim() !== 'ยืนยัน'){
-    toast('พิมพ์คำว่า "ยืนยัน" ให้ถูกต้องก่อนค่ะ', false); return;
-  }
-  const pin = await ensurePin(); if (!pin) return;
-  if (adminRole !== 'owner'){ toast('เมนูนี้สำหรับเจ้าของระบบเท่านั้น', false); return; }
-  const res = await gs('clearOrders', pin);
-  document.getElementById('clearModal').classList.add('hidden');
-  if (res.success){ toast('ล้างประวัติคำสั่งซื้อเรียบร้อย'); ALL_ORDERS = []; renderOrders(); }
-  else toast(res.error, false);
-}
-
 /* ░░ เริ่มทำงาน ░░ */
 initShop();
 tryRestorePin();
