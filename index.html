@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+<!-- ════════════════════════════════════════════════════════════
+     ⚙️ ตั้งค่า: วาง Web App URL ของ Google Apps Script ที่นี่
+     (Deploy → Web app → คัดลอก URL ลงท้ายด้วย /exec)
+════════════════════════════════════════════════════════════ -->
+<script>
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6eRRZw17H8fNCTczlMsPErOLUn1pBK4qU_6lNJhzHbj-DstyX_wT5_lz0elcQ8TMI1w/exec';
+</script>
 <meta charset="UTF-8">
 <title>ครูพร้อมสอน</title>
 <meta name="theme-color" content="#818cf8">
@@ -50,31 +57,18 @@
     </div>
   </header>
 
-  <!-- ░░ Action Bar ░░ -->
-  <div class="no-print bg-white rounded-2xl shadow-sm border border-violet-100 mt-4 px-4 py-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-    <div class="text-[11px] sm:text-xs text-gray-500 flex items-start gap-1.5">
-      <span>💡</span><span>ข้อมูลถูกบันทึกบน Google Sheets ของคุณโดยอัตโนมัติ สามารถเข้าใช้งานได้จากทุกอุปกรณ์</span>
-    </div>
-    <div class="flex gap-2 flex-wrap">
-      <button onclick="doBackup()" class="text-xs font-bold text-white bg-green-500 hover:bg-green-600 rounded-lg px-3 py-2 shadow">💾 สำรองข้อมูล</button>
-      <button onclick="document.getElementById('importFile').click()" class="text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-lg px-3 py-2 shadow">📥 นำเข้าข้อมูล</button>
-      <input type="file" id="importFile" accept=".json" class="hidden" onchange="doImport(this)">
-      <button onclick="openClearModal()" class="text-xs font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg px-3 py-2 shadow">🗑️ ล้างข้อมูลทั้งหมด</button>
-    </div>
-  </div>
-
   <!-- ░░ Tabs ░░ -->
   <nav class="no-print mt-4 flex gap-2 overflow-x-auto pb-1">
     <button class="tab-btn active text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="shop" onclick="switchTab('shop')">🛒 สั่งซื้อแผนการสอน</button>
     <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="status" onclick="switchTab('status')">🔍 ตรวจสอบสถานะ</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="orders" onclick="switchTab('orders')">📦 จัดการคำสั่งซื้อ</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="products" onclick="switchTab('products')">📚 จัดการแผนการสอน</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="customers" onclick="switchTab('customers')">👥 ลูกค้า</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="report" onclick="switchTab('report')">📊 รายงานสรุป</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="settings" onclick="switchTab('settings')">⚙️ ตั้งค่าระบบ</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="manual" onclick="switchTab('manual')">📖 คู่มือการใช้งาน</button>
-    <button id="logoutBtn" onclick="logoutAdmin()" style="display:none" class="tab-btn text-xs sm:text-sm font-bold bg-white border border-red-200 text-red-500 rounded-xl px-3 py-2 shadow-sm">🚪 ออกจากระบบ</button>
+    <button id="adminBtn" onclick="toggleAdminMenu()" class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm ml-auto">🔐 Admin</button>
   </nav>
+
+  <!-- ░░ เมนูย่อย Admin (แสดงหลังใส่ PIN) ░░ -->
+  <div id="adminMenu" class="hidden no-print mt-2 bg-white border border-violet-200 rounded-2xl shadow-lg p-3">
+    <div class="text-[11px] font-bold text-gray-400 mb-2">เมนูผู้ดูแลระบบ <span id="adminWho" class="text-violet-500"></span></div>
+    <div id="adminMenuItems" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+  </div>
 
   <div id="announceBar" class="hidden mt-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs sm:text-sm rounded-xl px-4 py-2.5"></div>
 
@@ -105,21 +99,21 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
       <h2 class="font-extrabold text-violet-800">4️⃣ ข้อมูลผู้สั่งซื้อ</h2>
-      <div class="grid sm:grid-cols-2 gap-3 mt-3">
+      <div class="mt-3 space-y-3">
         <div>
-          <label class="text-xs font-bold text-gray-600">ชื่อ-นามสกุล หรือชื่อ Facebook *</label>
-          <input id="buyerName" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="เช่น ครูใจดี มีสุข">
+          <label class="text-xs font-bold text-gray-700">📘 ชื่อ Facebook ที่ติดต่อทางเพจ <span class="text-red-500">*</span></label>
+          <input id="buyerName" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="เช่น ครูสมศรี ใจดี">
+          <div class="text-[11px] text-gray-500 mt-1">📘 ขอชื่อที่ใช้ทักแชทกับเพจนะคะ (ไม่ใช่ชื่อ-นามสกุลจริง) จะได้เช็คประวัติและตอบคำถามคุณครูได้ทันทีค่ะ 😊</div>
         </div>
         <div>
-          <label class="text-xs font-bold text-gray-600">Gmail สำหรับรับไฟล์แผน *</label>
+          <label class="text-xs font-bold text-gray-700">📧 Gmail สำหรับรับแผน <span class="text-red-500">*</span></label>
           <input id="buyerEmail" type="email" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="example@gmail.com">
         </div>
-        <div>
-          <label class="text-xs font-bold text-gray-600">เบอร์โทร (ถ้ามี)</label>
-          <input id="buyerPhone" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="08x-xxx-xxxx">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-2">
+          <div class="text-xs text-amber-800">⚠️ <b>ตรวจให้แน่ใจก่อนกดยืนยัน</b> — ระบบส่งแผนผ่าน Google Drive ต้องใช้ <b>Gmail (@gmail.com)</b> ที่เปิดใช้งานได้จริงเท่านั้น</div>
+          <div class="text-xs text-amber-800">🙏 หาก Gmail ผิด/ใช้งานไม่ได้ และต้องการให้แอดมินส่งใหม่ มีค่าบริการเพิ่ม <b>30 บาท</b> (ยกเว้นกรณีสะกดผิด) — เพราะแอดมินต้องตรวจสอบและส่งให้ใหม่ ขอความเข้าใจด้วยนะคะ 💛</div>
         </div>
       </div>
-      <div class="text-[11px] text-gray-500 mt-2">⚠️ โปรดตรวจสอบ Gmail ให้ถูกต้อง — ระบบจะส่งลิงก์ไฟล์แผนการสอนไปที่อีเมลนี้</div>
       <button onclick="submitOrder()" class="mt-4 w-full brand-grad text-white font-extrabold rounded-xl py-3 shadow-lg hover:opacity-90 text-sm">✅ ยืนยันคำสั่งซื้อ</button>
     </div>
 
@@ -283,31 +277,9 @@
     </div>
   </section>
 
-  <!-- ════════════ 📖 คู่มือการใช้งาน ════════════ -->
-  <section id="tab-manual" class="tab-page hidden mt-4">
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-5 text-sm leading-7 space-y-5">
-      <div>
-        <h2 class="font-extrabold text-violet-800 text-base">📖 ขั้นตอนการสั่งซื้อ (สำหรับลูกค้า)</h2>
-        <p>เลือกชั้นเรียนและหลักสูตร เลือกวิชาที่ต้องการลงตะกร้า (เลือกครบจำนวนขั้นต่ำจะได้ส่วนลดอัตโนมัติ) กรอกชื่อและ Gmail ให้ถูกต้อง กดยืนยันคำสั่งซื้อ จากนั้นสแกน QR โอนเงินและแนบสลิปในขั้นตอนสุดท้าย เมื่อแอดมินตรวจสอบยอดแล้ว ระบบจะส่งลิงก์ไฟล์แผนการสอนไปยัง Gmail ที่กรอกไว้โดยอัตโนมัติ และสามารถติดตามความคืบหน้าได้ที่เมนู 🔍 ตรวจสอบสถานะ ด้วยเลขที่ออเดอร์หรือ Gmail</p>
-      </div>
-      <div>
-        <h2 class="font-extrabold text-violet-800 text-base">🛠️ ขั้นตอนของแอดมิน</h2>
-        <p>เมื่อมีสลิปใหม่ ระบบจะส่งอีเมลแจ้งเตือนไปยังอีเมลแอดมิน เปิดเมนู 📦 จัดการคำสั่งซื้อ (ใส่ PIN) ตรวจสอบสลิป แล้วกด ✅ อนุมัติ ระบบจะดึงลิงก์ Drive ของทุกวิชาในออเดอร์จากเมนู 📚 จัดการแผนการสอน มาส่งอีเมลให้ลูกค้าทันที และเปลี่ยนสถานะเป็น "ส่งแผนเสร็จสิ้น" ให้เอง — อย่าลืมกรอกราคาและลิงก์ Drive ของแต่ละวิชาให้ครบก่อนเปิดขาย</p>
-      </div>
-      <div>
-        <h2 class="font-extrabold text-violet-800 text-base">📱 ติดตั้งบนมือถือ Android (สำหรับแอดมิน yui / pinky)</h2>
-        <p>เปิดลิงก์ Web App นี้ใน Chrome บนมือถือ → กดเมนูจุดสามจุด ⋮ มุมขวาบน → เลือก "เพิ่มลงในหน้าจอหลัก" (Add to Home screen) → ตั้งชื่อ "ครูพร้อมสอน" → กดเพิ่ม จะได้ไอคอนบนหน้าจอ เปิดใช้เหมือนแอปทั่วไป ทั้ง yui และ pinky ใช้ลิงก์เดียวกัน ต่างกันที่ PIN ที่ใส่ — บัญชีพนักงาน (pinky) จะเห็นเฉพาะเมนูจัดการคำสั่งซื้อและตั้งค่าระบบ</p>
-      </div>
-      <div>
-        <h2 class="font-extrabold text-violet-800 text-base">🚀 วิธี Deploy เป็น Web App</h2>
-        <p>1) สร้าง Google Sheet ใหม่ แล้วเปิด Extensions → Apps Script 2) วางโค้ดไฟล์ Code.gs และสร้างไฟล์ HTML ชื่อ "index" วางโค้ดหน้าเว็บ 3) กด Deploy → New deployment → เลือก Web app → Execute as: Me → Who has access: Anyone 4) กดอนุญาตสิทธิ์ (Authorize) เมื่อระบบถาม 5) คัดลอก Web App URL ไปเปิดใช้งาน — ระบบจะสร้างชีต Settings / Products / Orders พร้อมแคตตาล็อกวิชาตั้งต้นให้อัตโนมัติในครั้งแรก หากแก้โค้ดภายหลังให้ Deploy → Manage deployments → Edit → New version ทุกครั้ง</p>
-      </div>
-    </div>
-  </section>
-
   <!-- ░░ Footer ░░ -->
   <footer class="text-center text-[11px] text-gray-400 mt-8">
-    Copyright © เพจครูพร้อมสอน. All Rights Reserved. สำหรับใช้ในโรงเรียนเท่านั้น ไม่อนุญาตให้ดัดแปลง แก้ไข ทำซ้ำ เพื่อการพาณิชย์ หรือแอบอ้างเป็นผลงานของตนเอง
+    Copyright © เพจครูพร้อมสอน.
   </footer>
 </div>
 
@@ -327,8 +299,8 @@
 <!-- ░░ Modal: ยืนยันล้างข้อมูล ░░ -->
 <div id="clearModal" class="hidden fixed inset-0 bg-black/40 z-[90] flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl shadow-2xl p-5 w-full max-w-sm border-t-8 border-red-500">
-    <h3 class="font-extrabold text-red-600">🗑️ ล้างข้อมูลทั้งหมด</h3>
-    <p class="text-xs text-gray-600 mt-2 leading-5">จะลบข้อมูล <b>คำสั่งซื้อและรายการแผนการสอนทั้งหมด</b> (คงหัวตารางและการตั้งค่าไว้) การกระทำนี้ย้อนกลับไม่ได้ — แนะนำให้กด 💾 สำรองข้อมูล ก่อน</p>
+    <h3 class="font-extrabold text-red-600">🗑️ ล้างประวัติคำสั่งซื้อ</h3>
+    <p class="text-xs text-gray-600 mt-2 leading-5">จะลบ <b>คำสั่งซื้อทั้งหมดในชีต Orders</b> (รายการแผนการสอน ลูกค้าจะหายตาม และการตั้งค่าไม่ถูกแตะต้อง) การกระทำนี้ย้อนกลับไม่ได้</p>
     <p class="text-xs font-bold text-gray-700 mt-3">พิมพ์คำว่า "ยืนยัน" เพื่อดำเนินการ</p>
     <input id="clearConfirmText" class="mt-2 w-full border-2 border-red-200 rounded-xl px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-red-300">
     <div class="flex gap-2 mt-4">
@@ -394,15 +366,23 @@ function toast(msg, ok){
   box.appendChild(el);
   setTimeout(()=> el.remove(), 3500);
 }
-function gs(fn){
+async function gs(fn){
   const args = Array.prototype.slice.call(arguments, 1);
+  if (!WEB_APP_URL || WEB_APP_URL.indexOf('http') !== 0){
+    toast('ยังไม่ได้ตั้งค่า WEB_APP_URL ที่บนสุดของไฟล์', false);
+    return { success:false, error:'ยังไม่ได้ตั้งค่า WEB_APP_URL' };
+  }
   showLoading(true);
-  return new Promise(function(resolve){
-    google.script.run
-      .withSuccessHandler(function(res){ showLoading(false); resolve(res || {success:false, error:'ไม่มีการตอบกลับ'}); })
-      .withFailureHandler(function(err){ showLoading(false); resolve({success:false, error: String(err && err.message || err)}); })
-      [fn].apply(null, args);
-  });
+  try {
+    // ส่งแบบไม่กำหนด header เพื่อเลี่ยง CORS preflight (แพทเทิร์นมาตรฐานของ GAS)
+    const res = await fetch(WEB_APP_URL, { method:'POST', body: JSON.stringify({ fn: fn, args: args }) });
+    const data = await res.json();
+    showLoading(false);
+    return data || { success:false, error:'ไม่มีการตอบกลับ' };
+  } catch(err){
+    showLoading(false);
+    return { success:false, error:'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้: ' + String(err && err.message || err) };
+  }
 }
 function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function baht(n){ return Number(n||0).toLocaleString('th-TH') + ' บาท'; }
@@ -450,8 +430,6 @@ function applyRoleUI(){
   });
   const ab = document.getElementById('adminsBlock');
   if (ab) ab.style.display = (adminRole === 'staff') ? 'none' : '';
-  const lb = document.getElementById('logoutBtn');
-  if (lb) lb.style.display = adminRole ? '' : 'none';
 }
 function ensurePin(){
   return new Promise(function(resolve){
@@ -517,6 +495,31 @@ function logoutAdmin(){
    🧭 Tabs
 ============================================================ */
 const ADMIN_TABS = ['orders','products','report','settings','customers'];
+const ADMIN_MENU = [
+  { tab:'orders',    icon:'📦', label:'จัดการคำสั่งซื้อ' },
+  { tab:'products',  icon:'📚', label:'จัดการแผนการสอน' },
+  { tab:'customers', icon:'👥', label:'ลูกค้า' },
+  { tab:'report',    icon:'📊', label:'รายงานสรุป' },
+  { tab:'settings',  icon:'⚙️', label:'ตั้งค่าระบบ' }
+];
+async function toggleAdminMenu(){
+  const menu = document.getElementById('adminMenu');
+  if (!menu.classList.contains('hidden')){ menu.classList.add('hidden'); return; }
+  const pin = await ensurePin(); if (!pin) return;
+  buildAdminMenu();
+  menu.classList.remove('hidden');
+}
+function buildAdminMenu(){
+  document.getElementById('adminWho').textContent = '— ' + adminName + (adminRole==='staff' ? ' (พนักงาน)' : ' (เจ้าของระบบ)');
+  let html = ADMIN_MENU.filter(function(m){ return canAccess(m.tab); }).map(function(m){
+    return '<button onclick="switchTab(\''+m.tab+'\')" class="text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-xl px-3 py-2.5 text-left">'+m.icon+' '+m.label+'</button>';
+  }).join('');
+  if (adminRole === 'owner'){
+    html += '<button onclick="openClearModal()" class="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-xl px-3 py-2.5 text-left">🗑️ ล้างประวัติคำสั่งซื้อ</button>';
+  }
+  html += '<button onclick="logoutAdmin()" class="text-xs font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 text-left">🚪 ออกจากระบบ</button>';
+  document.getElementById('adminMenuItems').innerHTML = html;
+}
 async function switchTab(name){
   if (ADMIN_TABS.indexOf(name) >= 0){
     const pin = await ensurePin();
@@ -529,6 +532,8 @@ async function switchTab(name){
   document.querySelectorAll('.tab-page').forEach(function(s){ s.classList.add('hidden'); });
   document.getElementById('tab-' + name).classList.remove('hidden');
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === name); });
+  document.getElementById('adminBtn').classList.toggle('active', ADMIN_TABS.indexOf(name) >= 0);
+  document.getElementById('adminMenu').classList.add('hidden');
   if (name === 'orders') loadOrders();
   if (name === 'customers') loadCustomers();
   if (name === 'products') loadProducts();
@@ -655,7 +660,7 @@ function renderCart(){
 async function submitOrder(){
   const name = document.getElementById('buyerName').value.trim();
   const email = document.getElementById('buyerEmail').value.trim();
-  const phone = document.getElementById('buyerPhone').value.trim();
+  const phone = '';
   if (!cart.length){ toast('กรุณาเลือกวิชาก่อนค่ะ', false); return; }
   if (!name){ toast('กรุณากรอกชื่อ/Facebook', false); return; }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('รูปแบบอีเมลไม่ถูกต้อง', false); return; }
@@ -1111,34 +1116,6 @@ async function uploadSetting(kind){
 /* ============================================================
    💾 Backup / Import / ล้างข้อมูล (Action Bar)
 ============================================================ */
-async function doBackup(){
-  const pin = await ensurePin(); if (!pin) return;
-  if (adminRole !== 'owner'){ toast('เมนูนี้สำหรับเจ้าของระบบเท่านั้น', false); return; }
-  const res = await gs('backupAllData', pin);
-  if (!res.success){ toast(res.error, false); return; }
-  const blob = new Blob([JSON.stringify(res, null, 2)], { type:'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'backup_kruprompt_' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('ดาวน์โหลดไฟล์สำรองแล้ว');
-}
-function doImport(input){
-  const f = input.files[0];
-  if (!f) return;
-  const reader = new FileReader();
-  reader.onload = async function(e){
-    const pin = await ensurePin(); if (!pin){ input.value=''; return; }
-    if (adminRole !== 'owner'){ toast('เมนูนี้สำหรับเจ้าของระบบเท่านั้น', false); input.value=''; return; }
-    if (!confirm('นำเข้าข้อมูลจากไฟล์สำรอง? ข้อมูลปัจจุบันในชีตจะถูกแทนที่ทั้งหมด')){ input.value=''; return; }
-    const res = await gs('importBackupData', pin, e.target.result);
-    if (res.success){ toast('นำเข้าข้อมูลสำเร็จ'); initShop(); }
-    else toast(res.error, false);
-    input.value = '';
-  };
-  reader.readAsText(f);
-}
 function openClearModal(){
   document.getElementById('clearConfirmText').value = '';
   document.getElementById('clearModal').classList.remove('hidden');
@@ -1149,9 +1126,9 @@ async function doClearAll(){
   }
   const pin = await ensurePin(); if (!pin) return;
   if (adminRole !== 'owner'){ toast('เมนูนี้สำหรับเจ้าของระบบเท่านั้น', false); return; }
-  const res = await gs('clearAllData', pin);
+  const res = await gs('clearOrders', pin);
   document.getElementById('clearModal').classList.add('hidden');
-  if (res.success){ toast('ล้างข้อมูลเรียบร้อย'); initShop(); }
+  if (res.success){ toast('ล้างประวัติคำสั่งซื้อเรียบร้อย'); ALL_ORDERS = []; renderOrders(); }
   else toast(res.error, false);
 }
 
