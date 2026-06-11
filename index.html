@@ -234,7 +234,6 @@
       <div class="grid sm:grid-cols-2 gap-3 mt-4">
         <div><label class="text-xs font-bold text-gray-600">ชื่อเพจ/ร้าน</label><input id="stPageName" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
         <div><label class="text-xs font-bold text-gray-600">สโลแกน</label><input id="stSlogan" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
-        <div><label class="text-xs font-bold text-gray-600">อีเมลแจ้งเตือนแอดมิน</label><input id="stNotify" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
         <div id="adminsBlock" class="sm:col-span-2 bg-amber-50 border border-amber-200 rounded-xl p-3">
           <label class="text-xs font-bold text-gray-700">🔐 บัญชีแอดมิน (เจ้าของระบบแก้ได้คนเดียว)</label>
           <input id="stAdmins" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 font-mono">
@@ -1040,7 +1039,6 @@ async function loadSettingsForm(){
   const m = res.settings;
   document.getElementById('stPageName').value = m.pageName || '';
   document.getElementById('stSlogan').value = m.slogan || '';
-  document.getElementById('stNotify').value = m.notifyEmail || '';
   document.getElementById('stAdmins').value = m.admins || '';
   document.getElementById('stTgToken').value = m.telegramBotToken || '';
   document.getElementById('stTgChat').value = m.telegramChatId || '';
@@ -1060,7 +1058,6 @@ async function saveSettingsForm(){
   const data = {
     pageName: document.getElementById('stPageName').value.trim(),
     slogan: document.getElementById('stSlogan').value.trim(),
-    notifyEmail: document.getElementById('stNotify').value.trim(),
     telegramBotToken: document.getElementById('stTgToken').value.trim(),
     telegramChatId: document.getElementById('stTgChat').value.trim(),
     promptpayName: document.getElementById('stPPName').value.trim(),
