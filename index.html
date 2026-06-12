@@ -105,21 +105,22 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
       <h2 class="font-extrabold text-violet-800">4️⃣ ข้อมูลผู้สั่งซื้อ</h2>
-      <div class="grid sm:grid-cols-2 gap-3 mt-3">
+      <div class="mt-3 space-y-3">
         <div>
-          <label class="text-xs font-bold text-gray-600">ชื่อ-นามสกุล หรือชื่อ Facebook *</label>
-          <input id="buyerName" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="เช่น ครูใจดี มีสุข">
+          <label class="text-xs font-bold text-gray-600">📘 ชื่อ Facebook ที่ติดต่อทางเพจ *</label>
+          <input id="buyerName" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="เช่น ครูสมศรี ใจดี">
+          <div class="text-[11px] text-gray-500 mt-1">📘 ขอชื่อที่ใช้ทักแชทกับเพจนะคะ (ไม่ใช่ชื่อ-นามสกุลจริง) จะได้เช็คประวัติและตอบคำถามคุณครูได้ทันทีค่ะ 😊</div>
         </div>
         <div>
-          <label class="text-xs font-bold text-gray-600">Gmail สำหรับรับไฟล์แผน *</label>
+          <label class="text-xs font-bold text-gray-600">📧 Gmail สำหรับรับแผน *</label>
           <input id="buyerEmail" type="email" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="example@gmail.com">
         </div>
-        <div>
-          <label class="text-xs font-bold text-gray-600">เบอร์โทร (ถ้ามี)</label>
-          <input id="buyerPhone" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="08x-xxx-xxxx">
-        </div>
       </div>
-      <div class="text-[11px] text-gray-500 mt-2">⚠️ โปรดตรวจสอบ Gmail ให้ถูกต้อง — ระบบจะส่งลิงก์ไฟล์แผนการสอนไปที่อีเมลนี้</div>
+      <div class="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[12px] text-amber-800 leading-relaxed">
+        <div>⚠️ <b>ตรวจให้แน่ใจก่อนกดยืนยัน</b> — ระบบส่งแผนผ่าน Google Drive ต้องใช้ <b>Gmail (@gmail.com)</b> ที่เปิดใช้งานได้จริงเท่านั้น</div>
+        <div class="border-t border-dashed border-amber-300 my-2"></div>
+        <div>🙏 หาก Gmail ผิด/ใช้งานไม่ได้ และต้องการให้แอดมินส่งใหม่ มีค่าบริการเพิ่ม <b>30 บาท</b> (ยกเว้นกรณีสะกดผิด) — เพราะแอดมินต้องตรวจสอบและส่งให้ใหม่ ขอความเข้าใจด้วยนะคะ 🧡</div>
+      </div>
       <button onclick="submitOrder()" class="mt-4 w-full brand-grad text-white font-extrabold rounded-xl py-3 shadow-lg hover:opacity-90 text-sm">✅ ยืนยันคำสั่งซื้อ</button>
     </div>
 
@@ -704,11 +705,10 @@ function renderCart(){
 async function submitOrder(){
   const name = document.getElementById('buyerName').value.trim();
   const email = document.getElementById('buyerEmail').value.trim();
-  const phone = document.getElementById('buyerPhone').value.trim();
   if (!cart.length){ toast('กรุณาเลือกวิชาก่อนค่ะ', false); return; }
-  if (!name){ toast('กรุณากรอกชื่อ/Facebook', false); return; }
+  if (!name){ toast('กรุณากรอกชื่อ Facebook ที่ติดต่อทางเพจ', false); return; }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('รูปแบบอีเมลไม่ถูกต้อง', false); return; }
-  const res = await gs('createOrder', { customer:name, email:email, phone:phone, productIds:cart });
+  const res = await gs('createOrder', { customer:name, email:email, phone:'', productIds:cart });
   if (!res.success){ toast(res.error, false); return; }
   lastOrder = res;
   toast('สร้างคำสั่งซื้อ '+res.orderId+' สำเร็จ');
