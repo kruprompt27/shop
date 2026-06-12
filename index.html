@@ -8,8 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ครูพร้อมสอน">
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- xlsx / Chart.js โหลดแบบ lazy-load เฉพาะตอนแอดมินใช้งาน (ดูฟังก์ชัน ensureXLSX_/ensureChart_) -->
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+<link rel="dns-prefetch" href="https://script.googleusercontent.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -55,24 +57,18 @@
     <div class="text-[11px] sm:text-xs text-gray-500 flex items-start gap-1.5">
       <span>💡</span><span>ข้อมูลถูกบันทึกบน Google Sheets ของคุณโดยอัตโนมัติ สามารถเข้าใช้งานได้จากทุกอุปกรณ์</span>
     </div>
-    <div class="flex gap-2 flex-wrap">
-      <button onclick="doBackup()" class="text-xs font-bold text-white bg-green-500 hover:bg-green-600 rounded-lg px-3 py-2 shadow">💾 สำรองข้อมูล</button>
-      <button onclick="document.getElementById('importFile').click()" class="text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-lg px-3 py-2 shadow">📥 นำเข้าข้อมูล</button>
-      <input type="file" id="importFile" accept=".json" class="hidden" onchange="doImport(this)">
-      <button onclick="openClearModal()" class="text-xs font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg px-3 py-2 shadow">🗑️ ล้างข้อมูลทั้งหมด</button>
-    </div>
   </div>
 
   <!-- ░░ Tabs ░░ -->
   <nav class="no-print mt-4 flex gap-2 overflow-x-auto pb-1">
     <button class="tab-btn active text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="shop" onclick="switchTab('shop')">🛒 สั่งซื้อแผนการสอน</button>
     <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="status" onclick="switchTab('status')">🔍 ตรวจสอบสถานะ</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="orders" onclick="switchTab('orders')">📦 จัดการคำสั่งซื้อ</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="products" onclick="switchTab('products')">📚 จัดการแผนการสอน</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="customers" onclick="switchTab('customers')">👥 ลูกค้า</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="report" onclick="switchTab('report')">📊 รายงานสรุป</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="settings" onclick="switchTab('settings')">⚙️ ตั้งค่าระบบ</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="manual" onclick="switchTab('manual')">📖 คู่มือการใช้งาน</button>
+    <button id="adminLoginBtn" onclick="openAdmin()" class="text-xs sm:text-sm font-bold bg-white border border-violet-200 text-violet-700 rounded-xl px-3 py-2 shadow-sm">🔒 Admin</button>
+    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="orders" data-admin="1" style="display:none" onclick="switchTab('orders')">📦 จัดการคำสั่งซื้อ</button>
+    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="products" data-admin="1" style="display:none" onclick="switchTab('products')">📚 จัดการแผนการสอน</button>
+    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="customers" data-admin="1" style="display:none" onclick="switchTab('customers')">👥 ลูกค้า</button>
+    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="report" data-admin="1" style="display:none" onclick="switchTab('report')">📊 รายงานสรุป</button>
+    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="settings" data-admin="1" style="display:none" onclick="switchTab('settings')">⚙️ ตั้งค่าระบบ</button>
     <button id="logoutBtn" onclick="logoutAdmin()" style="display:none" class="tab-btn text-xs sm:text-sm font-bold bg-white border border-red-200 text-red-500 rounded-xl px-3 py-2 shadow-sm">🚪 ออกจากระบบ</button>
   </nav>
 
@@ -290,32 +286,9 @@
     </div>
   </section>
 
-  <!-- ════════════ 📖 คู่มือการใช้งาน ════════════ -->
-  <section id="tab-manual" class="tab-page hidden mt-4">
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-5 text-sm leading-7 space-y-5">
-      <div>
-        <h2 class="font-extrabold text-violet-800 text-base">📖 ขั้นตอนการสั่งซื้อ (สำหรับลูกค้า)</h2>
-        <p>เลือกชั้นเรียนและหลักสูตร เลือกวิชาที่ต้องการลงตะกร้า (เลือกครบจำนวนขั้นต่ำจะได้ส่วนลดอัตโนมัติ) กรอกชื่อและ Gmail ให้ถูกต้อง กดยืนยันคำสั่งซื้อ จากนั้นสแกน QR โอนเงินและแนบสลิปในขั้นตอนสุดท้าย เมื่อแอดมินตรวจสอบยอดแล้ว ระบบจะส่งลิงก์ไฟล์แผนการสอนไปยัง Gmail ที่กรอกไว้โดยอัตโนมัติ และสามารถติดตามความคืบหน้าได้ที่เมนู 🔍 ตรวจสอบสถานะ ด้วยเลขที่ออเดอร์หรือ Gmail</p>
-      </div>
-      <div>
-        <h2 class="font-extrabold text-violet-800 text-base">🛠️ ขั้นตอนของแอดมิน</h2>
-        <p>เมื่อมีสลิปใหม่ ระบบจะส่งอีเมลแจ้งเตือนไปยังอีเมลแอดมิน เปิดเมนู 📦 จัดการคำสั่งซื้อ (ใส่ PIN) ตรวจสอบสลิป แล้วกด ✅ อนุมัติ ระบบจะดึงลิงก์ Drive ของทุกวิชาในออเดอร์จากเมนู 📚 จัดการแผนการสอน มาส่งอีเมลให้ลูกค้าทันที และเปลี่ยนสถานะเป็น "ส่งแผนเสร็จสิ้น" ให้เอง — อย่าลืมกรอกราคาและลิงก์ Drive ของแต่ละวิชาให้ครบก่อนเปิดขาย</p>
-      </div>
-      <div>
-        <h2 class="font-extrabold text-violet-800 text-base">📱 ติดตั้งบนมือถือ Android (สำหรับแอดมิน yui / pinky)</h2>
-        <p>เปิดลิงก์ Web App นี้ใน Chrome บนมือถือ → กดเมนูจุดสามจุด ⋮ มุมขวาบน → เลือก "เพิ่มลงในหน้าจอหลัก" (Add to Home screen) → ตั้งชื่อ "ครูพร้อมสอน" → กดเพิ่ม จะได้ไอคอนบนหน้าจอ เปิดใช้เหมือนแอปทั่วไป ทั้ง yui และ pinky ใช้ลิงก์เดียวกัน ต่างกันที่ PIN ที่ใส่ — บัญชีพนักงาน (pinky) จะเห็นเฉพาะเมนูจัดการคำสั่งซื้อและตั้งค่าระบบ</p>
-      </div>
-      <div>
-        <h2 class="font-extrabold text-violet-800 text-base">🚀 วิธี Deploy เป็น Web App</h2>
-        <p>1) สร้าง Google Sheet ใหม่ แล้วเปิด Extensions → Apps Script 2) วางโค้ดไฟล์ Code.gs และสร้างไฟล์ HTML ชื่อ "index" วางโค้ดหน้าเว็บ 3) กด Deploy → New deployment → เลือก Web app → Execute as: Me → Who has access: Anyone 4) กดอนุญาตสิทธิ์ (Authorize) เมื่อระบบถาม 5) คัดลอก Web App URL ไปเปิดใช้งาน — ระบบจะสร้างชีต Settings / Products / Orders พร้อมแคตตาล็อกวิชาตั้งต้นให้อัตโนมัติในครั้งแรก หากแก้โค้ดภายหลังให้ Deploy → Manage deployments → Edit → New version ทุกครั้ง</p>
-      </div>
-    </div>
-  </section>
+  <!-- ════════════ 📖 คู่มือการใช้งาน — ลบออกแล้ว ════════════ -->
 
-  <!-- ░░ Footer ░░ -->
-  <footer class="text-center text-[11px] text-gray-400 mt-8">
-    Copyright © เพจครูพร้อมสอน. All Rights Reserved. สำหรับใช้ในโรงเรียนเท่านั้น ไม่อนุญาตให้ดัดแปลง แก้ไข ทำซ้ำ เพื่อการพาณิชย์ หรือแอบอ้างเป็นผลงานของตนเอง
-  </footer>
+  <!-- ░░ Footer — ลบออกแล้ว ░░ -->
 </div>
 
 <!-- ░░ Modal: PIN แอดมิน ░░ -->
@@ -484,14 +457,26 @@ function canAccess(tab){
   return TAB_PERMS[tab].indexOf(adminRole) >= 0;
 }
 function applyRoleUI(){
-  document.querySelectorAll('.tab-btn').forEach(function(b){
+  // แท็บแอดมิน: แสดงเฉพาะเมื่อล็อกอินแล้วและสิทธิ์เข้าถึงได้ — นอกนั้นซ่อน
+  document.querySelectorAll('.tab-btn[data-admin="1"]').forEach(function(b){
     const t = b.dataset.tab;
-    if (t in TAB_PERMS) b.style.display = (adminRole && !canAccess(t)) ? 'none' : '';
+    b.style.display = (adminRole && canAccess(t)) ? '' : 'none';
   });
-  const ab = document.getElementById('adminsBlock');
-  if (ab) ab.style.display = (adminRole === 'staff') ? 'none' : '';
+  // ปุ่ม 🔒 Admin: โชว์เมื่อยังไม่ล็อกอิน / ปุ่มออกจากระบบ: โชว์เมื่อล็อกอินแล้ว
+  const alb = document.getElementById('adminLoginBtn');
+  if (alb) alb.style.display = adminRole ? 'none' : '';
   const lb = document.getElementById('logoutBtn');
   if (lb) lb.style.display = adminRole ? '' : 'none';
+  const ab = document.getElementById('adminsBlock');
+  if (ab) ab.style.display = (adminRole === 'staff') ? 'none' : '';
+}
+
+// 🔒 กดปุ่ม Admin → ขอ PIN → เข้าแท็บแอดมินแรกที่สิทธิ์เข้าได้
+async function openAdmin(){
+  const pin = await ensurePin();
+  if (!pin) return;
+  const first = ADMIN_TABS.filter(function(t){ return canAccess(t); })[0] || 'orders';
+  switchTab(first);
 }
 function ensurePin(){
   return new Promise(function(resolve){
@@ -591,24 +576,61 @@ const CAT_ICONS = { 'แผนการสอน':'📚', 'ระบบงาน
 let lastOrder = null;
 
 async function initShop(){
-  const s = await gs('getPublicSettings');
-  if (s.success){
-    SETTINGS = s.settings;
-    document.getElementById('hdrPageName').textContent = SETTINGS.pageName || 'ครูพร้อมสอน';
-    if (SETTINGS.slogan) document.getElementById('hdrSlogan').textContent = SETTINGS.slogan;
-    document.getElementById('ruleMin').textContent = SETTINGS.discountMinItems;
-    document.getElementById('rulePct').textContent = SETTINGS.discountPercent;
-    if (SETTINGS.announcement){
-      const bar = document.getElementById('announceBar');
-      bar.textContent = '📣 ' + SETTINGS.announcement;
-      bar.classList.remove('hidden');
-    }
+  // 1) วาดทันทีจากแคชในเครื่อง (ถ้ามี) → เข้าครั้งถัดๆ ไปหน้าเปิดไวมาก ไม่ต้องรอเซิร์ฟเวอร์
+  try {
+    const cached = JSON.parse(localStorage.getItem('kps_shop_cache') || 'null');
+    if (cached){ applySettings_(cached.settings || {}); applyProducts_(cached.products || []); }
+  } catch(e){}
+
+  // 2) ดึงข้อมูลล่าสุด — เรียกครั้งเดียวด้วย getBootstrap (เร็วกว่าเรียก 2 รอบต่อกัน)
+  let b = await gs('getBootstrap');
+  if (!b || b.success === false || (!b.settings && !b.products)){
+    // สำรอง: เผื่อ Code.gs ยังไม่ได้อัปเดต getBootstrap → เรียกแยกแบบขนาน (พร้อมกัน)
+    const r = await Promise.all([gs('getPublicSettings'), gs('getShopProducts')]);
+    b = { success: true,
+          settings: (r[0] && r[0].settings) || {},
+          products: (r[1] && r[1].success && r[1].products) || [] };
+    if (r[1] && !r[1].success) toast(r[1].error || 'โหลดรายการวิชาไม่สำเร็จ', false);
   }
-  const p = await gs('getShopProducts');
-  PRODUCTS = (p.success && p.products) ? p.products : [];
-  renderChips(); renderSubjects(); renderCart();
-  if (!p.success) toast(p.error || 'โหลดรายการวิชาไม่สำเร็จ', false);
+  applySettings_(b.settings || {});
+  applyProducts_(b.products || []);
+  try { localStorage.setItem('kps_shop_cache', JSON.stringify({ settings: b.settings||{}, products: b.products||[] })); } catch(e){}
 }
+
+function applySettings_(S){
+  if (!S) return;
+  SETTINGS = S;
+  const setTxt = function(id, v){ const el = document.getElementById(id); if (el && v != null && v !== '') el.textContent = v; };
+  setTxt('hdrPageName', S.pageName || 'ครูพร้อมสอน');
+  setTxt('hdrSlogan', S.slogan);
+  setTxt('ruleMin', S.discountMinItems);
+  setTxt('rulePct', S.discountPercent);
+  if (S.announcement){
+    const bar = document.getElementById('announceBar');
+    if (bar){ bar.textContent = '📣 ' + S.announcement; bar.classList.remove('hidden'); }
+  }
+}
+
+function applyProducts_(list){
+  PRODUCTS = Array.isArray(list) ? list : [];
+  renderChips(); renderSubjects(); renderCart();
+}
+
+/* โหลดไลบรารีหนักแบบ lazy — เรียกเฉพาะตอนแอดมินใช้งานจริง (ลูกค้าทั่วไปไม่ต้องโหลด) */
+const _libCache = {};
+function loadScript_(src){
+  if (_libCache[src]) return _libCache[src];
+  _libCache[src] = new Promise(function(resolve, reject){
+    const s = document.createElement('script');
+    s.src = src; s.async = true;
+    s.onload = function(){ resolve(); };
+    s.onerror = function(){ _libCache[src] = null; reject(new Error('โหลดไลบรารีไม่สำเร็จ')); };
+    document.head.appendChild(s);
+  });
+  return _libCache[src];
+}
+function ensureXLSX_(){ return (typeof XLSX !== 'undefined') ? Promise.resolve() : loadScript_('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'); }
+function ensureChart_(){ return (typeof Chart !== 'undefined') ? Promise.resolve() : loadScript_('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js'); }
 
 function renderChips(){
   // ชิปประเภท — แสดงเฉพาะประเภทที่มีสินค้าเปิดขายจริง
@@ -947,7 +969,8 @@ async function autoSetPricesUI(){
     loadProducts();
   } else toast(res.error, false);
 }
-function downloadTemplate(){
+async function downloadTemplate(){
+  await ensureXLSX_();
   const ws = XLSX.utils.aoa_to_sheet([
     ['ระดับชั้น','หลักสูตร','ชื่อวิชา','เวลาเรียน (ชม.)','ราคา (บาท)','ลิงก์ Drive','ลิงก์ตัวอย่าง'],
     ['ป.1','68','ภาษาไทย',200,'','','']
@@ -962,6 +985,7 @@ function importProducts(input){
   const reader = new FileReader();
   reader.onload = async function(e){
     try {
+      await ensureXLSX_();
       const wb = XLSX.read(new Uint8Array(e.target.result), { type:'array' });
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1 });
       const items = rows.slice(1).filter(function(r){ return r && String(r[2]||'').trim(); })
@@ -1048,6 +1072,7 @@ async function loadReport(){
     card('🏦','ยอดขายสะสม', baht(r.allSum), 'text-fuchsia-600') +
     card('📦','ออเดอร์ทั้งหมด', r.totalOrders + ' รายการ', 'text-sky-600');
   if (dailyChart) dailyChart.destroy();
+  await ensureChart_();
   dailyChart = new Chart(document.getElementById('dailyChart'), {
     type: 'line',
     data: { labels: r.dailyLabels.map(function(d){ return d.slice(5); }),
