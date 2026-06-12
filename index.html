@@ -384,6 +384,13 @@
 
 <script>
 /* ============================================================
+   🔧 ตั้งค่า: วางลิงก์ Web App (.../exec) ของคุณตรงนี้
+   (แก้ที่บรรทัดเดียวนี้ — หน้าร้านบน GitHub จะคุยกับ Google Sheets ผ่านลิงก์นี้)
+   ⚠️ หลังแก้ Code.gs ทุกครั้ง ต้อง Deploy → Manage deployments → New version
+============================================================ */
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby6eRRZw17H8fNCTczlMsPErOLUn1pBK4qU_6lNJhzHbj-DstyX_wT5_lz0elcQ8TMI1w/exec';
+
+/* ============================================================
    🔧 Core helpers
 ============================================================ */
 let loadingCount = 0;
@@ -403,11 +410,37 @@ function toast(msg, ok){
 function gs(fn){
   const args = Array.prototype.slice.call(arguments, 1);
   showLoading(true);
-  return new Promise(function(resolve){
-    google.script.run
-      .withSuccessHandler(function(res){ showLoading(false); resolve(res || {success:false, error:'ไม่มีการตอบกลับ'}); })
-      .withFailureHandler(function(err){ showLoading(false); resolve({success:false, error: String(err && err.message || err)}); })
-      [fn].apply(null, args);
+  // กันค้าง: timeout 35 วิ ด้วย AbortController
+  const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 35000) : null;
+
+  if (!WEBAPP_URL || WEBAPP_URL.indexOf('/exec') < 0){
+    showLoading(false);
+    return Promise.resolve({ success:false, error:'ยังไม่ได้ตั้งค่า WEBAPP_URL (ลิงก์ .../exec) ที่ส่วนบนสุดของไฟล์' });
+  }
+
+  return fetch(WEBAPP_URL, {
+    method: 'POST',
+    // ใช้ text/plain เพื่อหลีกเลี่ยง CORS preflight ของ Google Apps Script
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ fn: fn, args: args }),
+    redirect: 'follow',
+    signal: ctrl ? ctrl.signal : undefined
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){
+    if (timer) clearTimeout(timer);
+    showLoading(false);
+    try { return JSON.parse(t); }
+    catch(e){ return { success:false, error:'เซิร์ฟเวอร์ตอบกลับไม่ใช่ JSON (มักเกิดจากยังไม่ Deploy เวอร์ชันใหม่ หรือสิทธิ์เข้าถึงไม่ใช่ Anyone)' }; }
+  })
+  .catch(function(err){
+    if (timer) clearTimeout(timer);
+    showLoading(false);
+    const msg = (err && err.name === 'AbortError')
+      ? 'หมดเวลาเชื่อมต่อเซิร์ฟเวอร์ (timeout) — ลองรีเฟรชใหม่ หรือตรวจว่า Deploy เวอร์ชันล่าสุดแล้ว'
+      : 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้: ' + String(err && err.message || err);
+    return { success:false, error: msg };
   });
 }
 function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -571,8 +604,9 @@ async function initShop(){
     }
   }
   const p = await gs('getShopProducts');
-  if (p.success){ PRODUCTS = p.products; renderChips(); renderSubjects(); renderCart(); }
-  else toast(p.error || 'โหลดรายการวิชาไม่สำเร็จ', false);
+  PRODUCTS = (p.success && p.products) ? p.products : [];
+  renderChips(); renderSubjects(); renderCart();
+  if (!p.success) toast(p.error || 'โหลดรายการวิชาไม่สำเร็จ', false);
 }
 
 function renderChips(){
