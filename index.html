@@ -27,6 +27,12 @@
   .toast { animation: toastIn .25s ease; }
   @keyframes toastIn { from{ transform:translateY(16px); opacity:0;} to{ transform:translateY(0); opacity:1;} }
   @media print { .no-print { display:none !important; } }
+  /* อ่านง่ายบนมือถือ: ตัวอักษรใหญ่ขึ้น + เผื่อที่ว่างล่างจอสำหรับปุ่มตะกร้าลอย */
+  body{ font-size:16px; }
+  @media (max-width:640px){ body{ font-size:17px; } #appWrap{ padding-bottom:104px !important; } }
+  .step-strip{ -ms-overflow-style:none; scrollbar-width:none; }
+  .step-strip::-webkit-scrollbar{ display:none; }
+  #floatCart{ transition:transform .2s ease, opacity .2s ease; }
 </style>
 </head>
 <body class="bg-gradient-to-br from-violet-50 via-fuchsia-50 to-sky-50 min-h-screen text-gray-800">
@@ -40,7 +46,7 @@
 <!-- ░░ Toast ░░ -->
 <div id="toastBox" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[110] flex flex-col gap-2 items-center w-[92%] max-w-md"></div>
 
-<div class="max-w-5xl mx-auto px-3 sm:px-5 pb-10">
+<div id="appWrap" class="max-w-5xl mx-auto px-3 sm:px-5 pb-10">
 
   <!-- ░░ Header ░░ -->
   <header class="brand-grad text-white rounded-b-3xl shadow-lg px-5 pt-7 pb-5 text-center">
@@ -72,6 +78,21 @@
   <!-- ════════════ 🛒 หน้าสั่งซื้อ ════════════ -->
   <section id="tab-shop" class="tab-page mt-4 space-y-4">
 
+    <!-- แถบขั้นตอนการสั่งซื้อ -->
+    <div class="step-strip overflow-x-auto -mx-1 px-1">
+      <div class="flex items-stretch gap-2 min-w-max text-center">
+        <div class="bg-white border border-violet-100 rounded-2xl px-4 py-2.5 shadow-sm"><div class="text-lg font-extrabold text-violet-600">1</div><div class="text-xs sm:text-sm font-bold text-gray-700">เลือกชั้น/หมวด</div></div>
+        <div class="self-center text-violet-300 font-bold">›</div>
+        <div class="bg-white border border-violet-100 rounded-2xl px-4 py-2.5 shadow-sm"><div class="text-lg font-extrabold text-violet-600">2</div><div class="text-xs sm:text-sm font-bold text-gray-700">เลือกวิชา</div></div>
+        <div class="self-center text-violet-300 font-bold">›</div>
+        <div class="bg-white border border-violet-100 rounded-2xl px-4 py-2.5 shadow-sm"><div class="text-lg font-extrabold text-violet-600">3</div><div class="text-xs sm:text-sm font-bold text-gray-700">กรอกชื่อ+Gmail</div></div>
+        <div class="self-center text-violet-300 font-bold">›</div>
+        <div class="bg-white border border-violet-100 rounded-2xl px-4 py-2.5 shadow-sm"><div class="text-lg font-extrabold text-violet-600">4</div><div class="text-xs sm:text-sm font-bold text-gray-700">โอน+แนบสลิป</div></div>
+        <div class="self-center text-violet-300 font-bold">›</div>
+        <div class="brand-grad text-white rounded-2xl px-4 py-2.5 shadow-sm"><div class="text-lg font-extrabold">✓</div><div class="text-xs sm:text-sm font-bold">รับแผนทาง Gmail</div></div>
+      </div>
+    </div>
+
     <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-5">
       <h2 class="text-xl sm:text-2xl font-extrabold text-violet-800">1️⃣ เลือกประเภทและชั้นเรียน</h2>
       <div id="catChips" class="flex gap-2 flex-wrap mt-4"></div>
@@ -84,7 +105,7 @@
         <h2 class="text-lg sm:text-xl font-extrabold text-violet-800">2️⃣ เลือกวิชาที่ต้องการ</h2>
         <input id="subjectSearch" oninput="renderSubjects()" placeholder="🔎 ค้นหาวิชา…" class="border border-violet-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-violet-300">
       </div>
-      <div class="text-[11px] text-fuchsia-600 font-semibold mt-1">💡 เลือกแผนการสอน <span id="ruleMin">3</span> วิชาขึ้นไป รับส่วนลด <span id="rulePct">5</span>% อัตโนมัติ (ส่วนลดคิดเฉพาะหมวดแผนการสอน ไม่รวมระบบงาน/กลุ่ม VIP)</div>
+      <div id="catHint" class="text-sm sm:text-base text-fuchsia-600 font-semibold mt-1"></div>
       <div id="subjectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3"></div>
     </div>
 
@@ -554,6 +575,7 @@ async function switchTab(name){
   if (name === 'products') loadProducts();
   if (name === 'report') loadReport();
   if (name === 'settings') loadSettingsForm();
+  if (typeof updateFloatCart === 'function') updateFloatCart();
 }
 
 /* ============================================================
@@ -647,6 +669,21 @@ function renderChips(){
     '<button onclick="setGrade(\''+esc(g)+'\')" class="chip text-base font-bold border-2 border-violet-200 rounded-full px-4 py-1.5 '+(g===curGrade?'active':'bg-white text-violet-700')+'">'+esc(g)+'</button>').join('');
   document.getElementById('curriChips').innerHTML = curris.map(c =>
     '<button onclick="setCurri(\''+esc(c)+'\')" class="chip text-sm font-bold border-2 border-fuchsia-200 rounded-full px-3.5 py-1.5 '+(c===curCurri?'active':'bg-white text-fuchsia-600')+'">'+(c==='ทั้งหมด'?'ทุกหลักสูตร':'หลักสูตร '+esc(c))+'</button>').join('');
+  // ข้อความใต้หมวด: แผนการสอน=ส่วนลด / ระบบงาน=ซ่อน / กลุ่ม VIP=คำกำกับ
+  const hint = document.getElementById('catHint');
+  if (hint){
+    if (curCat === 'แผนการสอน'){
+      const mn = SETTINGS.discountMinItems || 3, pc = SETTINGS.discountPercent || 5;
+      hint.innerHTML = '💡 เลือกแผนการสอน <b>'+mn+'</b> วิชาขึ้นไป รับส่วนลด <b>'+pc+'%</b> อัตโนมัติ (ส่วนลดคิดเฉพาะหมวดแผนการสอน ไม่รวมระบบงาน/กลุ่ม VIP)';
+      hint.style.display = '';
+    } else if (curCat === 'กลุ่ม VIP'){
+      hint.innerHTML = '📌 หมวดกลุ่ม VIP เป็นชุดงานธุรการประจำชั้นเท่านั้น ไม่รวมแผนการสอนฉบับเต็ม';
+      hint.style.display = '';
+    } else {
+      hint.innerHTML = '';
+      hint.style.display = 'none';
+    }
+  }
 }
 function setCat(c){ curCat = c; renderChips(); renderSubjects(); }
 function setGrade(g){ curGrade = g; renderChips(); renderSubjects(); }
@@ -677,14 +714,14 @@ function renderSubjects(){
   }
   grid.innerHTML = list.map(function(p){
     const inCart = cart.indexOf(p.id) >= 0;
-    return '<div class="border-2 rounded-xl p-3 flex flex-col gap-1 '+(inCart?'border-violet-400 bg-violet-50':'border-gray-100 bg-white')+'">' +
-      '<div class="font-bold text-sm text-gray-800">'+esc(p.subject)+'</div>' +
-      '<div class="text-[11px] text-gray-500">'+((p.category||'แผนการสอน')==='แผนการสอน' ? esc(p.grade)+(p.curriculum?' • หลักสูตร '+esc(p.curriculum):'')+(p.hours?' • '+p.hours+' ชม.':'') : (CAT_ICONS[p.category]||'')+' '+esc(p.category))+'</div>' +
-      '<div class="flex items-center justify-between mt-1">' +
-        '<span class="text-sm font-extrabold text-violet-600">'+baht(p.price)+'</span>' +
-        '<div class="flex gap-1.5">' +
-          (p.exampleLink ? '<a href="'+esc(p.exampleLink)+'" target="_blank" class="text-[11px] font-bold text-sky-600 bg-sky-50 border border-sky-200 rounded-lg px-2 py-1">👀 ตัวอย่าง</a>' : '') +
-          '<button onclick="toggleCart(\''+esc(p.id)+'\')" class="text-[11px] font-bold rounded-lg px-2.5 py-1 '+(inCart?'bg-red-100 text-red-600':'bg-violet-600 text-white')+'">'+(inCart?'นำออก':'➕ ใส่ตะกร้า')+'</button>' +
+    return '<div class="border-2 rounded-xl p-4 flex flex-col gap-1.5 '+(inCart?'border-violet-400 bg-violet-50':'border-gray-100 bg-white')+'">' +
+      '<div class="font-bold text-base sm:text-lg text-gray-800 leading-snug">'+esc(p.subject)+'</div>' +
+      '<div class="text-sm text-gray-500">'+((p.category||'แผนการสอน')==='แผนการสอน' ? esc(p.grade)+(p.curriculum?' • หลักสูตร '+esc(p.curriculum):'')+(p.hours?' • '+p.hours+' ชม.':'') : (CAT_ICONS[p.category]||'')+' '+esc(p.category))+'</div>' +
+      '<div class="flex items-center justify-between mt-1.5">' +
+        '<span class="text-lg font-extrabold text-violet-600">'+baht(p.price)+'</span>' +
+        '<div class="flex gap-2">' +
+          (p.exampleLink ? '<a href="'+esc(p.exampleLink)+'" target="_blank" class="text-sm font-bold text-sky-600 bg-sky-50 border border-sky-200 rounded-lg px-3 py-1.5">👀 ตัวอย่าง</a>' : '') +
+          '<button onclick="toggleCart(\''+esc(p.id)+'\')" class="text-sm font-bold rounded-lg px-3.5 py-1.5 '+(inCart?'bg-red-100 text-red-600':'bg-violet-600 text-white')+'">'+(inCart?'นำออก':'➕ ใส่ตะกร้า')+'</button>' +
         '</div>' +
       '</div></div>';
   }).join('');
@@ -698,15 +735,16 @@ function renderCart(){
   const items = cart.map(function(id){ return PRODUCTS.filter(function(p){return p.id===id;})[0]; }).filter(Boolean);
   const listEl = document.getElementById('cartList');
   if (!items.length){
-    listEl.innerHTML = '<div class="text-center text-xs text-gray-400 py-4">ตะกร้ายังว่าง — เลือกวิชาด้านบนได้เลยค่ะ</div>';
+    listEl.innerHTML = '<div class="text-center text-sm text-gray-400 py-4">ตะกร้ายังว่าง — เลือกวิชาด้านบนได้เลยค่ะ</div>';
     document.getElementById('cartSummary').innerHTML = '';
+    updateFloatCart();
     return;
   }
   listEl.innerHTML = items.map(function(p){
-    return '<div class="flex items-center justify-between bg-violet-50 rounded-xl px-3 py-2 text-sm">' +
-      '<div><b>'+esc(p.subject)+'</b> <span class="text-[11px] text-gray-500">'+esc(p.grade)+(p.curriculum?' ('+esc(p.curriculum)+')':'')+'</span></div>' +
-      '<div class="flex items-center gap-2"><span class="font-bold text-violet-700">'+baht(p.price)+'</span>' +
-      '<button onclick="toggleCart(\''+esc(p.id)+'\')" class="text-red-400 hover:text-red-600 font-bold">✕</button></div></div>';
+    return '<div class="flex items-center justify-between bg-violet-50 rounded-xl px-3 py-2.5 text-base">' +
+      '<div><b>'+esc(p.subject)+'</b> <span class="text-sm text-gray-500">'+esc(p.grade)+(p.curriculum?' ('+esc(p.curriculum)+')':'')+'</span></div>' +
+      '<div class="flex items-center gap-3"><span class="font-bold text-violet-700">'+baht(p.price)+'</span>' +
+      '<button onclick="toggleCart(\''+esc(p.id)+'\')" class="text-red-400 hover:text-red-600 font-bold text-lg">✕</button></div></div>';
   }).join('');
   const subtotal = items.reduce(function(s,p){ return s + p.price; }, 0);
   const lessons = items.filter(function(p){ return (p.category||'แผนการสอน')==='แผนการสอน'; });
@@ -717,6 +755,31 @@ function renderCart(){
     '<div class="flex justify-between text-gray-600"><span>ราคารวมก่อนส่วนลด ('+items.length+' วิชา)</span><span>'+baht(subtotal)+'</span></div>' +
     (usePct ? '<div class="flex justify-between text-fuchsia-600 font-bold"><span>🎉 ส่วนลด '+usePct+'% (เฉพาะแผนการสอน '+lessons.length+' วิชา)</span><span>- '+baht(discount)+'</span></div>' : '') +
     '<div class="flex justify-between text-base font-extrabold text-green-600 border-t border-dashed pt-2 mt-1"><span>ยอดสุทธิ</span><span>'+baht(subtotal-discount)+'</span></div>';
+  updateFloatCart();
+}
+
+// ปุ่มตะกร้าลอยล่างจอ — แสดงเฉพาะตอนอยู่หน้าสั่งซื้อและมีของในตะกร้า
+function updateFloatCart(){
+  const el = document.getElementById('floatCart');
+  if (!el) return;
+  const shopEl = document.getElementById('tab-shop');
+  const onShop = shopEl && !shopEl.classList.contains('hidden');
+  const items = cart.map(function(id){ return PRODUCTS.filter(function(p){return p.id===id;})[0]; }).filter(Boolean);
+  if (onShop && items.length){
+    const subtotal = items.reduce(function(s,p){ return s+p.price; }, 0);
+    const lessons = items.filter(function(p){ return (p.category||'แผนการสอน')==='แผนการสอน'; });
+    const lessonSub = lessons.reduce(function(s,p){ return s+p.price; }, 0);
+    const pct = lessons.length >= (SETTINGS.discountMinItems||3) ? (SETTINGS.discountPercent||5) : 0;
+    const net = subtotal - Math.round(lessonSub*pct/100);
+    document.getElementById('floatCartText').innerHTML = '🛒 ตะกร้า ('+items.length+') • '+baht(net)+' — ดำเนินการต่อ ›';
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
+}
+function goCheckout(){
+  const el = document.getElementById('buyerName');
+  if (el){ el.scrollIntoView({ behavior:'smooth', block:'center' }); setTimeout(function(){ el.focus(); }, 450); }
 }
 
 async function submitOrder(){
@@ -1228,5 +1291,14 @@ async function doClearAll(){
 initShop();
 tryRestorePin();
 </script>
+<!-- ░░ ปุ่มตะกร้าลอย (มือถือ) ░░ -->
+<div id="floatCart" class="no-print hidden fixed bottom-3 inset-x-0 px-3 z-40">
+  <div class="max-w-5xl mx-auto">
+    <button onclick="goCheckout()" class="w-full brand-grad text-white font-extrabold rounded-2xl py-3.5 shadow-xl text-base sm:text-lg active:opacity-90">
+      <span id="floatCartText">🛒 ตะกร้า</span>
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
