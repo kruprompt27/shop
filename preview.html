@@ -79,16 +79,18 @@
       var hasHtml = DATA.htmls && DATA.htmls.length;
       var hasPdf  = DATA.pdfs && DATA.pdfs.length;
 
-      // สื่อ HTML (เปิดผ่าน API ของระบบขาย ?id=)
+      // สื่อ HTML — เปิดเป็นแท็บใหม่ด้วยเนื้อหาที่อ่านในฐานะเจ้าของ (เสถียรทุกบัญชี/เบราว์เซอร์)
       if (hasHtml) {
         $('htmlSection').classList.remove('hidden');
-        $('htmlList').innerHTML = DATA.htmls.map(function(h){
-          var url = WEB_APP_URL + '?id=' + encodeURIComponent(h.id);
-          return '<a href="'+url+'" target="_blank" rel="noopener" '+
-            'class="flex items-center justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-violet-100">'+
+        $('htmlList').innerHTML = DATA.htmls.map(function(h, i){
+          return '<button type="button" data-mid="'+esc(h.id)+'" '+
+            'class="media-btn w-full flex items-center justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-violet-100 text-left">'+
             '<span class="font-medium text-slate-700 truncate">🎬 '+esc(h.name||'สื่อ')+'</span>'+
-            '<span class="text-xs bg-violet-600 text-white rounded-lg px-3 py-1 flex-shrink-0">เปิดดู</span></a>';
+            '<span class="text-xs bg-violet-600 text-white rounded-lg px-3 py-1 flex-shrink-0">เปิดดู</span></button>';
         }).join('');
+        Array.prototype.forEach.call(document.querySelectorAll('.media-btn'), function(btn){
+          btn.addEventListener('click', function(){ openMedia(btn.dataset.mid); });
+        });
       }
 
       // PDF — เดสก์ท็อป: ฝังดูในหน้า + แท็บ / มือถือ: ปุ่มเปิดดูออนไลน์
@@ -137,6 +139,39 @@
       $('loading').classList.add('hidden');
       $('empty').classList.remove('hidden');
       $('emptyMsg').textContent = msg || 'โหลดตัวอย่างไม่สำเร็จ ลองรีเฟรชอีกครั้ง';
+    }
+
+    // เปิดสื่อ HTML เป็นแท็บใหม่ — เปิดแท็บทันที (กัน popup block) แล้วค่อยเติมเนื้อหาที่ดึงมา
+    function openMedia(id){
+      var w = window.open('', '_blank');
+      if (w) { try { w.document.write('<!doctype html><meta charset="utf-8"><title>กำลังโหลดสื่อ…</title><body style="font-family:sans-serif;text-align:center;color:#7c3aed;margin-top:60px">⏳ กำลังโหลดสื่อ…</body>'); } catch(e){} }
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ fn: 'getPreviewMediaContent', args: [id] }),
+        redirect: 'follow'
+      })
+      .then(function(r){ return r.text(); })
+      .then(function(t){
+        var d; try { d = JSON.parse(t); } catch(e){ d = null; }
+        if (d && d.ok && d.html) {
+          if (w) { w.document.open(); w.document.write(d.html); w.document.close(); }
+          else {
+            // เผื่อ popup ถูกบล็อก — เปิดผ่าน blob ในแท็บปัจจุบัน
+            var url = URL.createObjectURL(new Blob([d.html], { type: 'text/html' }));
+            window.location.href = url;
+          }
+        } else {
+          var msg = (d && d.error) ? d.error : 'เปิดสื่อไม่ได้';
+          if (w) { try { w.document.body.innerHTML = '<p style="font-family:sans-serif;text-align:center;margin-top:60px">'+msg+'</p>'; } catch(e){} }
+          else alert(msg);
+        }
+      })
+      .catch(function(err){
+        var msg = 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้: ' + (err && err.message || err);
+        if (w) { try { w.document.body.innerHTML = '<p style="font-family:sans-serif;text-align:center;margin-top:60px">'+msg+'</p>'; } catch(e){} }
+        else alert(msg);
+      });
     }
 
     // โหลดข้อมูลผ่าน API ของระบบขาย
