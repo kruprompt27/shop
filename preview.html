@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ตัวอย่างสื่อ ครูพร้อมสอน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Prompt', sans-serif; }
+    .pdf-frame { width: 100%; height: 78vh; border: 0; border-radius: 0.75rem; background:#f8fafc; }
+    @media (max-width: 640px){ .pdf-frame { height: 70vh; } }
+    .noselect { -webkit-user-select:none; user-select:none; }
+    .spin { width:42px; height:42px; border:5px solid #e9d5ff; border-top-color:#7c3aed; border-radius:50%; animation:sp .8s linear infinite; }
+    @keyframes sp { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-violet-50 via-white to-fuchsia-50 min-h-screen noselect">
+
+  <!-- ⭐ ลิงก์ API ของระบบขาย (เว็บแอป /exec) -->
+  <script>var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6eRRZw17H8fNCTczlMsPErOLUn1pBK4qU_6lNJhzHbj-DstyX_wT5_lz0elcQ8TMI1w/exec';</script>
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white">
+    <div class="max-w-5xl mx-auto px-4 py-6 text-center">
+      <div class="text-2xl">🛍️</div>
+      <h1 id="title" class="text-xl sm:text-2xl font-bold mt-1">ตัวอย่างสื่อ</h1>
+      <p id="subtitle" class="text-violet-100 text-sm mt-1"></p>
+      <span class="inline-block mt-3 text-xs bg-white/15 rounded-full px-3 py-1">👀 ดูตัวอย่างได้เลย ไม่ต้องเข้าสู่ระบบ</span>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6">
+
+    <!-- Loading -->
+    <div id="loading" class="text-center bg-white rounded-2xl shadow-sm p-10">
+      <div class="spin mx-auto"></div>
+      <p class="text-slate-500 mt-3 text-sm">กำลังโหลดตัวอย่าง…</p>
+    </div>
+
+    <!-- Empty / error -->
+    <div id="empty" class="hidden text-center text-slate-500 bg-white rounded-2xl shadow-sm p-10">
+      <div class="text-4xl mb-2">📂</div>
+      <p id="emptyMsg">ยังไม่มีไฟล์ตัวอย่างของวิชานี้</p>
+    </div>
+
+    <!-- สื่อ HTML -->
+    <section id="htmlSection" class="hidden mb-6">
+      <h2 class="font-semibold text-violet-800 mb-3 flex items-center gap-2">🎬 ตัวอย่างสื่อการสอน (Interactive)</h2>
+      <div id="htmlList" class="grid sm:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- PDF -->
+    <section id="pdfSection" class="hidden">
+      <h2 class="font-semibold text-violet-800 mb-3 flex items-center gap-2">📄 ตัวอย่างแผนการสอน (PDF)</h2>
+      <div id="pdfTabs" class="flex flex-wrap gap-2 mb-3"></div>
+      <div id="pdfFrameWrap" class="bg-white rounded-2xl shadow-sm p-2 sm:p-3">
+        <iframe id="pdfFrame" class="pdf-frame" allow="autoplay"></iframe>
+      </div>
+      <div id="pdfMobileList" class="hidden space-y-2"></div>
+      <p class="text-xs text-slate-400 mt-2 text-center">เอกสารมีลายน้ำลิขสิทธิ์ • สงวนสิทธิ์ ไม่อนุญาตให้ทำซ้ำหรือดัดแปลง</p>
+    </section>
+
+  </main>
+
+  <footer class="text-center text-xs text-slate-400 py-6 px-4">
+    Copyright © เพจครูพร้อมสอน. All Rights Reserved.
+  </footer>
+
+  <script>
+    function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    function $(id){ return document.getElementById(id); }
+
+    function render(DATA){
+      $('loading').classList.add('hidden');
+      $('title').textContent = DATA.title || 'ตัวอย่างสื่อ';
+      $('subtitle').textContent = DATA.subtitle || '';
+      document.title = 'ตัวอย่างสื่อ ' + (DATA.title || '');
+
+      var hasHtml = DATA.htmls && DATA.htmls.length;
+      var hasPdf  = DATA.pdfs && DATA.pdfs.length;
+
+      // สื่อ HTML (เปิดผ่าน API ของระบบขาย ?id=)
+      if (hasHtml) {
+        $('htmlSection').classList.remove('hidden');
+        $('htmlList').innerHTML = DATA.htmls.map(function(h){
+          var url = WEB_APP_URL + '?id=' + encodeURIComponent(h.id);
+          return '<a href="'+url+'" target="_blank" rel="noopener" '+
+            'class="flex items-center justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-violet-100">'+
+            '<span class="font-medium text-slate-700 truncate">🎬 '+esc(h.name||'สื่อ')+'</span>'+
+            '<span class="text-xs bg-violet-600 text-white rounded-lg px-3 py-1 flex-shrink-0">เปิดดู</span></a>';
+        }).join('');
+      }
+
+      // PDF — เดสก์ท็อป: ฝังดูในหน้า + แท็บ / มือถือ: ปุ่มเปิดดูออนไลน์
+      if (hasPdf) {
+        $('pdfSection').classList.remove('hidden');
+        var isMobile = window.matchMedia('(max-width: 768px)').matches
+          || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+        if (isMobile) {
+          $('pdfTabs').classList.add('hidden');
+          $('pdfFrameWrap').classList.add('hidden');
+          var ml = $('pdfMobileList');
+          ml.classList.remove('hidden');
+          ml.innerHTML = DATA.pdfs.map(function(p, i){
+            var viewUrl = 'https://drive.google.com/file/d/' + p.id + '/view';
+            return '<a href="'+viewUrl+'" target="_blank" rel="noopener" '+
+              'class="flex items-center justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-violet-100">'+
+              '<span class="font-medium text-slate-700 truncate">📄 '+esc(p.name||('ตัวอย่าง '+(i+1)))+'</span>'+
+              '<span class="text-xs bg-violet-600 text-white rounded-lg px-3 py-1 flex-shrink-0">เปิดดู</span></a>';
+          }).join('');
+        } else {
+          var frame = $('pdfFrame');
+          window.showPdf = function(i){
+            frame.src = 'https://drive.google.com/file/d/' + DATA.pdfs[i].id + '/preview';
+            Array.prototype.forEach.call(document.querySelectorAll('[data-pdf]'), function(b){
+              var on = (+b.dataset.pdf === i);
+              b.className = 'text-sm rounded-lg px-3 py-1.5 transition ' + (on
+                ? 'bg-violet-600 text-white'
+                : 'bg-white text-violet-700 border border-violet-200 hover:bg-violet-50');
+            });
+          };
+          $('pdfTabs').innerHTML = DATA.pdfs.map(function(p,i){
+            return '<button data-pdf="'+i+'" onclick="showPdf('+i+')">📄 '+esc(p.name||('ตัวอย่าง '+(i+1)))+'</button>';
+          }).join('');
+          window.showPdf(0);
+        }
+      }
+
+      if (!hasHtml && !hasPdf) {
+        $('empty').classList.remove('hidden');
+        if (DATA.error) $('emptyMsg').textContent = DATA.error;
+      }
+    }
+
+    function showError(msg){
+      $('loading').classList.add('hidden');
+      $('empty').classList.remove('hidden');
+      $('emptyMsg').textContent = msg || 'โหลดตัวอย่างไม่สำเร็จ ลองรีเฟรชอีกครั้ง';
+    }
+
+    // โหลดข้อมูลผ่าน API ของระบบขาย
+    (function(){
+      var p = new URLSearchParams(location.search);
+      var args = [p.get('subject')||'', p.get('level')||'', p.get('cur')||'', p.get('hours')||''];
+      // โชว์ชื่อวิชาคร่าวๆ ระหว่างรอ
+      if (args[0]) { $('title').textContent = args[0]; $('subtitle').textContent = (args[1]||'') + (args[2]?' · หลักสูตร '+args[2]:'') + (args[3]?' · '+args[3]+' ชม.':''); }
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ fn: 'getPreviewData', args: args }),
+        redirect: 'follow'
+      })
+      .then(function(r){ return r.text(); })
+      .then(function(t){
+        var data;
+        try { data = JSON.parse(t); }
+        catch(e){ return showError('เซิร์ฟเวอร์ตอบกลับไม่ใช่ JSON (ตรวจว่า Deploy เวอร์ชันใหม่ และสิทธิ์เป็น Anyone แล้ว)'); }
+        render(data);
+      })
+      .catch(function(err){ showError('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้: ' + (err && err.message || err)); });
+    })();
+
+    // กันคลิกขวา/ลากรูป (กันเบื้องต้น)
+    document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+    document.addEventListener('dragstart', function(e){ e.preventDefault(); });
+  </script>
+</body>
+</html>
