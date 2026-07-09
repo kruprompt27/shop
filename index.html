@@ -10,6 +10,8 @@
 </script>
 <meta charset="UTF-8">
 <title>ครูพร้อมสอน</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#38bdf8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -85,7 +87,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h2 class="font-extrabold text-sky-800">2️⃣ เลือกวิชาที่ต้องการ</h2>
-        <input id="subjectSearch" oninput="renderSubjects()" placeholder="🔎 ค้นหาวิชา…" class="border border-sky-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-sky-300">
+        <input id="subjectSearch" oninput="renderSubjects()" placeholder="🔎 ค้นหาวิชา (พิมพ์แล้วค้นทุกชั้น)…" class="border border-sky-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-sky-300">
       </div>
       <div class="text-[11px] text-blue-600 font-semibold mt-1">💡 เลือกแผนการสอน <span id="ruleMin">3</span> วิชาขึ้นไป รับส่วนลด <span id="rulePct">5</span>% อัตโนมัติ (ส่วนลดคิดเฉพาะหมวดแผนการสอน ไม่รวมระบบงาน/กลุ่ม VIP)</div>
       <div id="subjectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3"></div>
@@ -544,9 +546,9 @@ let SETTINGS = {};
 let PRODUCTS = [];
 let cart = [];
 let curCat = 'แผนการสอน';
-let curGrade = 'ทั้งหมด';
-let curCurri = 'ทั้งหมด';
-let ONE_CURRI = false; // ถ้าสินค้ามีหลักสูตรเดียว ระบบจะซ่อนตัวกรองหลักสูตรให้อัตโนมัติ
+let curGrade = '';   // '' = ยังไม่เลือกชั้น — รายวิชาจะยังไม่แสดงจนกว่าจะเลือก
+let curCurri = '';   // '' = ยังไม่เลือกหลักสูตร (ถ้าชั้นนั้นมีหลักสูตรเดียว ระบบเลือกให้อัตโนมัติ)
+let ONE_CURRI = false; // ทั้งร้านมีหลักสูตรเดียว → ไม่ต้องพิมพ์ชื่อหลักสูตรซ้ำบนการ์ด/ตะกร้า (คำนวณตอนโหลดสินค้า)
 const CAT_ICONS = { 'แผนการสอน':'📚', 'ระบบงาน':'💼', 'กลุ่ม VIP':'👑' };
 let lastOrder = null;
 
@@ -602,6 +604,8 @@ async function initShop(){
   const p = await gs('getShopProducts');
   if (p.success){
     PRODUCTS = p.products;
+    ONE_CURRI = new Set(PRODUCTS.filter(function(x){ return (x.category||'แผนการสอน')==='แผนการสอน'; })
+      .map(function(x){ return x.curriculum; }).filter(Boolean)).size <= 1;
     restoreCustomerLocal();           // กู้ตะกร้า/ชื่อผู้ซื้อ/ออเดอร์ค้างจากเครื่อง
     renderChips(); renderSubjects(); renderCart();
     handleDeepLink();                 // ลิงก์จากอีเมล (?order=) หรือหน้า preview (?add=)
@@ -635,7 +639,7 @@ function handleDeepLink(){
   if (!p) p = PRODUCTS.filter(function(x){ return x.subject === subj && x.grade === grade; })[0];
   if (!p){ toast('ไม่พบวิชา '+subj+' '+grade+' ในร้าน (อาจปิดขายชั่วคราว)', false); return; }
   if (cart.indexOf(p.id) < 0){ cart.push(p.id); saveCartLocal(); }
-  curCat = 'แผนการสอน'; curGrade = p.grade;
+  curCat = 'แผนการสอน'; curGrade = p.grade; curCurri = p.curriculum || 'ทั้งหมด';
   renderChips(); renderSubjects(); renderCart();
   toast('ใส่ '+p.subject+' '+p.grade+' ลงตะกร้าแล้ว 🛒');
   document.getElementById('cartSection').scrollIntoView({ behavior:'smooth' });
@@ -651,27 +655,35 @@ function renderChips(){
     '<button onclick="setCat(\''+esc(c)+'\')" class="chip text-xs font-extrabold border-2 border-sky-300 rounded-full px-4 py-1.5 '+(c===curCat?'active':'bg-white text-sky-700')+'">'+(CAT_ICONS[c]||'')+' '+esc(c)+'</button>').join('');
 
   // ชิปชั้น/หลักสูตร แสดงเฉพาะหมวดแผนการสอน
+  // 🧭 ลำดับการเลือก: ลูกค้าเลือก "ชั้น" ก่อน → เลือก "หลักสูตร" (ถ้าชั้นนั้นมีหลักสูตรเดียว ระบบเลือกให้เลย) → รายวิชาจึงแสดง
   const isLesson = curCat === 'แผนการสอน';
   document.getElementById('gradeChips').style.display = isLesson ? '' : 'none';
-  document.getElementById('curriChips').style.display = (isLesson && !ONE_CURRI) ? '' : 'none';
   const lessons = PRODUCTS.filter(function(p){ return (p.category||'แผนการสอน')==='แผนการสอน'; });
   const GRADE_RANK = { 'อ':0, 'ป':1, 'ม':2 };   // เรียงกลุ่มชั้น อนุบาล → ประถม → มัธยม
-  const grades = ['ทั้งหมด'].concat(Array.from(new Set(lessons.map(p=>p.grade).filter(Boolean)))
+  const grades = Array.from(new Set(lessons.map(p=>p.grade).filter(Boolean)))
     .sort(function(x,y){
       var gx = GRADE_RANK[String(x).charAt(0)], gy = GRADE_RANK[String(y).charAt(0)];
       gx = (gx===undefined?9:gx); gy = (gy===undefined?9:gy);
       if (gx !== gy) return gx - gy;
       var nx=+((String(x).match(/\d+/)||[99])[0]), ny=+((String(y).match(/\d+/)||[99])[0]);
       return nx-ny || String(x).localeCompare(String(y),'th');
-    }));
-  const curriSet = Array.from(new Set(lessons.map(p=>p.curriculum).filter(Boolean))).sort();
-  ONE_CURRI = curriSet.length <= 1;   // มีหลักสูตรเดียว → ไม่ต้องโชว์ตัวกรอง ลดเมนูให้ดูง่าย
-  if (ONE_CURRI) curCurri = 'ทั้งหมด';
-  const curris = ['ทั้งหมด'].concat(curriSet);
+    });
   document.getElementById('gradeChips').innerHTML = grades.map(g =>
     '<button onclick="setGrade(\''+esc(g)+'\')" class="chip text-xs font-bold border-2 border-sky-200 rounded-full px-3.5 py-1.5 '+(g===curGrade?'active':'bg-white text-sky-700')+'">'+esc(g)+'</button>').join('');
+
+  // หลักสูตร: โชว์เฉพาะของชั้นที่เลือก / มีอันเดียว → เลือกให้อัตโนมัติแล้วซ่อนแถว
+  let curris = [];
+  if (curGrade){
+    curris = Array.from(new Set(lessons.filter(function(p){ return p.grade === curGrade; })
+      .map(p=>p.curriculum).filter(Boolean))).sort();
+    if (curris.length === 1) curCurri = curris[0];
+    else if (curris.indexOf(curCurri) < 0) curCurri = '';   // ชั้นใหม่ไม่มีหลักสูตรเดิม → ให้เลือกใหม่
+    if (!curris.length) curCurri = 'ทั้งหมด';               // ชั้นนี้ไม่ระบุหลักสูตรเลย → ไม่ต้องกรอง
+  }
+  const showCurri = isLesson && curGrade && curris.length > 1;
+  document.getElementById('curriChips').style.display = showCurri ? '' : 'none';
   document.getElementById('curriChips').innerHTML = curris.map(c =>
-    '<button onclick="setCurri(\''+esc(c)+'\')" class="chip text-[11px] font-bold border-2 border-blue-200 rounded-full px-3 py-1 '+(c===curCurri?'active':'bg-white text-blue-600')+'">'+(c==='ทั้งหมด'?'ทุกหลักสูตร':'หลักสูตร '+esc(c))+'</button>').join('');
+    '<button onclick="setCurri(\''+esc(c)+'\')" class="chip text-[11px] font-bold border-2 border-blue-200 rounded-full px-3 py-1 '+(c===curCurri?'active':'bg-white text-blue-600')+'">หลักสูตร '+esc(c)+'</button>').join('');
 }
 function setCat(c){ curCat = c; renderChips(); renderSubjects(); }
 function setGrade(g){ curGrade = g; renderChips(); renderSubjects(); }
@@ -679,14 +691,32 @@ function setCurri(c){ curCurri = c; renderChips(); renderSubjects(); }
 
 function renderSubjects(){
   const q = (document.getElementById('subjectSearch').value || '').trim().toLowerCase();
+  const grid = document.getElementById('subjectGrid');
+  const isLesson = curCat === 'แผนการสอน';
+
+  // หมวดแผนการสอน: ต้องเลือกชั้น + หลักสูตรก่อน รายวิชาจึงแสดง (ยกเว้นพิมพ์ค้นหา = ค้นได้ทุกชั้นทันที)
+  if (isLesson && !q){
+    if (!curGrade){
+      grid.innerHTML = '<div class="col-span-full text-center py-10"><div class="text-3xl mb-2">👆</div>' +
+        '<div class="text-sm font-bold text-sky-700">เลือกชั้นเรียนด้านบนก่อนนะคะ</div>' +
+        '<div class="text-xs text-gray-400 mt-1">เลือกชั้นและหลักสูตรแล้ว รายวิชาจะแสดงที่นี่ค่ะ</div></div>';
+      return;
+    }
+    if (!curCurri){
+      grid.innerHTML = '<div class="col-span-full text-center py-10"><div class="text-3xl mb-2">📖</div>' +
+        '<div class="text-sm font-bold text-sky-700">เลือกหลักสูตรของชั้น '+esc(curGrade)+' ด้านบนก่อนนะคะ</div>' +
+        '<div class="text-xs text-gray-400 mt-1">เลือกแล้ว รายวิชาของหลักสูตรนั้นจะแสดงที่นี่ค่ะ</div></div>';
+      return;
+    }
+  }
+
   const list = PRODUCTS.filter(function(p){
     if ((p.category||'แผนการสอน') !== curCat) return false;
-    if (curCat === 'แผนการสอน' && curGrade !== 'ทั้งหมด' && p.grade !== curGrade) return false;
-    if (curCat === 'แผนการสอน' && curCurri !== 'ทั้งหมด' && p.curriculum !== curCurri) return false;
-    if (q && (p.subject + ' ' + p.grade).toLowerCase().indexOf(q) < 0) return false;
+    if (q) return (p.subject + ' ' + p.grade).toLowerCase().indexOf(q) >= 0;   // ค้นหา = ข้ามตัวกรองชั้น/หลักสูตร
+    if (isLesson && p.grade !== curGrade) return false;
+    if (isLesson && curCurri !== 'ทั้งหมด' && p.curriculum !== curCurri) return false;
     return true;
   });
-  const grid = document.getElementById('subjectGrid');
   if (!list.length){
     grid.innerHTML = '<div class="col-span-full text-center text-xs text-gray-400 py-8">ยังไม่มีวิชาเปิดขายตามเงื่อนไขนี้ — แอดมินกรอกราคาในเมนู 📚 จัดการแผนการสอน แล้ววิชาจะแสดงที่นี่</div>';
     return;
