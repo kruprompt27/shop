@@ -10,7 +10,7 @@
 </script>
 <meta charset="UTF-8">
 <title>ครูพร้อมสอน</title>
-<meta name="theme-color" content="#818cf8">
+<meta name="theme-color" content="#38bdf8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ครูพร้อมสอน">
@@ -21,37 +21,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { font-family: 'Sarabun', sans-serif; }
-  .brand-grad { background: linear-gradient(135deg,#818cf8,#a78bfa,#f0abfc); }
+  .brand-grad { background: linear-gradient(135deg,#0ea5e9,#38bdf8,#7dd3fc); }
   .dot-online { width:8px; height:8px; border-radius:50%; background:#22c55e; animation: blink 1.4s infinite; }
   @keyframes blink { 0%,100%{opacity:1; box-shadow:0 0 0 0 rgba(34,197,94,.5);} 50%{opacity:.35; box-shadow:0 0 0 5px rgba(34,197,94,0);} }
   .tab-btn { white-space:nowrap; }
-  .tab-btn.active { background:linear-gradient(135deg,#818cf8,#a78bfa); color:#fff; box-shadow:0 4px 12px rgba(129,140,248,.4); }
-  .chip.active { background:#6d28d9; color:#fff; border-color:#6d28d9; }
-  .spinner { width:46px; height:46px; border:5px solid #e9d5ff; border-top-color:#7c3aed; border-radius:50%; animation:spin .8s linear infinite; }
+  .tab-btn.active { background:linear-gradient(135deg,#0284c7,#0ea5e9); color:#fff; box-shadow:0 4px 12px rgba(14,165,233,.35); }
+  .chip.active { background:#0284c7; color:#fff; border-color:#0284c7; }
+  .spinner { width:46px; height:46px; border:5px solid #bae6fd; border-top-color:#0284c7; border-radius:50%; animation:spin .8s linear infinite; }
   @keyframes spin { to{ transform:rotate(360deg);} }
   .toast { animation: toastIn .25s ease; }
   @keyframes toastIn { from{ transform:translateY(16px); opacity:0;} to{ transform:translateY(0); opacity:1;} }
   @media print { .no-print { display:none !important; } }
 </style>
 </head>
-<body class="bg-gradient-to-br from-violet-50 via-fuchsia-50 to-sky-50 min-h-screen text-gray-800">
+<body class="bg-gradient-to-br from-sky-50 via-white to-blue-50 min-h-screen text-gray-800">
 
 <!-- ░░ Loading Overlay ░░ -->
 <div id="loading" class="hidden fixed inset-0 bg-white/70 backdrop-blur-sm z-[100] flex flex-col items-center justify-center gap-3">
   <div class="spinner"></div>
-  <div class="text-sm font-semibold text-violet-700">กำลังเชื่อมต่อ Google Sheets…</div>
+  <div class="text-sm font-semibold text-sky-700">กำลังเชื่อมต่อ Google Sheets…</div>
 </div>
 
 <!-- ░░ Toast ░░ -->
 <div id="toastBox" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[110] flex flex-col gap-2 items-center w-[92%] max-w-md"></div>
 
-<div class="max-w-5xl mx-auto px-3 sm:px-5 pb-10">
+<div class="max-w-5xl mx-auto px-3 sm:px-5 pb-24 sm:pb-10">
 
   <!-- ░░ Header ░░ -->
   <header class="brand-grad text-white rounded-b-3xl shadow-lg px-5 pt-7 pb-5 text-center">
     <div class="text-3xl">🛒</div>
     <h1 class="text-xl sm:text-2xl font-extrabold mt-1">ระบบสั่งซื้อแผนการสอน <span id="hdrPageName">ครูพร้อมสอน</span></h1>
-    <p id="hdrSlogan" class="text-xs sm:text-sm opacity-90 mt-1">แผนการสอนคุณภาพ พร้อมใช้ ส่งไวทาง Gmail</p>
+    <p id="hdrSlogan" class="text-xs sm:text-sm opacity-90 mt-1">แผนการสอนมัธยม ม.1–ม.6 หลักสูตร 2551 พร้อมใช้ ส่งไวทาง Gmail</p>
     <div class="inline-flex items-center gap-2 bg-white/20 rounded-full px-3 py-1 mt-3 text-[11px] sm:text-xs font-semibold">
       <span class="dot-online"></span> ☁️ เชื่อมต่อกับ Google Sheets (Online Mode)
     </div>
@@ -59,14 +59,14 @@
 
   <!-- ░░ Tabs ░░ -->
   <nav class="no-print mt-4 flex gap-2 overflow-x-auto pb-1">
-    <button class="tab-btn active text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="shop" onclick="switchTab('shop')">🛒 สั่งซื้อแผนการสอน</button>
-    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm" data-tab="status" onclick="switchTab('status')">🔍 ตรวจสอบสถานะ</button>
-    <button id="adminBtn" onclick="toggleAdminMenu()" class="tab-btn text-xs sm:text-sm font-bold bg-white border border-violet-100 rounded-xl px-3 py-2 shadow-sm ml-auto">🔐 Admin</button>
+    <button class="tab-btn active text-xs sm:text-sm font-bold bg-white border border-sky-100 rounded-xl px-3 py-2 shadow-sm" data-tab="shop" onclick="switchTab('shop')">🛒 สั่งซื้อแผนการสอน</button>
+    <button class="tab-btn text-xs sm:text-sm font-bold bg-white border border-sky-100 rounded-xl px-3 py-2 shadow-sm" data-tab="status" onclick="switchTab('status')">🔍 ตรวจสอบสถานะ</button>
+    <button id="adminBtn" onclick="toggleAdminMenu()" class="tab-btn text-xs sm:text-sm font-bold bg-white border border-sky-100 rounded-xl px-3 py-2 shadow-sm ml-auto">🔐 Admin</button>
   </nav>
 
   <!-- ░░ เมนูย่อย Admin (แสดงหลังใส่ PIN) ░░ -->
-  <div id="adminMenu" class="hidden no-print mt-2 bg-white border border-violet-200 rounded-2xl shadow-lg p-3">
-    <div class="text-[11px] font-bold text-gray-400 mb-2">เมนูผู้ดูแลระบบ <span id="adminWho" class="text-violet-500"></span></div>
+  <div id="adminMenu" class="hidden no-print mt-2 bg-white border border-sky-200 rounded-2xl shadow-lg p-3">
+    <div class="text-[11px] font-bold text-gray-400 mb-2">เมนูผู้ดูแลระบบ <span id="adminWho" class="text-sky-500"></span></div>
     <div id="adminMenuItems" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
   </div>
 
@@ -75,39 +75,39 @@
   <!-- ════════════ 🛒 หน้าสั่งซื้อ ════════════ -->
   <section id="tab-shop" class="tab-page mt-4 space-y-4">
 
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
-      <h2 class="font-extrabold text-violet-800">1️⃣ เลือกประเภทและชั้นเรียน</h2>
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
+      <h2 class="font-extrabold text-sky-800">1️⃣ เลือกประเภทและชั้นเรียน</h2>
       <div id="catChips" class="flex gap-2 flex-wrap mt-3"></div>
       <div id="gradeChips" class="flex gap-2 flex-wrap mt-3"></div>
       <div class="flex gap-2 flex-wrap mt-2" id="curriChips"></div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h2 class="font-extrabold text-violet-800">2️⃣ เลือกวิชาที่ต้องการ</h2>
-        <input id="subjectSearch" oninput="renderSubjects()" placeholder="🔎 ค้นหาวิชา…" class="border border-violet-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-violet-300">
+        <h2 class="font-extrabold text-sky-800">2️⃣ เลือกวิชาที่ต้องการ</h2>
+        <input id="subjectSearch" oninput="renderSubjects()" placeholder="🔎 ค้นหาวิชา…" class="border border-sky-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-sky-300">
       </div>
-      <div class="text-[11px] text-fuchsia-600 font-semibold mt-1">💡 เลือกแผนการสอน <span id="ruleMin">3</span> วิชาขึ้นไป รับส่วนลด <span id="rulePct">5</span>% อัตโนมัติ (ส่วนลดคิดเฉพาะหมวดแผนการสอน ไม่รวมระบบงาน/กลุ่ม VIP)</div>
+      <div class="text-[11px] text-blue-600 font-semibold mt-1">💡 เลือกแผนการสอน <span id="ruleMin">3</span> วิชาขึ้นไป รับส่วนลด <span id="rulePct">5</span>% อัตโนมัติ (ส่วนลดคิดเฉพาะหมวดแผนการสอน ไม่รวมระบบงาน/กลุ่ม VIP)</div>
       <div id="subjectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3"></div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
-      <h2 class="font-extrabold text-violet-800">3️⃣ ตะกร้าสินค้า &amp; สรุปราคา</h2>
+    <div id="cartSection" class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4 scroll-mt-4">
+      <h2 class="font-extrabold text-sky-800">3️⃣ ตะกร้าสินค้า &amp; สรุปราคา</h2>
       <div id="cartList" class="mt-3 space-y-2"></div>
-      <div id="cartSummary" class="mt-3 border-t border-dashed border-violet-200 pt-3 text-sm space-y-1"></div>
+      <div id="cartSummary" class="mt-3 border-t border-dashed border-sky-200 pt-3 text-sm space-y-1"></div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
-      <h2 class="font-extrabold text-violet-800">4️⃣ ข้อมูลผู้สั่งซื้อ</h2>
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
+      <h2 class="font-extrabold text-sky-800">4️⃣ ข้อมูลผู้สั่งซื้อ</h2>
       <div class="mt-3 space-y-3">
         <div>
           <label class="text-xs font-bold text-gray-700">📘 ชื่อ Facebook ที่ติดต่อทางเพจ <span class="text-red-500">*</span></label>
-          <input id="buyerName" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="เช่น ครูสมศรี ใจดี">
+          <input id="buyerName" class="w-full border border-sky-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-sky-300" placeholder="เช่น ครูสมศรี ใจดี">
           <div class="text-[11px] text-gray-500 mt-1">📘 ขอชื่อที่ใช้ทักแชทกับเพจนะคะ (ไม่ใช่ชื่อ-นามสกุลจริง) จะได้เช็คประวัติและตอบคำถามคุณครูได้ทันทีค่ะ 😊</div>
         </div>
         <div>
           <label class="text-xs font-bold text-gray-700">📧 Gmail สำหรับรับแผน <span class="text-red-500">*</span></label>
-          <input id="buyerEmail" type="email" class="w-full border border-violet-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="example@gmail.com">
+          <input id="buyerEmail" type="email" class="w-full border border-sky-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-sky-300" placeholder="example@gmail.com">
         </div>
         <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-2">
           <div class="text-xs text-amber-800">⚠️ <b>ตรวจให้แน่ใจก่อนกดยืนยัน</b> — ระบบส่งแผนผ่าน Google Drive ต้องใช้ <b>Gmail (@gmail.com)</b> ที่เปิดใช้งานได้จริงเท่านั้น</div>
@@ -119,10 +119,14 @@
 
     <!-- ขั้นชำระเงิน (แสดงหลังสร้างออเดอร์) -->
     <div id="payBox" class="hidden bg-white rounded-2xl shadow-lg border-2 border-green-300 p-4">
-      <h2 class="font-extrabold text-green-700">5️⃣ ชำระเงิน &amp; แนบสลิป</h2>
+      <div class="flex items-center justify-between">
+        <h2 class="font-extrabold text-green-700">5️⃣ ชำระเงิน &amp; แนบสลิป</h2>
+        <button onclick="dismissPayBox()" class="text-gray-300 hover:text-gray-500 font-bold text-lg leading-none px-1" title="ปิด">✕</button>
+      </div>
+      <div id="payRestoredNote" class="hidden mt-2 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl px-3 py-2">💡 ออเดอร์ล่าสุดของคุณยังไม่ได้แนบสลิป — โอนเงินแล้วแนบสลิปด้านล่างได้เลยค่ะ</div>
       <div class="text-center mt-3">
         <div class="text-xs text-gray-500">เลขที่ออเดอร์</div>
-        <div id="payOrderId" class="text-lg font-extrabold text-violet-700"></div>
+        <div id="payOrderId" class="text-lg font-extrabold text-sky-700"></div>
         <div class="text-xs text-gray-500 mt-2">ยอดชำระสุทธิ</div>
         <div id="payAmount" class="text-3xl font-extrabold text-green-600"></div>
         <img id="payQR" class="hidden mx-auto mt-3 w-52 rounded-xl border border-gray-200 shadow" alt="QR PromptPay">
@@ -130,7 +134,7 @@
       </div>
       <div class="mt-4 border-t border-dashed pt-3">
         <label class="text-xs font-bold text-gray-600">📎 แนบสลิปโอนเงิน (ระบบบีบอัดรูปให้อัตโนมัติ)</label>
-        <input type="file" id="slipFile" accept="image/*" class="block w-full text-xs mt-2 file:mr-3 file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-2 file:text-xs file:font-bold file:text-violet-700">
+        <input type="file" id="slipFile" accept="image/*" class="block w-full text-xs mt-2 file:mr-3 file:rounded-lg file:border-0 file:bg-sky-100 file:px-3 file:py-2 file:text-xs file:font-bold file:text-sky-700">
         <button onclick="sendSlip()" class="mt-3 w-full bg-green-500 hover:bg-green-600 text-white font-extrabold rounded-xl py-2.5 text-sm shadow">📤 ส่งสลิปยืนยันการโอน</button>
       </div>
     </div>
@@ -138,11 +142,11 @@
 
   <!-- ════════════ 🔍 ตรวจสอบสถานะ ════════════ -->
   <section id="tab-status" class="tab-page hidden mt-4">
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
-      <h2 class="font-extrabold text-violet-800">🔍 ตรวจสอบสถานะคำสั่งซื้อ</h2>
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
+      <h2 class="font-extrabold text-sky-800">🔍 ตรวจสอบสถานะคำสั่งซื้อ</h2>
       <div class="flex flex-col sm:flex-row gap-2 mt-3">
-        <input id="statusQuery" class="flex-1 border border-violet-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300" placeholder="กรอกเลขที่ออเดอร์ (เช่น KPS250610-001) หรือ Gmail ที่ใช้สั่งซื้อ">
-        <button onclick="checkStatus()" class="bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg px-5 py-2 text-sm shadow">ค้นหา</button>
+        <input id="statusQuery" class="flex-1 border border-sky-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" placeholder="กรอกเลขที่ออเดอร์ (เช่น KPSM250610-001) หรือ Gmail ที่ใช้สั่งซื้อ">
+        <button onclick="checkStatus()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg px-5 py-2 text-sm shadow">ค้นหา</button>
       </div>
       <div id="statusResult" class="mt-4 space-y-3"></div>
     </div>
@@ -150,49 +154,49 @@
 
   <!-- ════════════ 📦 จัดการคำสั่งซื้อ (แอดมิน) ════════════ -->
   <section id="tab-orders" class="tab-page hidden mt-4">
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h2 class="font-extrabold text-violet-800">📦 จัดการคำสั่งซื้อ <span id="ordersScope" class="text-[11px] text-amber-600 font-semibold"></span></h2>
+        <h2 class="font-extrabold text-sky-800">📦 จัดการคำสั่งซื้อ <span id="ordersScope" class="text-[11px] text-amber-600 font-semibold"></span></h2>
         <div class="flex gap-2 flex-wrap">
-          <select id="orderMonth" onchange="renderOrders()" class="border border-violet-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
+          <select id="orderMonth" onchange="renderOrders()" class="border border-sky-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
             <option value="">ทุกเดือน</option>
           </select>
-          <select id="orderFilter" onchange="renderOrders()" class="border border-violet-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
+          <select id="orderFilter" onchange="renderOrders()" class="border border-sky-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
             <option>ทั้งหมด</option><option>รอชำระเงิน</option><option>ชำระเงินแล้ว</option>
             <option>อนุมัติส่งแผน</option><option>ส่งแผนเสร็จสิ้น</option><option>ยกเลิก</option>
           </select>
-          <button onclick="loadOrders()" class="text-xs font-bold bg-violet-100 text-violet-700 rounded-lg px-3 py-1.5">🔄 รีเฟรช</button>
+          <button onclick="loadOrders()" class="text-xs font-bold bg-sky-100 text-sky-700 rounded-lg px-3 py-1.5">🔄 รีเฟรช</button>
         </div>
       </div>
-      <input id="orderSearch" oninput="renderOrders()" placeholder="🔎 ค้นหา เลขออเดอร์ / ชื่อ / อีเมล…" class="mt-3 w-full sm:w-72 border border-violet-200 rounded-lg px-3 py-1.5 text-sm">
+      <input id="orderSearch" oninput="renderOrders()" placeholder="🔎 ค้นหา เลขออเดอร์ / ชื่อ / อีเมล…" class="mt-3 w-full sm:w-72 border border-sky-200 rounded-lg px-3 py-1.5 text-sm">
       <div id="orderList" class="mt-3 space-y-3"></div>
     </div>
   </section>
 
   <!-- ════════════ 📚 จัดการแผนการสอน (แอดมิน) ════════════ -->
   <section id="tab-products" class="tab-page hidden mt-4 space-y-4">
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
-      <h2 class="font-extrabold text-violet-800">📚 จัดการแผนการสอน</h2>
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
+      <h2 class="font-extrabold text-sky-800">📚 จัดการแผนการสอน</h2>
       <div class="flex gap-2 flex-wrap mt-3">
         <button onclick="downloadTemplate()" class="text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg px-3 py-2 shadow">📥 ดาวน์โหลดไฟล์ฟอร์มตัวอย่าง (Excel)</button>
         <button onclick="document.getElementById('prodImportFile').click()" class="text-xs font-bold text-white bg-sky-500 hover:bg-sky-600 rounded-lg px-3 py-2 shadow">📤 นำเข้ารายการ (.xlsx / .csv)</button>
         <input type="file" id="prodImportFile" accept=".xlsx,.xls,.csv" class="hidden" onchange="importProducts(this)">
         <button onclick="autoSetPricesUI()" class="text-xs font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-lg px-3 py-2 shadow">💰 ตั้งราคาอัตโนมัติตาม ชม.</button>
-        <button onclick="loadProducts()" class="text-xs font-bold bg-violet-100 text-violet-700 rounded-lg px-3 py-2">🔄 รีเฟรช</button>
+        <button onclick="loadProducts()" class="text-xs font-bold bg-sky-100 text-sky-700 rounded-lg px-3 py-2">🔄 รีเฟรช</button>
       </div>
-      <div class="grid sm:grid-cols-6 gap-2 mt-4 items-end bg-violet-50 rounded-xl p-3">
+      <div class="grid sm:grid-cols-6 gap-2 mt-4 items-end bg-sky-50 rounded-xl p-3">
         <div><label class="text-[11px] font-bold text-gray-600">ประเภท</label><select id="npCat" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"><option>แผนการสอน</option><option>ระบบงาน</option><option>กลุ่ม VIP</option></select></div>
-        <div><label class="text-[11px] font-bold text-gray-600">ชั้น</label><input id="npGrade" placeholder="ป.1" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
-        <div><label class="text-[11px] font-bold text-gray-600">หลักสูตร</label><input id="npCurri" placeholder="68" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
+        <div><label class="text-[11px] font-bold text-gray-600">ชั้น</label><input id="npGrade" placeholder="ม.1" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
+        <div><label class="text-[11px] font-bold text-gray-600">หลักสูตร</label><input id="npCurri" placeholder="51" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
         <div class="sm:col-span-2"><label class="text-[11px] font-bold text-gray-600">ชื่อวิชา *</label><input id="npSubject" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
         <div><label class="text-[11px] font-bold text-gray-600">ชม.</label><input id="npHours" type="number" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
         <div><label class="text-[11px] font-bold text-gray-600">ราคา</label><input id="npPrice" type="number" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
-        <button onclick="addNewProduct()" class="sm:col-span-6 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg py-2 shadow">➕ เพิ่มวิชาใหม่</button>
+        <button onclick="addNewProduct()" class="sm:col-span-6 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg py-2 shadow">➕ เพิ่มวิชาใหม่</button>
       </div>
-      <input id="prodSearch" oninput="renderProductTable()" placeholder="🔎 ค้นหาวิชา / ชั้น…" class="mt-4 w-full sm:w-64 border border-violet-200 rounded-lg px-3 py-1.5 text-sm">
+      <input id="prodSearch" oninput="renderProductTable()" placeholder="🔎 ค้นหาวิชา / ชั้น…" class="mt-4 w-full sm:w-64 border border-sky-200 rounded-lg px-3 py-1.5 text-sm">
       <div class="overflow-x-auto mt-3">
         <table class="w-full text-xs">
-          <thead><tr class="bg-violet-100 text-violet-800">
+          <thead><tr class="bg-sky-100 text-sky-800">
             <th class="p-2 text-left">วิชา</th><th class="p-2">ชั้น</th><th class="p-2">หลักสูตร</th>
             <th class="p-2">ชม.</th><th class="p-2">ราคา</th><th class="p-2">ลิงก์ Drive</th><th class="p-2">ขาย</th><th class="p-2">จัดการ</th>
           </tr></thead>
@@ -204,12 +208,12 @@
 
   <!-- ════════════ 👥 ลูกค้า (เจ้าของระบบ) ════════════ -->
   <section id="tab-customers" class="tab-page hidden mt-4">
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h2 class="font-extrabold text-violet-800">👥 ประวัติลูกค้า <span id="custCount" class="text-xs text-gray-400 font-semibold"></span></h2>
-        <button onclick="loadCustomers()" class="text-xs font-bold bg-violet-100 text-violet-700 rounded-lg px-3 py-1.5">🔄 รีเฟรช</button>
+        <h2 class="font-extrabold text-sky-800">👥 ประวัติลูกค้า <span id="custCount" class="text-xs text-gray-400 font-semibold"></span></h2>
+        <button onclick="loadCustomers()" class="text-xs font-bold bg-sky-100 text-sky-700 rounded-lg px-3 py-1.5">🔄 รีเฟรช</button>
       </div>
-      <input id="custSearch" oninput="renderCustomers()" placeholder="🔎 ค้นหาชื่อ / อีเมล…" class="mt-3 w-full sm:w-72 border border-violet-200 rounded-lg px-3 py-1.5 text-sm">
+      <input id="custSearch" oninput="renderCustomers()" placeholder="🔎 ค้นหาชื่อ / อีเมล…" class="mt-3 w-full sm:w-72 border border-sky-200 rounded-lg px-3 py-1.5 text-sm">
       <div id="custList" class="mt-3 space-y-2"></div>
     </div>
   </section>
@@ -217,20 +221,20 @@
   <!-- ════════════ 📊 รายงานสรุป (แอดมิน) ════════════ -->
   <section id="tab-report" class="tab-page hidden mt-4 space-y-4">
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="reportCards"></div>
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
-      <h3 class="font-extrabold text-violet-800 text-sm">📈 ยอดขาย 30 วันล่าสุด (เฉพาะออเดอร์สำเร็จ)</h3>
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
+      <h3 class="font-extrabold text-sky-800 text-sm">📈 ยอดขาย 30 วันล่าสุด (เฉพาะออเดอร์สำเร็จ)</h3>
       <canvas id="dailyChart" height="120"></canvas>
     </div>
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
-      <h3 class="font-extrabold text-violet-800 text-sm">🏆 วิชาขายดี 10 อันดับ</h3>
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
+      <h3 class="font-extrabold text-sky-800 text-sm">🏆 วิชาขายดี 10 อันดับ</h3>
       <div id="topSubjects" class="mt-3 space-y-2 text-sm"></div>
     </div>
   </section>
 
   <!-- ════════════ ⚙️ ตั้งค่าระบบ (แอดมิน) ════════════ -->
   <section id="tab-settings" class="tab-page hidden mt-4">
-    <div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-4">
-      <h2 class="font-extrabold text-violet-800">⚙️ ตั้งค่าระบบ</h2>
+    <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
+      <h2 class="font-extrabold text-sky-800">⚙️ ตั้งค่าระบบ</h2>
       <div class="grid sm:grid-cols-2 gap-3 mt-4">
         <div><label class="text-xs font-bold text-gray-600">ชื่อเพจ/ร้าน</label><input id="stPageName" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
         <div><label class="text-xs font-bold text-gray-600">สโลแกน</label><input id="stSlogan" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
@@ -245,13 +249,13 @@
         <div class="sm:col-span-2"><label class="text-xs font-bold text-gray-600">ประกาศหน้าร้าน (เว้นว่าง = ไม่แสดง)</label><input id="stAnnounce" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
       </div>
       <div class="grid sm:grid-cols-2 gap-3 mt-4">
-        <div class="bg-violet-50 rounded-xl p-3">
+        <div class="bg-sky-50 rounded-xl p-3">
           <label class="text-xs font-bold text-gray-600">🖼️ โลโก้เพจ</label>
           <img id="stLogoPreview" class="hidden w-20 h-20 object-contain rounded-lg bg-white border mt-2">
           <input type="file" id="stLogoFile" accept="image/*" class="block w-full text-xs mt-2">
-          <button onclick="uploadSetting('logo')" class="mt-2 text-xs font-bold text-white bg-violet-500 rounded-lg px-3 py-1.5">⬆️ อัปโหลดโลโก้</button>
+          <button onclick="uploadSetting('logo')" class="mt-2 text-xs font-bold text-white bg-sky-500 rounded-lg px-3 py-1.5">⬆️ อัปโหลดโลโก้</button>
         </div>
-        <div class="bg-violet-50 rounded-xl p-3">
+        <div class="bg-sky-50 rounded-xl p-3">
           <label class="text-xs font-bold text-gray-600">📱 QR Code รับชำระเงิน</label>
           <div class="text-[11px] text-gray-500 mt-0.5">รองรับ Thai QR ร้านค้าจากแอพธนาคาร เช่น Merchant Pro (กรุงเทพ), แม่มณี (SCB), ถุงเงิน ฯลฯ</div>
           <img id="stQRPreview" class="hidden w-32 object-contain rounded-lg bg-white border mt-2 mx-auto">
@@ -279,7 +283,7 @@
         </label>
         <div class="text-[11px] text-gray-500 mt-1.5">เมื่อลูกค้าอัปสลิป ระบบจะอ่านยอดเงินในรูป (OCR) — ยอดตรง → <b>แชร์สิทธิ์ผู้อ่านให้ Gmail ลูกค้า + ส่งแผนทางอีเมลทันที</b> แจ้งผลใน Telegram 🤖✅ | ยอดไม่ตรง/อ่านไม่ได้ → ไม่ส่ง ค้างไว้ที่หน้าต้องส่ง และแจ้ง Telegram ให้ตรวจเอง<br>⚙️ ต้องเปิด Advanced Drive Service ใน Apps Script ก่อน (เมนู Services → Drive API → Add)</div>
       </div>
-      <button onclick="saveSettingsForm()" class="mt-4 w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white font-extrabold rounded-xl px-8 py-2.5 text-sm shadow">💾 บันทึกการตั้งค่า</button>
+      <button onclick="saveSettingsForm()" class="mt-4 w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-xl px-8 py-2.5 text-sm shadow">💾 บันทึกการตั้งค่า</button>
     </div>
   </section>
 
@@ -294,10 +298,10 @@
   <div class="bg-white rounded-2xl shadow-2xl p-5 w-full max-w-xs text-center">
     <div class="text-3xl">🔐</div>
     <h3 class="font-extrabold text-gray-800 mt-1">ใส่ PIN แอดมิน</h3>
-    <input id="pinInput" type="password" inputmode="numeric" maxlength="8" class="mt-3 w-full text-center text-2xl tracking-widest border-2 border-violet-200 rounded-xl py-2 focus:outline-none focus:ring-2 focus:ring-violet-400">
+    <input id="pinInput" type="password" inputmode="numeric" maxlength="8" class="mt-3 w-full text-center text-2xl tracking-widest border-2 border-sky-200 rounded-xl py-2 focus:outline-none focus:ring-2 focus:ring-sky-400">
     <div class="flex gap-2 mt-4">
       <button onclick="closePinModal()" class="flex-1 text-sm font-bold text-gray-500 bg-gray-100 rounded-xl py-2">ยกเลิก</button>
-      <button onclick="confirmPin()" class="flex-1 text-sm font-bold text-white bg-violet-600 rounded-xl py-2">ยืนยัน</button>
+      <button onclick="confirmPin()" class="flex-1 text-sm font-bold text-white bg-sky-600 rounded-xl py-2">ยืนยัน</button>
     </div>
   </div>
 </div>
@@ -307,7 +311,7 @@
   <div class="bg-white rounded-2xl shadow-2xl p-5 w-full max-w-md my-8">
     <div class="flex items-start justify-between">
       <div>
-        <h3 class="font-extrabold text-violet-800">👤 <span id="chTitle"></span></h3>
+        <h3 class="font-extrabold text-sky-800">👤 <span id="chTitle"></span></h3>
         <div id="chSub" class="text-[11px] text-gray-500 mt-0.5"></div>
       </div>
       <button onclick="document.getElementById('custModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 font-bold text-lg leading-none">✕</button>
@@ -319,7 +323,7 @@
 <!-- ░░ Modal: แก้ไขวิชา ░░ -->
 <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-[90] flex items-center justify-center p-4 overflow-y-auto">
   <div class="bg-white rounded-2xl shadow-2xl p-5 w-full max-w-md my-8">
-    <h3 class="font-extrabold text-violet-800">✏️ แก้ไขข้อมูลวิชา <span id="epId" class="text-xs text-gray-400"></span></h3>
+    <h3 class="font-extrabold text-sky-800">✏️ แก้ไขข้อมูลวิชา <span id="epId" class="text-xs text-gray-400"></span></h3>
     <div class="grid grid-cols-2 gap-2 mt-3">
       <div class="col-span-2"><label class="text-[11px] font-bold text-gray-600">ประเภท</label><select id="epCat" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"><option>แผนการสอน</option><option>ระบบงาน</option><option>กลุ่ม VIP</option></select></div>
       <div><label class="text-[11px] font-bold text-gray-600">ชั้น</label><input id="epGrade" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
@@ -335,7 +339,7 @@
     </div>
     <div class="flex gap-2 mt-4">
       <button onclick="document.getElementById('editModal').classList.add('hidden')" class="flex-1 text-sm font-bold text-gray-500 bg-gray-100 rounded-xl py-2">ยกเลิก</button>
-      <button onclick="saveEditProduct()" class="flex-1 text-sm font-bold text-white bg-violet-600 rounded-xl py-2">บันทึก</button>
+      <button onclick="saveEditProduct()" class="flex-1 text-sm font-bold text-white bg-sky-600 rounded-xl py-2">บันทึก</button>
     </div>
   </div>
 </div>
@@ -444,7 +448,7 @@ async function confirmPin(){
     adminPin = pin;
     adminName = res.name || 'admin';
     adminRole = res.role || 'owner';
-    try { localStorage.setItem('kps_admin_pin', pin); } catch(e){}
+    try { localStorage.setItem('kpsm_admin_pin', pin); } catch(e){}
     applyRoleUI();
     document.getElementById('pinModal').classList.add('hidden');
     if (pinResolve){ pinResolve(pin); pinResolve = null; }
@@ -459,7 +463,7 @@ document.getElementById('pinInput').addEventListener('keydown', function(e){ if(
 // 🔓 จำ PIN ไว้ในเครื่อง: เปิดครั้งต่อไปล็อกอินให้อัตโนมัติ
 async function tryRestorePin(){
   let saved = null;
-  try { saved = localStorage.getItem('kps_admin_pin'); } catch(e){}
+  try { saved = localStorage.getItem('kpsm_admin_pin'); } catch(e){}
   if (!saved) return;
   if (typeof WEB_APP_URL !== 'undefined' && String(WEB_APP_URL).indexOf('http') !== 0) return;
   const res = await gs('checkAdminPin', saved);
@@ -470,12 +474,12 @@ async function tryRestorePin(){
     applyRoleUI();
     toast('เข้าสู่ระบบอัตโนมัติ: ' + adminName);
   } else {
-    try { localStorage.removeItem('kps_admin_pin'); } catch(e){}
+    try { localStorage.removeItem('kpsm_admin_pin'); } catch(e){}
   }
 }
 function logoutAdmin(){
   adminPin = null; adminName = ''; adminRole = '';
-  try { localStorage.removeItem('kps_admin_pin'); } catch(e){}
+  try { localStorage.removeItem('kpsm_admin_pin'); } catch(e){}
   applyRoleUI();
   const am = document.getElementById('adminMenu');
   if (am) am.classList.add('hidden');
@@ -504,7 +508,7 @@ async function toggleAdminMenu(){
 function buildAdminMenu(){
   document.getElementById('adminWho').textContent = '— ' + adminName + (adminRole==='staff' ? ' (พนักงาน)' : ' (เจ้าของระบบ)');
   let html = ADMIN_MENU.filter(function(m){ return canAccess(m.tab); }).map(function(m){
-    return '<button onclick="switchTab(\''+m.tab+'\')" class="text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-xl px-3 py-2.5 text-left">'+m.icon+' '+m.label+'</button>';
+    return '<button onclick="switchTab(\''+m.tab+'\')" class="text-xs font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-100 rounded-xl px-3 py-2.5 text-left">'+m.icon+' '+m.label+'</button>';
   }).join('');
   html += '<button onclick="logoutAdmin()" class="text-xs font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 text-left">🚪 ออกจากระบบ</button>';
   document.getElementById('adminMenuItems').innerHTML = html;
@@ -523,6 +527,7 @@ async function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab === name); });
   document.getElementById('adminBtn').classList.toggle('active', ADMIN_TABS.indexOf(name) >= 0);
   document.getElementById('adminMenu').classList.add('hidden');
+  try { updateCartBar(); } catch(e){}
   if (name === 'orders') loadOrders();
   if (name === 'customers') loadCustomers();
   if (name === 'products') loadProducts();
@@ -541,8 +546,44 @@ let cart = [];
 let curCat = 'แผนการสอน';
 let curGrade = 'ทั้งหมด';
 let curCurri = 'ทั้งหมด';
+let ONE_CURRI = false; // ระบบนี้ขายหลักสูตร 2551 อย่างเดียว — ซ่อนตัวกรองหลักสูตรอัตโนมัติ
 const CAT_ICONS = { 'แผนการสอน':'📚', 'ระบบงาน':'💼', 'กลุ่ม VIP':'👑' };
 let lastOrder = null;
+
+/* 💾 จำข้อมูลฝั่งลูกค้าไว้ในเครื่อง — กันตะกร้า/ออเดอร์หายเวลาสลับไปแอปธนาคารแล้วหน้ารีโหลด */
+function saveLocal(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+function loadLocal(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } }
+function saveCartLocal(){ saveLocal('kpsm_cart', cart); }
+function saveBuyerLocal(){
+  saveLocal('kpsm_buyer', {
+    name: document.getElementById('buyerName').value,
+    email: document.getElementById('buyerEmail').value
+  });
+}
+function restoreCustomerLocal(){
+  // ตะกร้า — เก็บเฉพาะรหัสวิชาที่ยังเปิดขายอยู่จริง
+  const savedCart = loadLocal('kpsm_cart');
+  if (Array.isArray(savedCart) && savedCart.length){
+    cart = savedCart.filter(function(id){ return PRODUCTS.some(function(p){ return p.id === id; }); });
+    saveCartLocal();
+  }
+  // ชื่อ/อีเมลผู้สั่งซื้อ
+  const buyer = loadLocal('kpsm_buyer');
+  if (buyer){
+    if (buyer.name)  document.getElementById('buyerName').value  = buyer.name;
+    if (buyer.email) document.getElementById('buyerEmail').value = buyer.email;
+  }
+  // ออเดอร์ล่าสุดที่ยังไม่ได้แนบสลิป (เก็บไว้ 48 ชม.)
+  const lo = loadLocal('kpsm_lastorder');
+  if (lo && lo.orderId && (Date.now() - (lo.ts||0)) < 48*60*60*1000){
+    lastOrder = lo;
+    showPayBox(lo, true);
+  } else if (lo) {
+    try { localStorage.removeItem('kpsm_lastorder'); } catch(e){}
+  }
+}
+document.getElementById('buyerName').addEventListener('input', saveBuyerLocal);
+document.getElementById('buyerEmail').addEventListener('input', saveBuyerLocal);
 
 async function initShop(){
   const s = await gs('getPublicSettings');
@@ -559,8 +600,45 @@ async function initShop(){
     }
   }
   const p = await gs('getShopProducts');
-  if (p.success){ PRODUCTS = p.products; renderChips(); renderSubjects(); renderCart(); }
+  if (p.success){
+    PRODUCTS = p.products;
+    restoreCustomerLocal();           // กู้ตะกร้า/ชื่อผู้ซื้อ/ออเดอร์ค้างจากเครื่อง
+    renderChips(); renderSubjects(); renderCart();
+    handleDeepLink();                 // ลิงก์จากอีเมล (?order=) หรือหน้า preview (?add=)
+  }
   else toast(p.error || 'โหลดรายการวิชาไม่สำเร็จ', false);
+}
+
+// 🔗 รองรับลิงก์ทางลัดฝั่งลูกค้า
+function handleDeepLink(){
+  const q = new URLSearchParams(location.search);
+  const orderId = (q.get('order')||'').trim();
+  const add = (q.get('add')||'').trim();
+  if (!orderId && !add) return;
+  history.replaceState(null, '', location.pathname);   // ล้างพารามิเตอร์ กันทำซ้ำตอนรีเฟรช
+
+  if (orderId){   // จากอีเมลยืนยัน → เปิดหน้าสถานะพร้อมผลค้นหาทันที
+    switchTab('status');
+    document.getElementById('statusQuery').value = orderId;
+    checkStatus();
+    return;
+  }
+  // จากปุ่ม "สั่งซื้อวิชานี้" ในหน้า preview — รูปแบบ subject|grade|hours|cur
+  const parts = add.split('|');
+  const subj = (parts[0]||'').trim(), grade = (parts[1]||'').trim();
+  const hours = String(parts[2]||'').replace(/\D/g,''), cur = (parts[3]||'').trim();
+  let p = PRODUCTS.filter(function(x){
+    return x.subject === subj && x.grade === grade &&
+      (!hours || String(x.hours||'').replace(/\D/g,'') === hours) &&
+      (!cur || String(x.curriculum||'') === cur);
+  })[0];
+  if (!p) p = PRODUCTS.filter(function(x){ return x.subject === subj && x.grade === grade; })[0];
+  if (!p){ toast('ไม่พบวิชา '+subj+' '+grade+' ในร้าน (อาจปิดขายชั่วคราว)', false); return; }
+  if (cart.indexOf(p.id) < 0){ cart.push(p.id); saveCartLocal(); }
+  curCat = 'แผนการสอน'; curGrade = p.grade;
+  renderChips(); renderSubjects(); renderCart();
+  toast('ใส่ '+p.subject+' '+p.grade+' ลงตะกร้าแล้ว 🛒');
+  document.getElementById('cartSection').scrollIntoView({ behavior:'smooth' });
 }
 
 function renderChips(){
@@ -570,19 +648,23 @@ function renderChips(){
   });
   if (cats.indexOf(curCat) < 0) curCat = cats[0] || 'แผนการสอน';
   document.getElementById('catChips').innerHTML = cats.map(c =>
-    '<button onclick="setCat(\''+esc(c)+'\')" class="chip text-xs font-extrabold border-2 border-violet-300 rounded-full px-4 py-1.5 '+(c===curCat?'active':'bg-white text-violet-700')+'">'+(CAT_ICONS[c]||'')+' '+esc(c)+'</button>').join('');
+    '<button onclick="setCat(\''+esc(c)+'\')" class="chip text-xs font-extrabold border-2 border-sky-300 rounded-full px-4 py-1.5 '+(c===curCat?'active':'bg-white text-sky-700')+'">'+(CAT_ICONS[c]||'')+' '+esc(c)+'</button>').join('');
 
   // ชิปชั้น/หลักสูตร แสดงเฉพาะหมวดแผนการสอน
   const isLesson = curCat === 'แผนการสอน';
   document.getElementById('gradeChips').style.display = isLesson ? '' : 'none';
-  document.getElementById('curriChips').style.display = isLesson ? '' : 'none';
+  document.getElementById('curriChips').style.display = (isLesson && !ONE_CURRI) ? '' : 'none';
   const lessons = PRODUCTS.filter(function(p){ return (p.category||'แผนการสอน')==='แผนการสอน'; });
-  const grades = ['ทั้งหมด'].concat(Array.from(new Set(lessons.map(p=>p.grade).filter(Boolean))).sort());
-  const curris = ['ทั้งหมด'].concat(Array.from(new Set(lessons.map(p=>p.curriculum).filter(Boolean))).sort());
+  const grades = ['ทั้งหมด'].concat(Array.from(new Set(lessons.map(p=>p.grade).filter(Boolean)))
+    .sort(function(x,y){ var nx=+((String(x).match(/\d+/)||[99])[0]), ny=+((String(y).match(/\d+/)||[99])[0]); return nx-ny || String(x).localeCompare(String(y),'th'); }));
+  const curriSet = Array.from(new Set(lessons.map(p=>p.curriculum).filter(Boolean))).sort();
+  ONE_CURRI = curriSet.length <= 1;   // มีหลักสูตรเดียว → ไม่ต้องโชว์ตัวกรอง ลดเมนูให้ดูง่าย
+  if (ONE_CURRI) curCurri = 'ทั้งหมด';
+  const curris = ['ทั้งหมด'].concat(curriSet);
   document.getElementById('gradeChips').innerHTML = grades.map(g =>
-    '<button onclick="setGrade(\''+esc(g)+'\')" class="chip text-xs font-bold border-2 border-violet-200 rounded-full px-3.5 py-1.5 '+(g===curGrade?'active':'bg-white text-violet-700')+'">'+esc(g)+'</button>').join('');
+    '<button onclick="setGrade(\''+esc(g)+'\')" class="chip text-xs font-bold border-2 border-sky-200 rounded-full px-3.5 py-1.5 '+(g===curGrade?'active':'bg-white text-sky-700')+'">'+esc(g)+'</button>').join('');
   document.getElementById('curriChips').innerHTML = curris.map(c =>
-    '<button onclick="setCurri(\''+esc(c)+'\')" class="chip text-[11px] font-bold border-2 border-fuchsia-200 rounded-full px-3 py-1 '+(c===curCurri?'active':'bg-white text-fuchsia-600')+'">'+(c==='ทั้งหมด'?'ทุกหลักสูตร':'หลักสูตร '+esc(c))+'</button>').join('');
+    '<button onclick="setCurri(\''+esc(c)+'\')" class="chip text-[11px] font-bold border-2 border-blue-200 rounded-full px-3 py-1 '+(c===curCurri?'active':'bg-white text-blue-600')+'">'+(c==='ทั้งหมด'?'ทุกหลักสูตร':'หลักสูตร '+esc(c))+'</button>').join('');
 }
 function setCat(c){ curCat = c; renderChips(); renderSubjects(); }
 function setGrade(g){ curGrade = g; renderChips(); renderSubjects(); }
@@ -604,14 +686,14 @@ function renderSubjects(){
   }
   grid.innerHTML = list.map(function(p){
     const inCart = cart.indexOf(p.id) >= 0;
-    return '<div class="border-2 rounded-xl p-3 flex flex-col gap-1 '+(inCart?'border-violet-400 bg-violet-50':'border-gray-100 bg-white')+'">' +
+    return '<div class="border-2 rounded-xl p-3 flex flex-col gap-1 '+(inCart?'border-sky-400 bg-sky-50':'border-gray-100 bg-white')+'">' +
       '<div class="font-bold text-sm text-gray-800">'+esc(p.subject)+'</div>' +
-      '<div class="text-[11px] text-gray-500">'+((p.category||'แผนการสอน')==='แผนการสอน' ? esc(p.grade)+(p.curriculum?' • หลักสูตร '+esc(p.curriculum):'')+(p.hours?' • '+p.hours+' ชม.':'') : (CAT_ICONS[p.category]||'')+' '+esc(p.category))+'</div>' +
+      '<div class="text-[11px] text-gray-500">'+((p.category||'แผนการสอน')==='แผนการสอน' ? esc(p.grade)+((p.curriculum&&!ONE_CURRI)?' • หลักสูตร '+esc(p.curriculum):'')+(p.hours?' • '+p.hours+' ชม.':'') : (CAT_ICONS[p.category]||'')+' '+esc(p.category))+'</div>' +
       '<div class="flex items-center justify-between mt-1">' +
-        '<span class="text-sm font-extrabold text-violet-600">'+baht(p.price)+'</span>' +
+        '<span class="text-sm font-extrabold text-sky-600">'+baht(p.price)+'</span>' +
         '<div class="flex gap-1.5">' +
-          (p.exampleLink ? '<a href="'+esc(p.exampleLink)+'" target="_blank" class="text-[11px] font-bold text-sky-600 bg-sky-50 border border-sky-200 rounded-lg px-2 py-1">👀 ตัวอย่าง</a>' : '') +
-          '<button onclick="toggleCart(\''+esc(p.id)+'\')" class="text-[11px] font-bold rounded-lg px-2.5 py-1 '+(inCart?'bg-red-100 text-red-600':'bg-violet-600 text-white')+'">'+(inCart?'นำออก':'➕ ใส่ตะกร้า')+'</button>' +
+          (p.exampleLink ? '<a href="'+esc(p.exampleLink)+'" target="_blank" class="text-[11px] font-bold text-teal-600 bg-teal-50 border border-teal-200 rounded-lg px-2 py-1">👀 ตัวอย่าง</a>' : '') +
+          '<button onclick="toggleCart(\''+esc(p.id)+'\')" class="text-[11px] font-bold rounded-lg px-2.5 py-1 '+(inCart?'bg-red-100 text-red-600':'bg-sky-600 text-white')+'">'+(inCart?'นำออก':'➕ ใส่ตะกร้า')+'</button>' +
         '</div>' +
       '</div></div>';
   }).join('');
@@ -619,7 +701,16 @@ function renderSubjects(){
 function toggleCart(id){
   const i = cart.indexOf(id);
   if (i >= 0) cart.splice(i,1); else cart.push(id);
+  saveCartLocal();
   renderSubjects(); renderCart();
+}
+function updateCartBar(netTotal){
+  const bar = document.getElementById('cartBar');
+  const onShop = !document.getElementById('tab-shop').classList.contains('hidden');
+  if (!cart.length || !onShop){ bar.classList.add('hidden'); return; }
+  document.getElementById('cartBarCount').textContent = cart.length;
+  document.getElementById('cartBarTotal').textContent = baht(netTotal||0);
+  bar.classList.remove('hidden');
 }
 function renderCart(){
   const items = cart.map(function(id){ return PRODUCTS.filter(function(p){return p.id===id;})[0]; }).filter(Boolean);
@@ -627,12 +718,13 @@ function renderCart(){
   if (!items.length){
     listEl.innerHTML = '<div class="text-center text-xs text-gray-400 py-4">ตะกร้ายังว่าง — เลือกวิชาด้านบนได้เลยค่ะ</div>';
     document.getElementById('cartSummary').innerHTML = '';
+    updateCartBar(0);
     return;
   }
   listEl.innerHTML = items.map(function(p){
-    return '<div class="flex items-center justify-between bg-violet-50 rounded-xl px-3 py-2 text-sm">' +
-      '<div><b>'+esc(p.subject)+'</b> <span class="text-[11px] text-gray-500">'+esc(p.grade)+(p.curriculum?' ('+esc(p.curriculum)+')':'')+'</span></div>' +
-      '<div class="flex items-center gap-2"><span class="font-bold text-violet-700">'+baht(p.price)+'</span>' +
+    return '<div class="flex items-center justify-between bg-sky-50 rounded-xl px-3 py-2 text-sm">' +
+      '<div><b>'+esc(p.subject)+'</b> <span class="text-[11px] text-gray-500">'+esc(p.grade)+((p.curriculum&&!ONE_CURRI)?' ('+esc(p.curriculum)+')':'')+'</span></div>' +
+      '<div class="flex items-center gap-2"><span class="font-bold text-sky-700">'+baht(p.price)+'</span>' +
       '<button onclick="toggleCart(\''+esc(p.id)+'\')" class="text-red-400 hover:text-red-600 font-bold">✕</button></div></div>';
   }).join('');
   const subtotal = items.reduce(function(s,p){ return s + p.price; }, 0);
@@ -642,8 +734,9 @@ function renderCart(){
   const discount = Math.round(lessonSubtotal * usePct / 100);
   document.getElementById('cartSummary').innerHTML =
     '<div class="flex justify-between text-gray-600"><span>ราคารวมก่อนส่วนลด ('+items.length+' วิชา)</span><span>'+baht(subtotal)+'</span></div>' +
-    (usePct ? '<div class="flex justify-between text-fuchsia-600 font-bold"><span>🎉 ส่วนลด '+usePct+'% (เฉพาะแผนการสอน '+lessons.length+' วิชา)</span><span>- '+baht(discount)+'</span></div>' : '') +
+    (usePct ? '<div class="flex justify-between text-blue-600 font-bold"><span>🎉 ส่วนลด '+usePct+'% (เฉพาะแผนการสอน '+lessons.length+' วิชา)</span><span>- '+baht(discount)+'</span></div>' : '') +
     '<div class="flex justify-between text-base font-extrabold text-green-600 border-t border-dashed pt-2 mt-1"><span>ยอดสุทธิ</span><span>'+baht(subtotal-discount)+'</span></div>';
+  updateCartBar(subtotal-discount);
 }
 
 async function submitOrder(){
@@ -655,20 +748,41 @@ async function submitOrder(){
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('รูปแบบอีเมลไม่ถูกต้อง', false); return; }
   const res = await gs('createOrder', { customer:name, email:email, phone:phone, productIds:cart });
   if (!res.success){ toast(res.error, false); return; }
-  lastOrder = res;
+  lastOrder = { orderId: res.orderId, netTotal: res.netTotal, ts: Date.now() };
+  saveLocal('kpsm_lastorder', lastOrder);   // จำไว้ เผื่อหน้ารีโหลดตอนสลับไปแอปธนาคาร
   toast('สร้างคำสั่งซื้อ '+res.orderId+' สำเร็จ');
-  document.getElementById('payOrderId').textContent = '#' + res.orderId;
-  document.getElementById('payAmount').textContent = baht(res.netTotal);
+  showPayBox(lastOrder, false);
+  cart = []; saveCartLocal(); renderSubjects(); renderCart();
+}
+
+// แสดงกล่องชำระเงิน (restored=true คือกู้คืนหลังหน้ารีโหลด)
+function showPayBox(order, restored){
+  document.getElementById('payOrderId').innerHTML = '#' + esc(order.orderId) +
+    ' <button onclick="copyOrderId()" class="align-middle text-[11px] font-bold text-sky-600 bg-sky-50 border border-sky-200 rounded-lg px-2 py-1 ml-1">📋 คัดลอก</button>';
+  document.getElementById('payAmount').textContent = baht(order.netTotal);
   const qr = document.getElementById('payQR');
   qr.src = SETTINGS.qrURL || DEFAULT_QR;
   qr.classList.remove('hidden');
   document.getElementById('payPromptpay').innerHTML =
     (SETTINGS.promptpayName ? '🏪 ' + esc(SETTINGS.promptpayName) + '<br>' : '') +
     '<span class="text-[11px] font-semibold text-gray-500">สแกน QR ด้านบนด้วยแอพธนาคารใดก็ได้</span>';
+  const note = document.getElementById('payRestoredNote');
+  note.classList.toggle('hidden', !restored);
   const box = document.getElementById('payBox');
   box.classList.remove('hidden');
-  box.scrollIntoView({ behavior:'smooth' });
-  cart = []; renderSubjects(); renderCart();
+  if (!restored) box.scrollIntoView({ behavior:'smooth' });
+}
+function copyOrderId(){
+  if (!lastOrder) return;
+  const t = lastOrder.orderId;
+  function done(){ toast('คัดลอกเลขออเดอร์ '+t+' แล้ว'); }
+  if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done); }
+  else { const i = document.createElement('input'); i.value = t; document.body.appendChild(i); i.select(); document.execCommand('copy'); i.remove(); done(); }
+}
+function dismissPayBox(){
+  document.getElementById('payBox').classList.add('hidden');
+  try { localStorage.removeItem('kpsm_lastorder'); } catch(e){}
+  lastOrder = null;
 }
 
 async function sendSlip(){
@@ -682,6 +796,7 @@ async function sendSlip(){
       toast('ส่งสลิปเรียบร้อย รอแอดมินตรวจสอบนะคะ 💛');
       document.getElementById('payBox').classList.add('hidden');
       document.getElementById('slipFile').value = '';
+      try { localStorage.removeItem('kpsm_lastorder'); } catch(e){}
       switchTab('status');
       document.getElementById('statusQuery').value = lastOrder.orderId;
       checkStatus();
@@ -734,20 +849,47 @@ function renderStatusResults(){
     return;
   }
   box.innerHTML = list.map(function(o){
-    return '<div class="border border-violet-100 rounded-xl p-3 bg-violet-50/40">' +
+    return '<div class="border border-sky-100 rounded-xl p-3 bg-sky-50/40">' +
       '<div class="flex items-center justify-between flex-wrap gap-1">' +
-        '<b class="text-violet-800">#'+esc(o.orderId)+'</b>' +
+        '<b class="text-sky-800">#'+esc(o.orderId)+'</b>' +
         '<span class="text-[11px] font-bold rounded-full px-2.5 py-1 '+(STATUS_BADGE[o.status]||'bg-gray-100 text-gray-600')+'">'+esc(o.status)+'</span></div>' +
       '<div class="text-[11px] text-gray-500 mt-0.5">'+esc(o.timestamp)+' • '+o.itemCount+' วิชา • ยอดสุทธิ <b>'+baht(o.netTotal)+'</b>'+(o.hasSlip?' • 📎 แนบสลิปแล้ว':'')+'</div>' +
       '<div class="text-xs text-gray-700 mt-1.5">'+o.items.map(function(it){ return '📘 '+esc(it.subject)+' '+esc(it.grade); }).join('<br>')+'</div>' +
+      (o.status === 'รอชำระเงิน' ?
+        '<div class="mt-2 border-t border-dashed border-sky-100 pt-2">' +
+          '<div class="text-[11px] font-bold text-gray-600 mb-1">📎 '+(o.hasSlip?'ส่งสลิปใหม่ (แทนใบเดิม)':'แนบสลิปโอนเงินที่นี่ได้เลยค่ะ')+'</div>' +
+          '<div class="flex items-center gap-2">' +
+            '<input type="file" id="slip_'+esc(o.orderId)+'" accept="image/*" class="flex-1 min-w-0 text-[11px] file:mr-2 file:rounded-lg file:border-0 file:bg-sky-100 file:px-2.5 file:py-1.5 file:text-[11px] file:font-bold file:text-sky-700">' +
+            '<button onclick="sendSlipFor(\''+esc(o.orderId)+'\')" class="flex-shrink-0 text-[11px] font-bold text-white bg-green-500 hover:bg-green-600 rounded-lg px-3 py-1.5">📤 ส่งสลิป</button>' +
+          '</div></div>' : '') +
       '<div class="text-right mt-2"><button onclick="hideOrderLocal(\''+esc(o.orderId)+'\')" class="text-[11px] font-semibold text-gray-400 hover:text-red-500">🗑️ ลบออกจากประวัติบนเครื่องนี้</button></div>' +
       '</div>';
   }).join('') || '<div class="text-center text-xs text-gray-400 py-6">รายการทั้งหมดถูกซ่อนไว้ในเครื่องนี้</div>';
   if (hiddenCount > 0){
-    box.innerHTML += '<div class="text-center text-[11px] text-gray-400 pt-1">ซ่อนไว้ในเครื่องนี้ '+hiddenCount+' รายการ · <button onclick="unhideAllOrders()" class="text-violet-500 font-bold underline">แสดงทั้งหมด</button></div>';
+    box.innerHTML += '<div class="text-center text-[11px] text-gray-400 pt-1">ซ่อนไว้ในเครื่องนี้ '+hiddenCount+' รายการ · <button onclick="unhideAllOrders()" class="text-sky-500 font-bold underline">แสดงทั้งหมด</button></div>';
   }
 }
 document.getElementById('statusQuery').addEventListener('keydown', function(e){ if(e.key==='Enter') checkStatus(); });
+
+// 📤 แนบสลิปจากการ์ดสถานะ — ใช้ได้แม้หน้ารีโหลด/เปิดจากลิงก์ในอีเมล ไม่ต้องพึ่ง lastOrder
+async function sendSlipFor(orderId){
+  const input = document.getElementById('slip_' + orderId);
+  const f = input && input.files[0];
+  if (!f){ toast('เลือกรูปสลิปก่อนค่ะ', false); return; }
+  try {
+    const b64 = await compressImage(f);
+    const res = await gs('uploadSlip', orderId, b64, 'image/jpeg');
+    if (res.success){
+      toast('ส่งสลิปเรียบร้อย รอแอดมินตรวจสอบนะคะ 💛');
+      if (lastOrder && lastOrder.orderId === orderId){
+        try { localStorage.removeItem('kpsm_lastorder'); } catch(e){}
+        document.getElementById('payBox').classList.add('hidden');
+        lastOrder = null;
+      }
+      checkStatus();
+    } else toast(res.error, false);
+  } catch(e){ toast(e.message, false); }
+}
 
 /* ============================================================
    📦 จัดการคำสั่งซื้อ (แอดมิน)
@@ -789,16 +931,16 @@ function renderOrders(){
     let head = '';
     if (day !== lastDay){
       lastDay = day;
-      head = '<div class="text-[11px] font-extrabold text-violet-500 bg-violet-50 rounded-lg px-3 py-1 mt-2">📅 '+esc(day)+'</div>';
+      head = '<div class="text-[11px] font-extrabold text-sky-500 bg-sky-50 rounded-lg px-3 py-1 mt-2">📅 '+esc(day)+'</div>';
     }
     const canApprove = o.status !== 'ส่งแผนเสร็จสิ้น' && o.status !== 'ยกเลิก';
-    return head + '<div class="border border-violet-100 rounded-xl p-3">' +
+    return head + '<div class="border border-sky-100 rounded-xl p-3">' +
       '<div class="flex items-center justify-between flex-wrap gap-1">' +
-        '<div><b class="text-violet-800">#'+esc(o.orderId)+'</b> <span class="text-xs text-gray-600">'+esc(o.customer)+'</span></div>' +
+        '<div><b class="text-sky-800">#'+esc(o.orderId)+'</b> <span class="text-xs text-gray-600">'+esc(o.customer)+'</span></div>' +
         '<span class="text-[11px] font-bold rounded-full px-2.5 py-1 '+(STATUS_BADGE[o.status]||'bg-gray-100')+'">'+esc(o.status)+'</span></div>' +
       '<div class="text-[11px] text-gray-500 mt-0.5">'+esc(o.timestamp)+' • '+esc(o.email)+(o.phone?' • ☎️ '+esc(o.phone):'')+'</div>' +
       '<div class="text-xs text-gray-700 mt-1.5">'+o.items.map(function(it){ return '📘 '+esc(it.subject)+' '+esc(it.grade)+' — '+baht(it.price); }).join('<br>')+'</div>' +
-      '<div class="text-xs mt-1.5">ยอดสุทธิ <b class="text-green-600">'+baht(o.netTotal)+'</b>'+(o.discount?' <span class="text-fuchsia-600">(ลด '+o.discountPct+'% = '+baht(o.discount)+')</span>':'')+'</div>' +
+      '<div class="text-xs mt-1.5">ยอดสุทธิ <b class="text-green-600">'+baht(o.netTotal)+'</b>'+(o.discount?' <span class="text-blue-600">(ลด '+o.discountPct+'% = '+baht(o.discount)+')</span>':'')+'</div>' +
       (o.note ? '<div class="text-[11px] text-gray-400 mt-0.5">📝 '+esc(o.note)+'</div>' : '') +
       '<div class="flex gap-2 flex-wrap mt-2.5">' +
         (o.slipUrl ? '<a href="'+esc(o.slipUrl)+'" target="_blank" class="text-[11px] font-bold text-sky-700 bg-sky-50 border border-sky-200 rounded-lg px-3 py-1.5">🧾 ดูสลิป</a>' : '<span class="text-[11px] text-gray-400 px-1 py-1.5">ยังไม่มีสลิป</span>') +
@@ -837,7 +979,7 @@ function renderProductTable(){
     return !q || (p.subject+' '+p.grade+' '+p.curriculum+' '+(p.category||'')).toLowerCase().indexOf(q) >= 0;
   });
   document.getElementById('prodTbody').innerHTML = list.map(function(p){
-    return '<tr class="border-b border-violet-50 hover:bg-violet-50/50">' +
+    return '<tr class="border-b border-sky-50 hover:bg-sky-50/50">' +
       '<td class="p-2 font-semibold">'+((p.category&&p.category!=='แผนการสอน')?'<span class="text-[10px] font-bold text-amber-700 bg-amber-100 rounded px-1.5 py-0.5 mr-1">'+esc(p.category)+'</span>':'')+esc(p.subject)+'</td>' +
       '<td class="p-2 text-center">'+esc(p.grade)+'</td>' +
       '<td class="p-2 text-center">'+esc(p.curriculum)+'</td>' +
@@ -846,7 +988,7 @@ function renderProductTable(){
       '<td class="p-2 text-center">'+(p.driveLink?'<span class="text-green-600 font-bold">✔</span>':'<span class="text-red-400">✖</span>')+'</td>' +
       '<td class="p-2 text-center">'+(p.active?'🟢':'⚪')+'</td>' +
       '<td class="p-2 text-center whitespace-nowrap">' +
-        '<button onclick="openEdit(\''+esc(p.id)+'\')" class="text-[11px] font-bold text-violet-700 bg-violet-100 rounded-lg px-2 py-1">✏️ แก้ไข</button> ' +
+        '<button onclick="openEdit(\''+esc(p.id)+'\')" class="text-[11px] font-bold text-sky-700 bg-sky-100 rounded-lg px-2 py-1">✏️ แก้ไข</button> ' +
         '<button onclick="deleteProductUI(\''+esc(p.id)+'\')" class="text-[11px] font-bold text-red-600 bg-red-50 rounded-lg px-2 py-1">🗑️</button>' +
       '</td></tr>';
   }).join('') || '<tr><td colspan="8" class="text-center text-gray-400 p-5">ไม่พบรายการ</td></tr>';
@@ -923,7 +1065,7 @@ async function autoSetPricesUI(){
 function downloadTemplate(){
   const ws = XLSX.utils.aoa_to_sheet([
     ['ระดับชั้น','หลักสูตร','ชื่อวิชา','เวลาเรียน (ชม.)','ราคา (บาท)','ลิงก์ Drive','ลิงก์ตัวอย่าง'],
-    ['ป.1','68','ภาษาไทย',200,'','','']
+    ['ม.1','51','ภาษาไทย',120,'','','']
   ]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'แผนการสอน');
@@ -971,13 +1113,13 @@ function renderCustomers(){
   const box = document.getElementById('custList');
   if (!list.length){ box.innerHTML = '<div class="text-center text-xs text-gray-400 py-6">ยังไม่มีข้อมูลลูกค้า</div>'; return; }
   box.innerHTML = list.map(function(c){
-    return '<div class="border border-violet-100 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">' +
+    return '<div class="border border-sky-100 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">' +
       '<div><b class="text-gray-800">'+esc(c.name)+'</b>' +
       '<div class="text-[11px] text-gray-500">'+esc(c.email)+(c.phone?' • ☎️ '+esc(c.phone):'')+' • ซื้อล่าสุด '+esc(c.lastDate.slice(0,10))+'</div></div>' +
       '<div class="flex items-center gap-3 text-xs">' +
-        '<span class="font-bold text-violet-700">'+c.orderCount+' ออเดอร์</span>' +
+        '<span class="font-bold text-sky-700">'+c.orderCount+' ออเดอร์</span>' +
         '<span class="font-bold text-green-600">'+baht(c.totalSpent)+'</span>' +
-        '<button onclick="viewCustomer(\''+esc(c.email)+'\')" class="font-bold text-white bg-violet-500 hover:bg-violet-600 rounded-lg px-3 py-1.5 text-[11px]">📜 ประวัติ</button>' +
+        '<button onclick="viewCustomer(\''+esc(c.email)+'\')" class="font-bold text-white bg-sky-500 hover:bg-sky-600 rounded-lg px-3 py-1.5 text-[11px]">📜 ประวัติ</button>' +
       '</div></div>';
   }).join('');
 }
@@ -988,8 +1130,8 @@ async function viewCustomer(email){
   document.getElementById('chTitle').textContent = (c.name || email);
   document.getElementById('chSub').textContent = email + ' • รวม ' + baht(c.totalSpent||0) + ' จาก ' + (c.orderCount||0) + ' ออเดอร์';
   document.getElementById('chBody').innerHTML = res.orders.map(function(o){
-    return '<div class="border border-violet-100 rounded-xl p-2.5 text-xs">' +
-      '<div class="flex justify-between flex-wrap gap-1"><b class="text-violet-800">#'+esc(o.orderId)+'</b>' +
+    return '<div class="border border-sky-100 rounded-xl p-2.5 text-xs">' +
+      '<div class="flex justify-between flex-wrap gap-1"><b class="text-sky-800">#'+esc(o.orderId)+'</b>' +
       '<span class="text-[10px] font-bold rounded-full px-2 py-0.5 '+(STATUS_BADGE[o.status]||'bg-gray-100')+'">'+esc(o.status)+'</span></div>' +
       '<div class="text-[10px] text-gray-400">'+esc(o.timestamp)+'</div>' +
       '<div class="mt-1 text-gray-700">'+o.items.map(function(it){ return '📘 '+esc(it.subject)+' '+esc(it.grade); }).join('<br>')+'</div>' +
@@ -1011,14 +1153,14 @@ async function loadReport(){
   if (!res.success){ toast(res.error, false); return; }
   const r = res.report;
   const card = function(icon, label, value, color){
-    return '<div class="bg-white rounded-2xl shadow-sm border border-violet-100 p-3 text-center">' +
+    return '<div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-3 text-center">' +
       '<div class="text-xl">'+icon+'</div><div class="text-lg font-extrabold '+color+'">'+value+'</div>' +
       '<div class="text-[11px] text-gray-500">'+label+'</div></div>';
   };
   document.getElementById('reportCards').innerHTML =
     card('💰','ยอดขายวันนี้', baht(r.todaySum), 'text-green-600') +
-    card('📅','ยอดขายเดือนนี้', baht(r.monthSum), 'text-violet-600') +
-    card('🏦','ยอดขายสะสม', baht(r.allSum), 'text-fuchsia-600') +
+    card('📅','ยอดขายเดือนนี้', baht(r.monthSum), 'text-sky-600') +
+    card('🏦','ยอดขายสะสม', baht(r.allSum), 'text-blue-600') +
     card('📦','ออเดอร์ทั้งหมด', r.totalOrders + ' รายการ', 'text-sky-600');
   if (dailyChart) dailyChart.destroy();
   dailyChart = new Chart(document.getElementById('dailyChart'), {
@@ -1030,8 +1172,8 @@ async function loadReport(){
   });
   document.getElementById('topSubjects').innerHTML = r.topSubjects.length
     ? r.topSubjects.map(function(s,i){
-        return '<div class="flex items-center justify-between bg-violet-50 rounded-xl px-3 py-2">' +
-          '<span>'+(i+1)+'. '+esc(s.name)+'</span><b class="text-violet-700">'+s.count+' ออเดอร์</b></div>';
+        return '<div class="flex items-center justify-between bg-sky-50 rounded-xl px-3 py-2">' +
+          '<span>'+(i+1)+'. '+esc(s.name)+'</span><b class="text-sky-700">'+s.count+' ออเดอร์</b></div>';
       }).join('')
     : '<div class="text-xs text-gray-400 text-center py-4">ยังไม่มีข้อมูลการขาย</div>';
 }
@@ -1137,5 +1279,16 @@ async function uploadSetting(kind){
 initShop();
 tryRestorePin();
 </script>
+
+<!-- ░░ แถบตะกร้าลอย (มือถือ) ░░ -->
+<div id="cartBar" class="hidden no-print sm:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-t border-sky-100 shadow-[0_-4px_16px_rgba(2,132,199,.12)] px-4 py-2.5">
+  <button onclick="document.getElementById('cartSection').scrollIntoView({behavior:'smooth'})" class="w-full flex items-center justify-between">
+    <span class="text-xs font-bold text-gray-600">🛒 <span id="cartBarCount">0</span> วิชาในตะกร้า</span>
+    <span class="flex items-center gap-2">
+      <span id="cartBarTotal" class="text-sm font-extrabold text-sky-700"></span>
+      <span class="text-[11px] font-bold text-white bg-sky-600 rounded-lg px-3 py-1.5">ไปที่ตะกร้า ↓</span>
+    </span>
+  </button>
+</div>
 </body>
 </html>

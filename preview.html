@@ -11,21 +11,21 @@
     .pdf-frame { width: 100%; height: 78vh; border: 0; border-radius: 0.75rem; background:#f8fafc; }
     @media (max-width: 640px){ .pdf-frame { height: 70vh; } }
     .noselect { -webkit-user-select:none; user-select:none; }
-    .spin { width:42px; height:42px; border:5px solid #e9d5ff; border-top-color:#7c3aed; border-radius:50%; animation:sp .8s linear infinite; }
+    .spin { width:42px; height:42px; border:5px solid #bae6fd; border-top-color:#0284c7; border-radius:50%; animation:sp .8s linear infinite; }
     @keyframes sp { to { transform:rotate(360deg); } }
   </style>
 </head>
-<body class="bg-gradient-to-b from-violet-50 via-white to-fuchsia-50 min-h-screen noselect">
+<body class="bg-gradient-to-b from-sky-50 via-white to-blue-50 min-h-screen noselect">
 
   <!-- ⭐ ลิงก์ API ของระบบขาย (เว็บแอป /exec) -->
   <script>var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby6eRRZw17H8fNCTczlMsPErOLUn1pBK4qU_6lNJhzHbj-DstyX_wT5_lz0elcQ8TMI1w/exec';</script>
 
   <!-- Header -->
-  <header class="bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white">
+  <header class="bg-gradient-to-r from-sky-600 to-blue-500 text-white">
     <div class="max-w-5xl mx-auto px-4 py-6 text-center">
       <div class="text-2xl">🛍️</div>
       <h1 id="title" class="text-xl sm:text-2xl font-bold mt-1">ตัวอย่างสื่อ</h1>
-      <p id="subtitle" class="text-violet-100 text-sm mt-1"></p>
+      <p id="subtitle" class="text-sky-100 text-sm mt-1">ระดับมัธยม ม.1–ม.6 หลักสูตร 2551</p>
     </div>
   </header>
 
@@ -45,13 +45,13 @@
 
     <!-- สื่อ HTML -->
     <section id="htmlSection" class="hidden mb-6">
-      <h2 class="font-semibold text-violet-800 mb-3 flex items-center gap-2">🎬 ตัวอย่างสื่อการสอน (Interactive)</h2>
+      <h2 class="font-semibold text-sky-800 mb-3 flex items-center gap-2">🎬 ตัวอย่างสื่อการสอน (Interactive)</h2>
       <div id="htmlList" class="grid sm:grid-cols-2 gap-3"></div>
     </section>
 
     <!-- PDF -->
     <section id="pdfSection" class="hidden">
-      <h2 class="font-semibold text-violet-800 mb-3 flex items-center gap-2">📄 ตัวอย่างแผนการสอน (PDF)</h2>
+      <h2 class="font-semibold text-sky-800 mb-3 flex items-center gap-2">📄 ตัวอย่างแผนการสอน (PDF)</h2>
       <div id="pdfTabs" class="flex flex-wrap gap-2 mb-3"></div>
       <div id="pdfFrameWrap" class="bg-white rounded-2xl shadow-sm p-2 sm:p-3">
         <iframe id="pdfFrame" class="pdf-frame" allow="autoplay"></iframe>
@@ -62,9 +62,16 @@
 
   </main>
 
-  <footer class="text-center text-xs text-slate-400 py-6 px-4">
+  <footer class="text-center text-xs text-slate-400 py-6 px-4 pb-24">
     Copyright © เพจครูพร้อมสอน. All Rights Reserved.
   </footer>
+
+  <!-- ปุ่มลอย: กลับไปหน้าร้านพร้อมใส่วิชานี้ลงตะกร้าให้เลย -->
+  <div id="buyBar" class="hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-t border-sky-100 shadow-[0_-4px_16px_rgba(2,132,199,.12)] px-4 py-2.5">
+    <a id="buyLink" href="./" class="flex items-center justify-center gap-2 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl py-2.5 text-sm">
+      🛒 <span id="buyLabel">สั่งซื้อวิชานี้</span>
+    </a>
+  </div>
 
   <script>
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -84,9 +91,9 @@
         $('htmlSection').classList.remove('hidden');
         $('htmlList').innerHTML = DATA.htmls.map(function(h, i){
           return '<button type="button" data-mid="'+esc(h.id)+'" '+
-            'class="media-btn w-full flex items-center justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-violet-100 text-left">'+
+            'class="media-btn w-full flex items-center justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-sky-100 text-left">'+
             '<span class="font-medium text-slate-700 truncate">🎬 '+esc(h.name||'สื่อ')+'</span>'+
-            '<span class="text-xs bg-violet-600 text-white rounded-lg px-3 py-1 flex-shrink-0">เปิดดู</span></button>';
+            '<span class="text-xs bg-sky-600 text-white rounded-lg px-3 py-1 flex-shrink-0">เปิดดู</span></button>';
         }).join('');
         Array.prototype.forEach.call(document.querySelectorAll('.media-btn'), function(btn){
           btn.addEventListener('click', function(){ openMedia(btn.dataset.mid); });
@@ -107,9 +114,9 @@
           ml.innerHTML = DATA.pdfs.map(function(p, i){
             var viewUrl = 'https://drive.google.com/file/d/' + p.id + '/view';
             return '<a href="'+viewUrl+'" target="_blank" rel="noopener" '+
-              'class="flex items-center justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-violet-100">'+
+              'class="flex items-center justify-between bg-white rounded-xl shadow-sm hover:shadow-md transition p-4 border border-sky-100">'+
               '<span class="font-medium text-slate-700 truncate">📄 '+esc(p.name||('ตัวอย่าง '+(i+1)))+'</span>'+
-              '<span class="text-xs bg-violet-600 text-white rounded-lg px-3 py-1 flex-shrink-0">เปิดดู</span></a>';
+              '<span class="text-xs bg-sky-600 text-white rounded-lg px-3 py-1 flex-shrink-0">เปิดดู</span></a>';
           }).join('');
         } else {
           var frame = $('pdfFrame');
@@ -118,8 +125,8 @@
             Array.prototype.forEach.call(document.querySelectorAll('[data-pdf]'), function(b){
               var on = (+b.dataset.pdf === i);
               b.className = 'text-sm rounded-lg px-3 py-1.5 transition ' + (on
-                ? 'bg-violet-600 text-white'
-                : 'bg-white text-violet-700 border border-violet-200 hover:bg-violet-50');
+                ? 'bg-sky-600 text-white'
+                : 'bg-white text-sky-700 border border-sky-200 hover:bg-sky-50');
             });
           };
           $('pdfTabs').innerHTML = DATA.pdfs.map(function(p,i){
@@ -144,7 +151,7 @@
     // เปิดสื่อ HTML เป็นแท็บใหม่ — เปิดแท็บทันที (กัน popup block) แล้วค่อยเติมเนื้อหาที่ดึงมา
     function openMedia(id){
       var w = window.open('', '_blank');
-      if (w) { try { w.document.write('<!doctype html><meta charset="utf-8"><title>กำลังโหลดสื่อ…</title><body style="font-family:sans-serif;text-align:center;color:#7c3aed;margin-top:60px">⏳ กำลังโหลดสื่อ…</body>'); } catch(e){} }
+      if (w) { try { w.document.write('<!doctype html><meta charset="utf-8"><title>กำลังโหลดสื่อ…</title><body style="font-family:sans-serif;text-align:center;color:#0284c7;margin-top:60px">⏳ กำลังโหลดสื่อ…</body>'); } catch(e){} }
       fetch(WEB_APP_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -180,6 +187,12 @@
       var args = [p.get('subject')||'', p.get('level')||'', p.get('cur')||'', p.get('hours')||''];
       // โชว์ชื่อวิชาคร่าวๆ ระหว่างรอ
       if (args[0]) { $('title').textContent = args[0]; $('subtitle').textContent = (args[1]||'') + (args[2]?' · หลักสูตร '+args[2]:'') + (args[3]?' · '+args[3]+' ชม.':''); }
+      // ปุ่ม "สั่งซื้อวิชานี้" — ลิงก์กลับหน้าร้าน (โฮสต์โฟลเดอร์เดียวกัน) พร้อมใส่ตะกร้าอัตโนมัติ
+      if (args[0] && args[1]) {
+        $('buyLink').href = './?add=' + encodeURIComponent(args[0] + '|' + args[1] + '|' + (args[3]||'') + '|' + (args[2]||''));
+        $('buyLabel').textContent = 'สั่งซื้อ ' + args[0] + ' ' + args[1];
+        $('buyBar').classList.remove('hidden');
+      }
 
       fetch(WEB_APP_URL, {
         method: 'POST',
