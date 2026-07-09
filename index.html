@@ -51,7 +51,7 @@
   <header class="brand-grad text-white rounded-b-3xl shadow-lg px-5 pt-7 pb-5 text-center">
     <div class="text-3xl">🛒</div>
     <h1 class="text-xl sm:text-2xl font-extrabold mt-1">ระบบสั่งซื้อแผนการสอน <span id="hdrPageName">ครูพร้อมสอน</span></h1>
-    <p id="hdrSlogan" class="text-xs sm:text-sm opacity-90 mt-1">แผนการสอนมัธยม ม.1–ม.6 หลักสูตร 2551 พร้อมใช้ ส่งไวทาง Gmail</p>
+    <p id="hdrSlogan" class="text-xs sm:text-sm opacity-90 mt-1">แผนการสอน ป.1–ม.6 พร้อมใช้ ส่งไวทาง Gmail</p>
     <div class="inline-flex items-center gap-2 bg-white/20 rounded-full px-3 py-1 mt-3 text-[11px] sm:text-xs font-semibold">
       <span class="dot-online"></span> ☁️ เชื่อมต่อกับ Google Sheets (Online Mode)
     </div>
@@ -145,7 +145,7 @@
     <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
       <h2 class="font-extrabold text-sky-800">🔍 ตรวจสอบสถานะคำสั่งซื้อ</h2>
       <div class="flex flex-col sm:flex-row gap-2 mt-3">
-        <input id="statusQuery" class="flex-1 border border-sky-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" placeholder="กรอกเลขที่ออเดอร์ (เช่น KPSM250610-001) หรือ Gmail ที่ใช้สั่งซื้อ">
+        <input id="statusQuery" class="flex-1 border border-sky-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" placeholder="กรอกเลขที่ออเดอร์ (เช่น KPS250610-001) หรือ Gmail ที่ใช้สั่งซื้อ">
         <button onclick="checkStatus()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg px-5 py-2 text-sm shadow">ค้นหา</button>
       </div>
       <div id="statusResult" class="mt-4 space-y-3"></div>
@@ -186,8 +186,8 @@
       </div>
       <div class="grid sm:grid-cols-6 gap-2 mt-4 items-end bg-sky-50 rounded-xl p-3">
         <div><label class="text-[11px] font-bold text-gray-600">ประเภท</label><select id="npCat" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"><option>แผนการสอน</option><option>ระบบงาน</option><option>กลุ่ม VIP</option></select></div>
-        <div><label class="text-[11px] font-bold text-gray-600">ชั้น</label><input id="npGrade" placeholder="ม.1" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
-        <div><label class="text-[11px] font-bold text-gray-600">หลักสูตร</label><input id="npCurri" placeholder="51" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
+        <div><label class="text-[11px] font-bold text-gray-600">ชั้น</label><input id="npGrade" placeholder="ป.1 / ม.1" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
+        <div><label class="text-[11px] font-bold text-gray-600">หลักสูตร</label><input id="npCurri" placeholder="68 / 51" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
         <div class="sm:col-span-2"><label class="text-[11px] font-bold text-gray-600">ชื่อวิชา *</label><input id="npSubject" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
         <div><label class="text-[11px] font-bold text-gray-600">ชม.</label><input id="npHours" type="number" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
         <div><label class="text-[11px] font-bold text-gray-600">ราคา</label><input id="npPrice" type="number" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
@@ -546,7 +546,7 @@ let cart = [];
 let curCat = 'แผนการสอน';
 let curGrade = 'ทั้งหมด';
 let curCurri = 'ทั้งหมด';
-let ONE_CURRI = false; // ระบบนี้ขายหลักสูตร 2551 อย่างเดียว — ซ่อนตัวกรองหลักสูตรอัตโนมัติ
+let ONE_CURRI = false; // ถ้าสินค้ามีหลักสูตรเดียว ระบบจะซ่อนตัวกรองหลักสูตรให้อัตโนมัติ
 const CAT_ICONS = { 'แผนการสอน':'📚', 'ระบบงาน':'💼', 'กลุ่ม VIP':'👑' };
 let lastOrder = null;
 
@@ -655,8 +655,15 @@ function renderChips(){
   document.getElementById('gradeChips').style.display = isLesson ? '' : 'none';
   document.getElementById('curriChips').style.display = (isLesson && !ONE_CURRI) ? '' : 'none';
   const lessons = PRODUCTS.filter(function(p){ return (p.category||'แผนการสอน')==='แผนการสอน'; });
+  const GRADE_RANK = { 'อ':0, 'ป':1, 'ม':2 };   // เรียงกลุ่มชั้น อนุบาล → ประถม → มัธยม
   const grades = ['ทั้งหมด'].concat(Array.from(new Set(lessons.map(p=>p.grade).filter(Boolean)))
-    .sort(function(x,y){ var nx=+((String(x).match(/\d+/)||[99])[0]), ny=+((String(y).match(/\d+/)||[99])[0]); return nx-ny || String(x).localeCompare(String(y),'th'); }));
+    .sort(function(x,y){
+      var gx = GRADE_RANK[String(x).charAt(0)], gy = GRADE_RANK[String(y).charAt(0)];
+      gx = (gx===undefined?9:gx); gy = (gy===undefined?9:gy);
+      if (gx !== gy) return gx - gy;
+      var nx=+((String(x).match(/\d+/)||[99])[0]), ny=+((String(y).match(/\d+/)||[99])[0]);
+      return nx-ny || String(x).localeCompare(String(y),'th');
+    }));
   const curriSet = Array.from(new Set(lessons.map(p=>p.curriculum).filter(Boolean))).sort();
   ONE_CURRI = curriSet.length <= 1;   // มีหลักสูตรเดียว → ไม่ต้องโชว์ตัวกรอง ลดเมนูให้ดูง่าย
   if (ONE_CURRI) curCurri = 'ทั้งหมด';
@@ -1065,7 +1072,7 @@ async function autoSetPricesUI(){
 function downloadTemplate(){
   const ws = XLSX.utils.aoa_to_sheet([
     ['ระดับชั้น','หลักสูตร','ชื่อวิชา','เวลาเรียน (ชม.)','ราคา (บาท)','ลิงก์ Drive','ลิงก์ตัวอย่าง'],
-    ['ม.1','51','ภาษาไทย',120,'','','']
+    ['ป.1','68','ภาษาไทย',200,'','','']
   ]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'แผนการสอน');
