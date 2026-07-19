@@ -113,6 +113,18 @@
           <div class="text-xs text-amber-800">⚠️ <b>ตรวจให้แน่ใจก่อนกดยืนยัน</b> — ระบบส่งแผนผ่าน Google Drive ต้องใช้ <b>Gmail (@gmail.com)</b> ที่เปิดใช้งานได้จริงเท่านั้น</div>
           <div class="text-xs text-amber-800">🙏 หาก Gmail ผิด/ใช้งานไม่ได้ และต้องการให้แอดมินส่งใหม่ มีค่าบริการเพิ่ม <b>30 บาท</b> (ยกเว้นกรณีสะกดผิด) — เพราะแอดมินต้องตรวจสอบและส่งให้ใหม่ ขอความเข้าใจด้วยนะคะ 💛</div>
         </div>
+
+        <!-- 📬 แยก Gmail ตามวิชา — โชว์เมื่อตะกร้ามีตั้งแต่ 2 วิชาขึ้นไป (เผื่อสั่งหลายคนรวมกัน) -->
+        <div id="splitEmailBox" class="hidden bg-white border border-sky-100 rounded-xl px-4 py-3">
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input id="splitEmailChk" type="checkbox" class="mt-0.5 w-4 h-4 accent-sky-600" onchange="renderSplitEmails()">
+            <span>
+              <span class="text-sm font-bold text-gray-700">📬 แยก Gmail ตามวิชา</span>
+              <span class="block text-[11px] text-gray-500 mt-0.5">เปิดถ้าสั่งหลายคนรวมกัน — แต่ละวิชาส่งคนละ Gmail (วิชาที่เว้นว่างจะส่งเข้า Gmail หลักด้านบน)</span>
+            </span>
+          </label>
+          <div id="splitEmailList" class="hidden mt-3 space-y-2"></div>
+        </div>
       </div>
       <button onclick="submitOrder()" class="mt-4 w-full brand-grad text-white font-extrabold rounded-xl py-3 shadow-lg hover:opacity-90 text-sm">✅ ยืนยันคำสั่งซื้อ</button>
     </div>
@@ -585,10 +597,12 @@ function restoreCustomerLocal(){
 document.getElementById('buyerName').addEventListener('input', saveBuyerLocal);
 document.getElementById('buyerEmail').addEventListener('input', saveBuyerLocal);
 
-async function initShop(){
-  const s = await gs('getPublicSettings');
-  if (s.success){
-    SETTINGS = s.settings;
+/* ⚡ Sheets + Edge: หน้าแรกโหลด products.json จาก GitHub Pages CDN (เร็วทันที)
+   แล้วค่อยเช็คของสดจาก GAS เบื้องหลัง — ไม่มี snapshot ก็ถอยไปใช้ GAS ตามเดิมอัตโนมัติ */
+let SHOP_BOOTED = false;
+function applyShopData(settings, products){
+  if (settings){
+    SETTINGS = settings;
     document.getElementById('hdrPageName').textContent = SETTINGS.pageName || 'ครูพร้อมสอน';
     if (SETTINGS.slogan) document.getElementById('hdrSlogan').textContent = SETTINGS.slogan;
     document.getElementById('ruleMin').textContent = SETTINGS.discountMinItems;
@@ -599,16 +613,42 @@ async function initShop(){
       bar.classList.remove('hidden');
     }
   }
-  const p = await gs('getShopProducts');
-  if (p.success){
-    PRODUCTS = p.products;
+  if (products){
+    PRODUCTS = products;
     ONE_CURRI = new Set(PRODUCTS.filter(function(x){ return (x.category||'แผนการสอน')==='แผนการสอน'; })
       .map(function(x){ return x.curriculum; }).filter(Boolean)).size <= 1;
-    restoreCustomerLocal();           // กู้ตะกร้า/ชื่อผู้ซื้อ/ออเดอร์ค้างจากเครื่อง
-    renderChips(); renderSubjects(); renderCart();
-    handleDeepLink();                 // ลิงก์จากอีเมล (?order=) หรือหน้า preview (?add=)
   }
-  else toast(p.error || 'โหลดรายการวิชาไม่สำเร็จ', false);
+  if (!SHOP_BOOTED){
+    SHOP_BOOTED = true;
+    restoreCustomerLocal();           // กู้ตะกร้า/ชื่อผู้ซื้อ/ออเดอร์ค้าง — ทำครั้งเดียว
+  }
+  renderChips(); renderSubjects(); renderCart();
+  handleDeepLink();                   // มีตัวกันทำซ้ำในตัว (ล้าง query หลังใช้)
+}
+async function initShop(){
+  // 1) Edge: snapshot บน CDN โฟลเดอร์เดียวกับหน้าร้าน — โชว์ได้ในเสี้ยววินาที
+  let edge = null;
+  try {
+    const r = await fetch('./products.json', { cache: 'no-cache' });
+    if (r.ok) edge = await r.json();
+  } catch(e){}
+  if (edge && edge.products && edge.products.length){
+    applyShopData(edge.settings || null, edge.products);
+  }
+  // 2) GAS: เป็นทางหลักเมื่อยังไม่มี snapshot / เป็นตัวรีเฟรชเงียบเมื่อมี
+  try {
+    const s = await gs('getPublicSettings');
+    const p = await gs('getShopProducts');
+    if (p.success){
+      const changed = JSON.stringify(p.products) !== JSON.stringify(PRODUCTS) ||
+        (s.success && JSON.stringify(s.settings) !== JSON.stringify(SETTINGS));
+      if (!edge || changed) applyShopData(s.success ? s.settings : null, p.products);
+    } else if (!edge) {
+      toast(p.error || 'โหลดรายการวิชาไม่สำเร็จ', false);
+    }
+  } catch(e){
+    if (!edge) toast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองรีเฟรชอีกครั้งค่ะ', false);
+  }
 }
 
 // 🔗 รองรับลิงก์ทางลัดฝั่งลูกค้า
@@ -744,6 +784,33 @@ function toggleCart(id){
   saveCartLocal();
   renderSubjects(); renderCart();
 }
+// 📬 กล่องแยก Gmail ตามวิชา: โชว์เฉพาะเมื่อมี 2 วิชาขึ้นไป / เก็บค่าที่พิมพ์ไว้ระหว่างแก้ตะกร้า
+function renderSplitEmails(){
+  const box = document.getElementById('splitEmailBox');
+  const chk = document.getElementById('splitEmailChk');
+  const list = document.getElementById('splitEmailList');
+  if (cart.length < 2){                       // วิชาเดียวไม่มีอะไรให้แยก — ซ่อนและล้างสถานะ
+    box.classList.add('hidden');
+    chk.checked = false;
+    list.classList.add('hidden'); list.innerHTML = '';
+    return;
+  }
+  box.classList.remove('hidden');
+  if (!chk.checked){ list.classList.add('hidden'); return; }
+  // เก็บค่าที่พิมพ์ไว้ก่อน re-render จะได้ไม่หายตอนเพิ่ม/ลบวิชา
+  const keep = {};
+  Array.prototype.forEach.call(list.querySelectorAll('input[data-pid]'), function(i){ keep[i.dataset.pid] = i.value; });
+  const items = cart.map(function(id){ return PRODUCTS.filter(function(p){ return p.id===id; })[0]; }).filter(Boolean);
+  list.innerHTML = items.map(function(p){
+    return '<div>' +
+      '<div class="text-[11px] font-bold text-gray-600">📘 '+esc(p.subject)+' '+esc(p.grade)+'</div>' +
+      '<input type="email" data-pid="'+esc(p.id)+'" value="'+esc(keep[p.id]||'')+'" placeholder="Gmail ผู้รับวิชานี้ (เว้นว่าง = ใช้ Gmail หลัก)" ' +
+      'class="w-full border border-sky-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-sky-300">' +
+      '</div>';
+  }).join('');
+  list.classList.remove('hidden');
+}
+
 function updateCartBar(netTotal){
   const bar = document.getElementById('cartBar');
   const onShop = !document.getElementById('tab-shop').classList.contains('hidden');
@@ -759,6 +826,7 @@ function renderCart(){
     listEl.innerHTML = '<div class="text-center text-xs text-gray-400 py-4">ตะกร้ายังว่าง — เลือกวิชาด้านบนได้เลยค่ะ</div>';
     document.getElementById('cartSummary').innerHTML = '';
     updateCartBar(0);
+    renderSplitEmails();
     return;
   }
   listEl.innerHTML = items.map(function(p){
@@ -777,6 +845,7 @@ function renderCart(){
     (usePct ? '<div class="flex justify-between text-blue-600 font-bold"><span>🎉 ส่วนลด '+usePct+'% (เฉพาะแผนการสอน '+lessons.length+' วิชา)</span><span>- '+baht(discount)+'</span></div>' : '') +
     '<div class="flex justify-between text-base font-extrabold text-green-600 border-t border-dashed pt-2 mt-1"><span>ยอดสุทธิ</span><span>'+baht(subtotal-discount)+'</span></div>';
   updateCartBar(subtotal-discount);
+  renderSplitEmails();
 }
 
 async function submitOrder(){
@@ -786,7 +855,20 @@ async function submitOrder(){
   if (!cart.length){ toast('กรุณาเลือกวิชาก่อนค่ะ', false); return; }
   if (!name){ toast('กรุณากรอกชื่อ/Facebook', false); return; }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ toast('รูปแบบอีเมลไม่ถูกต้อง', false); return; }
-  const res = await gs('createOrder', { customer:name, email:email, phone:phone, productIds:cart });
+  // 📬 แยก Gmail ตามวิชา (ถ้าเปิดใช้): รวบอีเมลรายวิชา + ตรวจรูปแบบก่อนส่ง
+  const split = cart.length >= 2 && document.getElementById('splitEmailChk').checked;
+  const itemEmails = {};
+  if (split){
+    let bad = null;
+    Array.prototype.forEach.call(document.querySelectorAll('#splitEmailList input[data-pid]'), function(i){
+      const v = i.value.trim();
+      if (!v) return;                                   // ว่าง = ใช้ Gmail หลัก
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ bad = v; return; }
+      itemEmails[i.dataset.pid] = v;
+    });
+    if (bad){ toast('รูปแบบอีเมลรายวิชาไม่ถูกต้อง: '+bad, false); return; }
+  }
+  const res = await gs('createOrder', { customer:name, email:email, phone:phone, productIds:cart, splitEmail:split, itemEmails:itemEmails });
   if (!res.success){ toast(res.error, false); return; }
   lastOrder = { orderId: res.orderId, netTotal: res.netTotal, ts: Date.now() };
   saveLocal('kpsm_lastorder', lastOrder);   // จำไว้ เผื่อหน้ารีโหลดตอนสลับไปแอปธนาคาร
