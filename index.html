@@ -626,28 +626,31 @@ function applyShopData(settings, products){
   handleDeepLink();                   // มีตัวกันทำซ้ำในตัว (ล้าง query หลังใช้)
 }
 async function initShop(){
-  // 1) Edge: snapshot บน CDN โฟลเดอร์เดียวกับหน้าร้าน — โชว์ได้ในเสี้ยววินาที
+  // 1) ดึงข้อมูลจากไฟล์ products.json บน Edge CDN (โหลดเร็ว ไม่พึ่ง GAS)
   let edge = null;
   try {
     const r = await fetch('./products.json', { cache: 'no-cache' });
     if (r.ok) edge = await r.json();
   } catch(e){}
+
   if (edge && edge.products && edge.products.length){
+    // แสดงผลข้อมูลสินค้าและตั้งค่าที่ดึงมาได้ทันที
     applyShopData(edge.settings || null, edge.products);
+    // จุดสำคัญ: สั่ง return เพื่อจบการทำงาน ป้องกันไม่ให้ระบบวิ่งไปหา GAS ซ้ำ
+    return;
   }
-  // 2) GAS: เป็นทางหลักเมื่อยังไม่มี snapshot / เป็นตัวรีเฟรชเงียบเมื่อมี
+
+  // 2) กรณีที่ไม่มีไฟล์ products.json (เช่น Edge CDN ล่ม หรือเปิดเว็บครั้งแรก) จึงจะยอมใช้ GAS
   try {
     const s = await gs('getPublicSettings');
     const p = await gs('getShopProducts');
     if (p.success){
-      const changed = JSON.stringify(p.products) !== JSON.stringify(PRODUCTS) ||
-        (s.success && JSON.stringify(s.settings) !== JSON.stringify(SETTINGS));
-      if (!edge || changed) applyShopData(s.success ? s.settings : null, p.products);
-    } else if (!edge) {
+      applyShopData(s.success ? s.settings : null, p.products);
+    } else {
       toast(p.error || 'โหลดรายการวิชาไม่สำเร็จ', false);
     }
   } catch(e){
-    if (!edge) toast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองรีเฟรชอีกครั้งค่ะ', false);
+    toast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองรีเฟรชอีกครั้งค่ะ', false);
   }
 }
 
