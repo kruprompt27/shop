@@ -79,6 +79,7 @@
       <div id="catChips" class="flex gap-2 flex-wrap mt-3"></div>
       <div id="gradeChips" class="flex gap-2 flex-wrap mt-3"></div>
       <div class="flex gap-2 flex-wrap mt-2" id="curriChips"></div>
+      <div class="flex gap-2 flex-wrap mt-2" id="groupChips"></div>
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
@@ -203,6 +204,16 @@
         <div class="sm:col-span-2"><label class="text-[11px] font-bold text-gray-600">ชื่อวิชา *</label><input id="npSubject" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
         <div><label class="text-[11px] font-bold text-gray-600">ชม.</label><input id="npHours" type="number" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
         <div><label class="text-[11px] font-bold text-gray-600">ราคา</label><input id="npPrice" type="number" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
+        <div class="sm:col-span-3"><label class="text-[11px] font-bold text-gray-600">กลุ่มวิชา (เว้นว่าง = ระบบจัดให้ตามชื่อวิชา)</label><input id="npGroup" list="groupOptions" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1" placeholder="เช่น การอ่านเขียน"></div>
+        <datalist id="groupOptions">
+  <option value="การอ่านเขียน"></option><option value="การคิดคำนวณ"></option>
+  <option value="วิทยาศาสตร์และเทคโนโลยี"></option><option value="สังคมและความเป็นพลเมือง"></option>
+  <option value="เศรษฐกิจและการเงิน"></option><option value="สุขภาพกายและจิต"></option>
+  <option value="ศิลปะและวัฒนธรรม"></option><option value="กิจกรรมพัฒนาผู้เรียน"></option>
+  <option value="ภาษาไทย"></option><option value="คณิตศาสตร์"></option><option value="สังคมศึกษาฯ"></option>
+  <option value="สุขศึกษาและพลศึกษา"></option><option value="ศิลปะ"></option><option value="การงานอาชีพ"></option>
+  <option value="ภาษาต่างประเทศ"></option>
+</datalist>
         <button onclick="addNewProduct()" class="sm:col-span-6 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg py-2 shadow">➕ เพิ่มวิชาใหม่</button>
       </div>
       <input id="prodSearch" oninput="renderProductTable()" placeholder="🔎 ค้นหาวิชา / ชั้น…" class="mt-4 w-full sm:w-64 border border-sky-200 rounded-lg px-3 py-1.5 text-sm">
@@ -343,6 +354,7 @@
       <div class="col-span-2"><label class="text-[11px] font-bold text-gray-600">ชื่อวิชา</label><input id="epSubject" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
       <div><label class="text-[11px] font-bold text-gray-600">ชั่วโมงเรียน</label><input id="epHours" type="number" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
       <div><label class="text-[11px] font-bold text-gray-600">ราคา (บาท)</label><input id="epPrice" type="number" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
+      <div class="col-span-2"><label class="text-[11px] font-bold text-gray-600">กลุ่มวิชา</label><input id="epGroup" list="groupOptions" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
       <div class="col-span-2"><label class="text-[11px] font-bold text-gray-600">ลิงก์ Drive (ส่งให้ลูกค้า)</label><input id="epDrive" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
       <div class="col-span-2"><label class="text-[11px] font-bold text-gray-600">ลิงก์ตัวอย่าง</label><input id="epExample" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
       <div class="col-span-2"><label class="text-[11px] font-bold text-gray-600">สื่อ HTML (แสดงในอีเมล)</label><textarea id="epHtml" rows="2" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></textarea></div>
@@ -558,6 +570,8 @@ let cart = [];
 let curCat = 'แผนการสอน';
 let curGrade = '';   // '' = ยังไม่เลือกชั้น — รายวิชาจะยังไม่แสดงจนกว่าจะเลือก
 let curCurri = '';   // '' = ยังไม่เลือกหลักสูตร (ถ้าชั้นนั้นมีหลักสูตรเดียว ระบบเลือกให้อัตโนมัติ)
+let curGroup = 'ทั้งหมด';       // ตัวกรองกลุ่มวิชา (แถวชิปที่ 3)
+let GROUP_ORDER_MAP = null;     // ลำดับกลุ่มมาตรฐานต่อหลักสูตร — รับจาก snapshot/GAS (data-driven)
 let ONE_CURRI = false; // ทั้งร้านมีหลักสูตรเดียว → ไม่ต้องพิมพ์ชื่อหลักสูตรซ้ำบนการ์ด/ตะกร้า (คำนวณตอนโหลดสินค้า)
 const CAT_ICONS = { 'แผนการสอน':'📚', 'ระบบงาน':'💼', 'กลุ่ม VIP':'👑' };
 let lastOrder = null;
@@ -635,6 +649,7 @@ async function initShop(){
 
   if (edge && edge.products && edge.products.length){
     // แสดงผลข้อมูลสินค้าและตั้งค่าที่ดึงมาได้ทันที
+    if (edge.groupOrder) GROUP_ORDER_MAP = edge.groupOrder;
     applyShopData(edge.settings || null, edge.products);
     // จุดสำคัญ: สั่ง return เพื่อจบการทำงาน ป้องกันไม่ให้ระบบวิ่งไปหา GAS ซ้ำ
     return;
@@ -645,6 +660,7 @@ async function initShop(){
     const s = await gs('getPublicSettings');
     const p = await gs('getShopProducts');
     if (p.success){
+      if (p.groupOrder) GROUP_ORDER_MAP = p.groupOrder;
       applyShopData(s.success ? s.settings : null, p.products);
     } else {
       toast(p.error || 'โหลดรายการวิชาไม่สำเร็จ', false);
@@ -687,13 +703,15 @@ function handleDeepLink(){
 }
 
 function renderChips(){
-  // ชิปประเภท — แสดงเฉพาะประเภทที่มีสินค้าเปิดขายจริง
-  const cats = ['แผนการสอน','ระบบงาน','กลุ่ม VIP'].filter(function(c){
-    return PRODUCTS.some(function(p){ return (p.category||'แผนการสอน')===c; });
-  });
+  // ชิปประเภท — data-driven เต็มรูป: ดึงจากค่าจริงในคอลัมน์ "ประเภท"
+  // หมวดมาตรฐานเรียงก่อน หมวดใหม่ที่พิมพ์เพิ่มในชีตต่อท้ายอัตโนมัติ (ไม่ต้องแก้โค้ด)
+  const CAT_ORDER = ['แผนการสอน','ระบบงาน','กลุ่ม VIP'];
+  const present = Array.from(new Set(PRODUCTS.map(function(p){ return p.category||'แผนการสอน'; })));
+  const cats = CAT_ORDER.filter(function(c){ return present.indexOf(c)>=0; })
+    .concat(present.filter(function(c){ return CAT_ORDER.indexOf(c)<0; }).sort(function(a,b){ return a.localeCompare(b,'th'); }));
   if (cats.indexOf(curCat) < 0) curCat = cats[0] || 'แผนการสอน';
   document.getElementById('catChips').innerHTML = cats.map(c =>
-    '<button onclick="setCat(\''+esc(c)+'\')" class="chip text-xs font-extrabold border-2 border-sky-300 rounded-full px-4 py-1.5 '+(c===curCat?'active':'bg-white text-sky-700')+'">'+(CAT_ICONS[c]||'')+' '+esc(c)+'</button>').join('');
+    '<button onclick="setCat(\''+esc(c)+'\')" class="chip text-xs font-extrabold border-2 border-sky-300 rounded-full px-4 py-1.5 '+(c===curCat?'active':'bg-white text-sky-700')+'">'+(CAT_ICONS[c]||'🏷️')+' '+esc(c)+'</button>').join('');
 
   // ข้อความกำกับใต้หัวข้อ "เลือกวิชาที่ต้องการ": หมวด VIP ใช้คำอธิบายบริการเสริมแทนเงื่อนไขส่วนลด
   const isVip = curCat === 'กลุ่ม VIP';
@@ -730,10 +748,40 @@ function renderChips(){
   document.getElementById('curriChips').style.display = showCurri ? '' : 'none';
   document.getElementById('curriChips').innerHTML = curris.map(c =>
     '<button onclick="setCurri(\''+esc(c)+'\')" class="chip text-[11px] font-bold border-2 border-blue-200 rounded-full px-3 py-1 '+(c===curCurri?'active':'bg-white text-blue-600')+'">หลักสูตร '+esc(c)+'</button>').join('');
+
+  // 🗂️ ชิปกลุ่มวิชา (แถวที่ 3): โชว์เมื่อเลือกชั้น+หลักสูตรแล้ว และชั้นนั้นมีตั้งแต่ 2 กลุ่มขึ้นไป
+  // ชื่อกลุ่มมาจากคอลัมน์ "กลุ่มวิชา" ในชีต (data-driven) เรียงตามลำดับมาตรฐานของหลักสูตร กลุ่มใหม่ต่อท้ายเอง
+  const gEl = document.getElementById('groupChips');
+  let groupsHtml = '', showGroups = false;
+  if (isLesson && curGrade && curCurri){
+    const pool = lessons.filter(function(p){
+      return p.grade === curGrade && (curCurri === 'ทั้งหมด' || p.curriculum === curCurri);
+    });
+    const counts = {};
+    pool.forEach(function(p){ const g = String(p.group||'').trim(); if (g) counts[g] = (counts[g]||0)+1; });
+    const order = (GROUP_ORDER_MAP && GROUP_ORDER_MAP[String(curCurri).replace(/\D/g,'')]) || [];
+    const names = Object.keys(counts).sort(function(a,b){
+      var ia = order.indexOf(a), ib = order.indexOf(b);
+      ia = ia<0?99:ia; ib = ib<0?99:ib;
+      return ia-ib || a.localeCompare(b,'th');
+    });
+    if (names.length > 1){
+      showGroups = true;
+      if (!curGroup || (curGroup !== 'ทั้งหมด' && names.indexOf(curGroup) < 0)) curGroup = 'ทั้งหมด';
+      groupsHtml = ['ทั้งหมด'].concat(names).map(function(g){
+        const label = g === 'ทั้งหมด' ? 'ทุกกลุ่ม ('+pool.length+')' : g+' ('+counts[g]+')';
+        return '<button onclick="setGroup(\''+esc(g)+'\')" class="chip text-[11px] font-bold border-2 border-cyan-200 rounded-full px-3 py-1 '+(g===curGroup?'active':'bg-white text-cyan-700')+'">'+esc(label)+'</button>';
+      }).join('');
+    }
+  }
+  gEl.style.display = showGroups ? '' : 'none';
+  gEl.innerHTML = groupsHtml;
+  if (!showGroups) curGroup = 'ทั้งหมด';
 }
 function setCat(c){ curCat = c; renderChips(); renderSubjects(); }
-function setGrade(g){ curGrade = g; renderChips(); renderSubjects(); }
-function setCurri(c){ curCurri = c; renderChips(); renderSubjects(); }
+function setGrade(g){ curGrade = g; curGroup = 'ทั้งหมด'; renderChips(); renderSubjects(); }
+function setCurri(c){ curCurri = c; curGroup = 'ทั้งหมด'; renderChips(); renderSubjects(); }
+function setGroup(g){ curGroup = g; renderChips(); renderSubjects(); }
 
 function renderSubjects(){
   const q = (document.getElementById('subjectSearch').value || '').trim().toLowerCase();
@@ -761,6 +809,7 @@ function renderSubjects(){
     if (q) return (p.subject + ' ' + p.grade).toLowerCase().indexOf(q) >= 0;   // ค้นหา = ข้ามตัวกรองชั้น/หลักสูตร
     if (isLesson && p.grade !== curGrade) return false;
     if (isLesson && curCurri !== 'ทั้งหมด' && p.curriculum !== curCurri) return false;
+    if (isLesson && curGroup !== 'ทั้งหมด' && String(p.group||'').trim() !== curGroup) return false;
     return true;
   });
   if (!list.length){
@@ -1125,13 +1174,14 @@ async function addNewProduct(){
     curriculum: document.getElementById('npCurri').value.trim(),
     subject: document.getElementById('npSubject').value.trim(),
     hours: document.getElementById('npHours').value,
-    price: document.getElementById('npPrice').value
+    price: document.getElementById('npPrice').value,
+    group: document.getElementById('npGroup').value.trim()
   };
   if (!data.subject){ toast('กรุณากรอกชื่อวิชา', false); return; }
   const res = await gs('addProduct', adminPin, data);
   if (res.success){
     toast('เพิ่มวิชา '+res.id+' แล้ว');
-    ['npGrade','npCurri','npSubject','npHours','npPrice'].forEach(function(id){ document.getElementById(id).value=''; });
+    ['npGrade','npCurri','npSubject','npHours','npPrice','npGroup'].forEach(function(id){ document.getElementById(id).value=''; });
     loadProducts();
   } else toast(res.error, false);
 }
@@ -1149,6 +1199,7 @@ function openEdit(id){
   document.getElementById('epExample').value = p.exampleLink;
   document.getElementById('epHtml').value = p.htmlMedia;
   document.getElementById('epNote').value = p.postNote;
+  document.getElementById('epGroup').value = p.group || '';
   document.getElementById('epActive').checked = p.active;
   document.getElementById('editModal').classList.remove('hidden');
 }
@@ -1165,6 +1216,7 @@ async function saveEditProduct(){
     exampleLink: document.getElementById('epExample').value.trim(),
     htmlMedia: document.getElementById('epHtml').value,
     postNote: document.getElementById('epNote').value,
+    group: document.getElementById('epGroup').value.trim(),
     active: document.getElementById('epActive').checked
   });
   if (res.success){
@@ -1189,8 +1241,8 @@ async function autoSetPricesUI(){
 }
 function downloadTemplate(){
   const ws = XLSX.utils.aoa_to_sheet([
-    ['ระดับชั้น','หลักสูตร','ชื่อวิชา','เวลาเรียน (ชม.)','ราคา (บาท)','ลิงก์ Drive','ลิงก์ตัวอย่าง'],
-    ['ป.1','68','ภาษาไทย',200,'','','']
+    ['ระดับชั้น','หลักสูตร','ชื่อวิชา','เวลาเรียน (ชม.)','ราคา (บาท)','ลิงก์ Drive','ลิงก์ตัวอย่าง','กลุ่มวิชา (เว้นว่าง = จัดให้อัตโนมัติ)'],
+    ['ป.1','68','ภาษาไทย',200,'','','','การอ่านเขียน']
   ]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'แผนการสอน');
@@ -1206,7 +1258,8 @@ function importProducts(input){
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1 });
       const items = rows.slice(1).filter(function(r){ return r && String(r[2]||'').trim(); })
         .map(function(r){ return { grade:r[0]||'', curriculum:String(r[1]||''), subject:r[2],
-          hours:Number(r[3]||0), price:Number(r[4]||0), driveLink:r[5]||'', exampleLink:r[6]||'' }; });
+          hours:Number(r[3]||0), price:Number(r[4]||0), driveLink:r[5]||'', exampleLink:r[6]||'',
+          group:String(r[7]||'').trim() }; });   // เว้นว่าง = ระบบจัดกลุ่มให้ตามชื่อวิชา
       if (!items.length){ toast('ไม่พบข้อมูลในไฟล์ (ต้องมีชื่อวิชาในคอลัมน์ที่ 3)', false); return; }
       if (!confirm('นำเข้า '+items.length+' รายการ?')) return;
       const res = await gs('bulkImportProducts', adminPin, items);
