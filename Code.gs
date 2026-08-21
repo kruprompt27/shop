@@ -3736,6 +3736,19 @@ function pv_curFromName_(n) {
   var m2 = s.match(/\((\d{2,4})\)\s*$/);   // เช่น "... (68)" ท้ายชื่อ (โฟลเดอร์กลุ่ม VIP)
   return m2 ? m2[1] : '';
 }
+// ดึงเฉพาะส่วนชื่อวิชาจากชื่อโฟลเดอร์ โดย "คงวงเล็บแรก" ไว้ (เช่น "ภาษาไทย (วรรณคดี) 4 - (80ซม.)" → "ภาษาไทย (วรรณคดี)")
+function pv_subjPart_(name) {
+  var s = String(name);
+  s = s.replace(/\s*(ป|ม|อ)\s*\.?\s*\d+.*$/, '')     // ตัดตั้งแต่ระดับชั้น ป.4 / ม.1 เป็นต้นไป
+       .replace(/\s+\d+\s*[-–].*$/, '')               // ตัดตั้งแต่ " 4 - (…)" เป็นต้นไป
+       .replace(/\s*\(\s*\d+\s*[ซช]ม.*$/, '')        // ตัดตั้งแต่ "(80ซม.…)" เป็นต้นไป
+       .replace(/\s*หลักสูตร\s*\d+.*$/, '')
+       .replace(/\s+\d+\s*$/, '');                    // เลขชั้นเดี่ยวๆ ท้ายชื่อ
+  return s.trim();
+}
+// คีย์เทียบชื่อ: ตัดช่องว่าง/วงเล็บ/ขีด/จุด — ให้ "ชื่อย่อ" กับ "ชื่อเต็ม" เทียบกันแบบ prefix ได้
+function pv_key_(s) { return String(s || '').replace(/[\s()\.\-–_,]/g, ''); }
+
 function pv_parseSubj_(name) {
   var s = String(name);
   var h = '';
@@ -3847,17 +3860,26 @@ function getPreviewData_(subject, level, cur, hours) {
 
   // 2) หาโฟลเดอร์วิชาจาก "ทุกโฟลเดอร์ชั้นที่ตรง" — เทียบแบบชื่อขึ้นต้นด้วยชื่อวิชา + ให้คะแนน
   //    คะแนน: ชั่วโมงตรง (+1000) > ชื่อตรงพอดี ไม่ใช่ตัวแปรในวงเล็บ เช่น (บูรณาการ) (+100)
+  // จับคู่แบบสองทิศทางผ่านคีย์ (ตัดวรรค/วงเล็บ):
+  //   • โฟลเดอร์ชื่อเต็มขึ้นต้นด้วยชื่อวิชา (แบบเดิม) หรือ
+  //   • โฟลเดอร์ใช้ "ชื่อย่อ" ของวิชา เช่น "ภาษาไทย (วรรณคดี)" ↔ วิชา "ภาษาไทย (วรรณคดีและวรรณกรรม)"
+  // คะแนน: ชั่วโมงตรง +1000 > ชื่อตรงเป๊ะ +500 > ความยาวส่วนที่ซ้อนกัน (กันวรรณคดี/หลักภาษาปนกัน)
+  var wantKey = pv_key_(subject);
   var subjFolder = null, bestScore = -1;
   for (var gi = 0; gi < gradeFolders.length; gi++) {
     var subs = gradeFolders[gi].getFolders();
     while (subs.hasNext()) {
-      var s = subs.next(), folderNorm = pv_normName_(s.getName());
-      if (!want.name || folderNorm.indexOf(want.name) !== 0) continue;
+      var s = subs.next();
+      var folderKey = pv_key_(pv_subjPart_(s.getName()));
+      if (!wantKey || folderKey.length < 2) continue;
+      var okFull = folderKey.indexOf(wantKey) === 0;   // โฟลเดอร์ชื่อเต็ม/ยาวกว่า ขึ้นต้นด้วยชื่อวิชา
+      var okAbbr = wantKey.indexOf(folderKey) === 0;   // โฟลเดอร์ชื่อย่อ เป็นส่วนหน้าของชื่อวิชา
+      if (!okFull && !okAbbr) continue;
       var sp = pv_parseSubj_(s.getName());
-      var rest = folderNorm.slice(want.name.length).replace(/^\s+/, '');
       var score = 0;
       if (want.hours && sp.hours === want.hours) score += 1000;
-      if (rest.charAt(0) !== '(') score += 100;
+      if (folderKey === wantKey) score += 500;
+      score += Math.min(folderKey.length, wantKey.length);
       if (score > bestScore) { bestScore = score; subjFolder = s; }
     }
   }
