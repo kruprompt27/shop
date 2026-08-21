@@ -111,8 +111,8 @@
           <input id="buyerEmail" type="email" class="w-full border border-sky-200 rounded-lg px-3 py-2 text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-sky-300" placeholder="example@gmail.com">
         </div>
         <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-2">
-          <div class="text-xs text-amber-800">⚠️ <b>ตรวจให้แน่ใจก่อนกดยืนยัน</b> — ระบบส่งแผนผ่าน Google Drive ต้องใช้ <b>Gmail (@gmail.com)</b> ที่เปิดใช้งานได้จริงเท่านั้น</div>
-          <div class="text-xs text-amber-800">🙏 หาก Gmail ผิด/ใช้งานไม่ได้ และต้องการให้แอดมินส่งใหม่ มีค่าบริการเพิ่ม <b>30 บาท</b> (ยกเว้นกรณีสะกดผิด) — เพราะแอดมินต้องตรวจสอบและส่งให้ใหม่ ขอความเข้าใจด้วยนะคะ 💛</div>
+          <div id="gmailWarn1" class="text-xs text-amber-800">⚠️ <b>ตรวจให้แน่ใจก่อนกดยืนยัน</b> — ระบบส่งแผนผ่าน Google Drive ต้องใช้ <b>Gmail (@gmail.com)</b> ที่เปิดใช้งานได้จริงเท่านั้น</div>
+          <div id="gmailWarn2" class="text-xs text-amber-800">🙏 หาก Gmail ผิด/ใช้งานไม่ได้ และต้องการให้แอดมินส่งใหม่ มีค่าบริการเพิ่ม <b>30 บาท</b> (ยกเว้นกรณีสะกดผิด) — เพราะแอดมินต้องตรวจสอบและส่งให้ใหม่ ขอความเข้าใจด้วยนะคะ 💛</div>
         </div>
 
         <!-- 📬 แยก Gmail ตามวิชา — โชว์เมื่อตะกร้ามีตั้งแต่ 2 วิชาขึ้นไป (เผื่อสั่งหลายคนรวมกัน) -->
@@ -179,6 +179,7 @@
             <option>อนุมัติส่งแผน</option><option>ส่งแผนเสร็จสิ้น</option><option>ยกเลิก</option>
           </select>
           <button onclick="loadOrders()" class="text-xs font-bold bg-sky-100 text-sky-700 rounded-lg px-3 py-1.5">🔄 รีเฟรช</button>
+          <button id="btnExportXlsx" onclick="exportOrdersExcel()" class="hidden text-xs font-bold bg-green-100 text-green-700 rounded-lg px-3 py-1.5">📥 Excel รายเดือน</button>
         </div>
       </div>
       <input id="orderSearch" oninput="renderOrders()" placeholder="🔎 ค้นหา เลขออเดอร์ / ชื่อ / อีเมล…" class="mt-3 w-full sm:w-72 border border-sky-200 rounded-lg px-3 py-1.5 text-sm">
@@ -190,6 +191,8 @@
   <section id="tab-products" class="tab-page hidden mt-4 space-y-4">
     <div class="bg-white rounded-2xl shadow-sm border border-sky-100 p-4">
       <h2 class="font-extrabold text-sky-800">📚 จัดการแผนการสอน</h2>
+      <!-- 🚀 สถานะ Edge: เห็นตลอดว่าหน้าร้านตรงกับข้อมูลล่าสุดหรือยัง + ปุ่มเผยแพร่ทันที -->
+      <div id="edgeBar" class="hidden mt-3 flex flex-col sm:flex-row sm:items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold"></div>
       <div class="flex gap-2 flex-wrap mt-3">
         <button onclick="downloadTemplate()" class="text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg px-3 py-2 shadow">📥 ดาวน์โหลดไฟล์ฟอร์มตัวอย่าง (Excel)</button>
         <button onclick="document.getElementById('prodImportFile').click()" class="text-xs font-bold text-white bg-sky-500 hover:bg-sky-600 rounded-lg px-3 py-2 shadow">📤 นำเข้ารายการ (.xlsx / .csv)</button>
@@ -270,6 +273,16 @@
         <div><label class="text-xs font-bold text-gray-600">จำนวนวิชาขั้นต่ำรับส่วนลด</label><input id="stMinItems" type="number" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
         <div><label class="text-xs font-bold text-gray-600">ส่วนลด (%)</label><input id="stPct" type="number" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
         <div class="sm:col-span-2"><label class="text-xs font-bold text-gray-600">ประกาศหน้าร้าน (เว้นว่าง = ไม่แสดง)</label><input id="stAnnounce" class="w-full border rounded-lg px-3 py-2 text-sm mt-1"></div>
+        <div class="sm:col-span-2 bg-sky-50 border border-sky-200 rounded-xl p-3">
+          <label class="text-xs font-bold text-gray-700">🖋️ ข้อความหน้าร้าน (เว้นว่าง = ใช้ข้อความมาตรฐาน) — บันทึกแล้วขึ้นเว็บเองผ่าน Edge ไม่ต้องอัปไฟล์</label>
+          <div class="grid gap-2 mt-2">
+            <div><label class="text-[11px] font-bold text-gray-600">ข้อความส่วนลด (ใต้ "เลือกวิชาที่ต้องการ")</label><textarea id="stTxtDiscount" rows="2" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></textarea></div>
+            <div><label class="text-[11px] font-bold text-gray-600">คำอธิบายหมวดกลุ่ม VIP</label><textarea id="stTxtVip" rows="2" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></textarea></div>
+            <div><label class="text-[11px] font-bold text-gray-600">คำเตือน Gmail บรรทัดที่ 1</label><textarea id="stTxtGmail1" rows="2" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></textarea></div>
+            <div><label class="text-[11px] font-bold text-gray-600">คำเตือน Gmail บรรทัดที่ 2 (ค่าบริการส่งใหม่)</label><textarea id="stTxtGmail2" rows="2" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></textarea></div>
+            <div><label class="text-[11px] font-bold text-gray-600">ข้อความท้ายเว็บ (Copyright)</label><input id="stTxtFooter" class="w-full border rounded-lg px-2 py-1.5 text-xs mt-1"></div>
+          </div>
+        </div>
       </div>
       <div class="grid sm:grid-cols-2 gap-3 mt-4">
         <div class="bg-sky-50 rounded-xl p-3">
@@ -311,7 +324,7 @@
   </section>
 
   <!-- ░░ Footer ░░ -->
-  <footer class="text-center text-[11px] text-gray-400 mt-8">
+  <footer id="siteFooter" class="text-center text-[11px] text-gray-400 mt-8">
     Copyright © เพจครูพร้อมสอน.
   </footer>
 </div>
@@ -444,6 +457,7 @@ function canAccess(tab){
   return TAB_PERMS[tab].indexOf(adminRole) >= 0;
 }
 function applyRoleUI(){
+  document.getElementById('btnExportXlsx').classList.toggle('hidden', adminRole !== 'owner');
   document.querySelectorAll('.tab-btn').forEach(function(b){
     const t = b.dataset.tab;
     if (t in TAB_PERMS) b.style.display = (adminRole && !canAccess(t)) ? 'none' : '';
@@ -626,6 +640,12 @@ function applyShopData(settings, products){
       bar.textContent = '📣 ' + SETTINGS.announcement;
       bar.classList.remove('hidden');
     }
+    // 🖋️ ข้อความหน้าร้านจาก Settings — กรอกไว้เมื่อไรทับข้อความมาตรฐานทันที (แก้จากแอดมิน ไม่ต้องอัปไฟล์)
+    if (SETTINGS.shopTextDiscount) document.getElementById('discountHint').textContent = '💡 ' + SETTINGS.shopTextDiscount;
+    if (SETTINGS.shopTextVip) document.getElementById('vipHint').textContent = '👑 ' + SETTINGS.shopTextVip;
+    if (SETTINGS.shopTextGmail1) document.getElementById('gmailWarn1').textContent = '⚠️ ' + SETTINGS.shopTextGmail1;
+    if (SETTINGS.shopTextGmail2) document.getElementById('gmailWarn2').textContent = '🙏 ' + SETTINGS.shopTextGmail2;
+    if (SETTINGS.shopTextFooter) document.getElementById('siteFooter').textContent = SETTINGS.shopTextFooter;
   }
   if (products){
     PRODUCTS = products;
@@ -1069,6 +1089,32 @@ async function sendSlipFor(orderId){
    📦 จัดการคำสั่งซื้อ (แอดมิน)
 ============================================================ */
 let ALL_ORDERS = [];
+/* 📥 Export ออเดอร์รายเดือนเป็น Excel (เจ้าของระบบ) — เดือนอิงจากตัวกรองเดือนที่เลือก */
+async function exportOrdersExcel(){
+  // ใช้เดือนจาก dropdown ตัวกรอง (ค่าเช่น '2026-08') / ถ้าเลือก "ทุกเดือน" ใช้เดือนปัจจุบัน
+  let mo = document.getElementById('orderMonth').value;
+  if (!mo){ const d = new Date(); mo = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+  toast('กำลังดึงออเดอร์เดือน ' + mo + '…');
+  const r = await gs('exportOrdersMonth', adminPin, mo);
+  if (!r.success){ toast(r.error, false); return; }
+  if (!r.rows.length){ toast('เดือน ' + mo + ' ไม่มีออเดอร์', false); return; }
+  const aoa = [['เลขออเดอร์','วันที่','ลูกค้า','อีเมล','รายการ','จำนวนวิชา','ส่วนลด (บาท)','ยอดสุทธิ (บาท)','สถานะ']]
+    .concat(r.rows.map(function(o){
+      return [o.orderId, o.timestamp, o.customer, o.email, o.items, o.itemCount, o.discount, o.netTotal, o.status];
+    }));
+  // แถวสรุปท้ายตาราง
+  const total = r.rows.reduce(function(s,o){ return s + (o.netTotal||0); }, 0);
+  const sent = r.rows.filter(function(o){ return o.status === 'ส่งแผนเสร็จสิ้น'; }).length;
+  aoa.push([]);
+  aoa.push(['รวม ' + r.rows.length + ' ออเดอร์ (ส่งแผนเสร็จสิ้น ' + sent + ')', '', '', '', '', '', '', total, '']);
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:15},{wch:17},{wch:20},{wch:26},{wch:45},{wch:9},{wch:11},{wch:13},{wch:15}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, mo);
+  XLSX.writeFile(wb, 'orders_' + mo + '.xlsx');   // ชื่อไฟล์อังกฤษ กันดาวน์โหลดพัง
+  toast('📥 ดาวน์โหลด orders_' + mo + '.xlsx แล้ว (' + r.rows.length + ' ออเดอร์)');
+}
+
 async function loadOrders(){
   if (!adminPin) return;
   const res = await gs('listOrders', adminPin, 'ทั้งหมด');
@@ -1141,6 +1187,7 @@ async function cancelOrderUI(orderId){
 ============================================================ */
 let ADMIN_PRODUCTS = [];
 async function loadProducts(){
+  loadEdgeStatus();
   if (!adminPin) return;
   const res = await gs('getProducts', adminPin);
   if (!res.success){ toast(res.error, false); return; }
@@ -1167,6 +1214,47 @@ function renderProductTable(){
       '</td></tr>';
   }).join('') || '<tr><td colspan="8" class="text-center text-gray-400 p-5">ไม่พบรายการ</td></tr>';
 }
+/* 🚀 สถานะ Edge บนหน้าแอดมิน */
+async function loadEdgeStatus(){
+  if (!adminPin) return;
+  const bar = document.getElementById('edgeBar');
+  try {
+    const r = await gs('getEdgeStatus', adminPin);
+    if (!r.success){ bar.classList.add('hidden'); return; }
+    bar.classList.remove('hidden');
+    let cls, msg;
+    if (!r.configured){
+      cls = 'bg-gray-50 border-gray-200 text-gray-500';
+      msg = '🚀 Edge ยังไม่ได้ตั้งค่า — หน้าร้านโหลดผ่าน GAS (ช้ากว่า) • ตั้งค่าได้ที่เมนูในชีต';
+    } else if (r.lastError){
+      cls = 'bg-red-50 border-red-200 text-red-700';
+      msg = '🚨 เผยแพร่ล่าสุดล้มเหลว: ' + esc(r.lastError.slice(0, 90)) + ' — หน้าร้านยังขายได้ผ่าน GAS';
+    } else {
+      const ago = r.lastPublish ? Math.max(0, Math.round((Date.now() - new Date(r.lastPublish).getTime()) / 60000)) : null;
+      const agoTxt = ago === null ? 'ยังไม่เคยเผยแพร่' : ago < 1 ? 'เมื่อครู่นี้' : ago < 60 ? ago + ' นาทีที่แล้ว' : Math.round(ago / 60) + ' ชม.ที่แล้ว';
+      if (r.dirty){
+        cls = 'bg-amber-50 border-amber-200 text-amber-800';
+        msg = '⏳ มีข้อมูลใหม่รอเผยแพร่ (อัตโนมัติภายใน ~5 นาที) • เผยแพร่ล่าสุด ' + agoTxt + (r.lastCount ? ' (' + r.lastCount + ' รายการ)' : '');
+      } else {
+        cls = 'bg-green-50 border-green-200 text-green-700';
+        msg = '✅ หน้าร้านตรงกับข้อมูลล่าสุดแล้ว • เผยแพร่ ' + agoTxt + (r.lastCount ? ' (' + r.lastCount + ' รายการ)' : '');
+      }
+    }
+    bar.className = 'mt-3 flex flex-col sm:flex-row sm:items-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold ' + cls;
+    bar.innerHTML = '<span class="flex-1">' + msg + '</span>' +
+      (r.configured && adminRole === 'owner'
+        ? '<button onclick="publishEdgeNow()" class="flex-shrink-0 text-[11px] font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-lg px-3 py-1.5">🚀 เผยแพร่เดี๋ยวนี้</button>'
+        : '');
+  } catch(e){ bar.classList.add('hidden'); }
+}
+async function publishEdgeNow(){
+  toast('กำลังเผยแพร่หน้าร้าน…');
+  const r = await gs('publishShopSnapshotApi', adminPin);
+  if (r.success) toast('🚀 เผยแพร่แล้ว ' + r.published + ' รายการ — หน้าร้านอัปเดตใน ~1 นาที');
+  else toast(r.error, false);
+  loadEdgeStatus();
+}
+
 async function addNewProduct(){
   const data = {
     category: document.getElementById('npCat').value,
@@ -1375,6 +1463,11 @@ async function loadSettingsForm(){
   document.getElementById('stMinItems').value = m.discountMinItems || 3;
   document.getElementById('stPct').value = m.discountPercent || 5;
   document.getElementById('stAnnounce').value = m.announcement || '';
+  document.getElementById('stTxtDiscount').value = m.shopTextDiscount || '';
+  document.getElementById('stTxtVip').value = m.shopTextVip || '';
+  document.getElementById('stTxtGmail1').value = m.shopTextGmail1 || '';
+  document.getElementById('stTxtGmail2').value = m.shopTextGmail2 || '';
+  document.getElementById('stTxtFooter').value = m.shopTextFooter || '';
   const lg = document.getElementById('stLogoPreview');
   if (m.logoURL){ lg.src = m.logoURL; lg.classList.remove('hidden'); }
   const qr = document.getElementById('stQRPreview');
@@ -1392,7 +1485,12 @@ async function saveSettingsForm(){
     promptpayName: document.getElementById('stPPName').value.trim(),
     discountMinItems: document.getElementById('stMinItems').value,
     discountPercent: document.getElementById('stPct').value,
-    announcement: document.getElementById('stAnnounce').value.trim()
+    announcement: document.getElementById('stAnnounce').value.trim(),
+    shopTextDiscount: document.getElementById('stTxtDiscount').value.trim(),
+    shopTextVip: document.getElementById('stTxtVip').value.trim(),
+    shopTextGmail1: document.getElementById('stTxtGmail1').value.trim(),
+    shopTextGmail2: document.getElementById('stTxtGmail2').value.trim(),
+    shopTextFooter: document.getElementById('stTxtFooter').value.trim()
   };
   if (adminRole === 'owner') data.admins = document.getElementById('stAdmins').value.trim();
   const res = await gs('saveSettings', adminPin, data);
